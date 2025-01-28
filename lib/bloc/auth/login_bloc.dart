@@ -1,55 +1,58 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/drawer/main_screen.dart';
+import 'package:safe_hunt/screens/signup_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 import 'package:safe_hunt/utils/services/shared_preference.dart';
 
-class RegisterUserBloc {
+class LoginBloc {
   dynamic _formData;
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> registerUserBlocMethod({
+  String? deviceToken;
+
+  void loginBlocMethod({
     required BuildContext context,
-    Function(dynamic)? onSuccess,
-    String? email,
-    String? phoneNumber,
     String? userName,
-    String? displayName,
     String? password,
-    String? confirmPassword,
     required VoidCallback setProgressBar,
   }) async {
     setProgressBar();
+    try {
+      deviceToken = await FirebaseMessaging.instance.getToken();
+      log('Firebase Messaging Token: $deviceToken');
+    } catch (e) {
+      log('Error fetching token: $e');
+    }
 
     _formData = {
       "username": userName,
-      "displayname": displayName,
       "password": password,
-      "confirmPassword": confirmPassword,
-      "email": email,
-      "phonenumber": phoneNumber,
-      "firstname": DateTime.now().toString(),
-      "lastname": DateTime.now().toString()
+      "device_id": deviceToken ?? '232',
     };
 
     _onFailure = () {
       Navigator.pop(context); // StopLoader
     };
 
+    // ignore: use_build_context_synchronously
     await _postRequest(
-        endPoint: NetworkStrings.SIGNUP_ENDPOINT, context: context);
+        endPoint: NetworkStrings.LOGIN_ENDPOINT, context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _registerUserResponseMethod(
+      _loginResponseMethod(
         context: context,
-        onSuccess: onSuccess,
       );
     };
     _validateResponse();
@@ -81,27 +84,25 @@ class RegisterUserBloc {
     }
   }
 
-  void _registerUserResponseMethod({
+  void _loginResponseMethod({
     required BuildContext context,
-    Function(dynamic)? onSuccess,
   }) {
     try {
       if (_response?.data != null) {
-        // ser user to controller
+        // Logger().i(SharedPreference().getBearerToken());
+        final user = UserData.fromJson(_response?.data['data']);
+        context.read<UserProvider>().setUser(user);
+        SharedPreference().setBearerToken(token: user.token);
 
-        final userData = UserData.fromJson(_response?.data['data']['user']);
-        SharedPreference().setBearerToken(token: userData.token ?? "");
-        context.read<UserProvider>().setUser(userData);
-        onSuccess!('');
-
-        // // nevigation ho rhi hy
-        // // AuthController.i.registerUserType.value = AppStrings.EMAIL_ADDRESS;
-        // AppNavigation.navigateReplacement(
-        //     context, AppRouteName.otpVerificationScreenRoute,
-        //     arguments: VerificationArguments(
-        //         isFromPhoneNumber: false, emailAddress: userData.user?.email));
-        // AppDialogs.showToast(
-        //     message: AppStrings.sendCodeMessageForEmailAddress);
+        if (user.status == 'PENDING_VERIFICATION') {
+          AppNavigation.push(const SignUpScreen(
+            activeIndex: 2,
+          ));
+        } else if (user.status == 'OTP_VERIFIED') {
+          SharedPreference().setUser(user: jsonEncode(user));
+          AppNavigation.pushAndRemoveUntil(const MainScreen());
+          AppDialogs.showToast(message: "Login successfully");
+        }
       }
     } catch (error) {
       log(error.toString());

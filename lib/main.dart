@@ -1,14 +1,27 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/splash_screen.dart';
 import 'package:safe_hunt/utils/static_data.dart';
 import 'binding/app_binding.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]).then((value) => runApp(MultiProvider(providers: [
+        ChangeNotifierProvider(
+          create: (context) => UserProvider(),
+        )
+      ], child: const MyApp())));
 }
 
 class MyApp extends StatefulWidget {
@@ -46,5 +59,14 @@ class _MyAppState extends State<MyApp> {
             // home: SplashScreen(),
           );
         });
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

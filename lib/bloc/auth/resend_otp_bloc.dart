@@ -2,54 +2,37 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
-import 'package:safe_hunt/utils/services/shared_preference.dart';
 
-class RegisterUserBloc {
+class ResendOtpBloc {
   dynamic _formData;
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> registerUserBlocMethod({
+  void resendOtpBlocMethod({
     required BuildContext context,
-    Function(dynamic)? onSuccess,
-    String? email,
-    String? phoneNumber,
-    String? userName,
-    String? displayName,
-    String? password,
-    String? confirmPassword,
     required VoidCallback setProgressBar,
+    Function(dynamic)? onSuccess,
   }) async {
     setProgressBar();
-
-    _formData = {
-      "username": userName,
-      "displayname": displayName,
-      "password": password,
-      "confirmPassword": confirmPassword,
-      "email": email,
-      "phonenumber": phoneNumber,
-      "firstname": DateTime.now().toString(),
-      "lastname": DateTime.now().toString()
-    };
+    _formData = {"email": context.read<UserProvider>().user?.email};
 
     _onFailure = () {
       Navigator.pop(context); // StopLoader
     };
 
+    // ignore: use_build_context_synchronously
     await _postRequest(
-        endPoint: NetworkStrings.SIGNUP_ENDPOINT, context: context);
+        endPoint: NetworkStrings.RESEND_OTP_ENDPOINT, context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _registerUserResponseMethod(
-        context: context,
+      _resendOtpResponseMethod(
         onSuccess: onSuccess,
+        context: context,
       );
     };
     _validateResponse();
@@ -62,10 +45,10 @@ class RegisterUserBloc {
     _response = await Network().postRequest(
       baseUrl: NetworkStrings.API_BASE_URL,
       endPoint: endPoint,
-      formData: _formData,
       context: context,
       onFailure: _onFailure,
-      isHeaderRequire: false,
+      formData: _formData,
+      isHeaderRequire: true,
     );
   }
 
@@ -81,27 +64,13 @@ class RegisterUserBloc {
     }
   }
 
-  void _registerUserResponseMethod({
-    required BuildContext context,
+  void _resendOtpResponseMethod({
     Function(dynamic)? onSuccess,
+    required BuildContext context,
   }) {
     try {
       if (_response?.data != null) {
-        // ser user to controller
-
-        final userData = UserData.fromJson(_response?.data['data']['user']);
-        SharedPreference().setBearerToken(token: userData.token ?? "");
-        context.read<UserProvider>().setUser(userData);
         onSuccess!('');
-
-        // // nevigation ho rhi hy
-        // // AuthController.i.registerUserType.value = AppStrings.EMAIL_ADDRESS;
-        // AppNavigation.navigateReplacement(
-        //     context, AppRouteName.otpVerificationScreenRoute,
-        //     arguments: VerificationArguments(
-        //         isFromPhoneNumber: false, emailAddress: userData.user?.email));
-        // AppDialogs.showToast(
-        //     message: AppStrings.sendCodeMessageForEmailAddress);
       }
     } catch (error) {
       log(error.toString());

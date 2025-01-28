@@ -264,8 +264,7 @@ class Network {
           ? AppDialogs.showToast(message: validateResponseData['message'] ?? "")
           : null;
       if (response!.statusCode == NetworkStrings.SUCCESS_CODE) {
-        if (validateResponseData['status'] ==
-            NetworkStrings.API_SUCCESS_STATUS) {
+        if (validateResponseData['statusCode'] == NetworkStrings.SUCCESS_CODE) {
           if (onSuccess != null) {
             onSuccess();
           }
@@ -341,7 +340,11 @@ class Network {
       if (normalRequest == true) {
         //for normal api request error
         isToast
-            ? AppDialogs.showToast(message: response?.data["message"] ?? "")
+            ? AppDialogs.showToast(
+                message: (response?.data["message"] is List &&
+                        response?.data["message"].isNotEmpty)
+                    ? response?.data["message"][0]
+                    : response?.data["message"] ?? "Unknown error occurred")
             : null;
       } else {
         //for stripe bad request error

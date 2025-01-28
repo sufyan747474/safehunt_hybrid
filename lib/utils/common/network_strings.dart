@@ -2,7 +2,7 @@ class NetworkStrings {
   NetworkStrings._();
 
   ///================================= BASE URLS ================================
-  static const String API_BASE_URL = "http://localhost:5050/";
+  static const String API_BASE_URL = "http://109.176.198.34:5050/";
   static const String IMAGE_BASE_URL =
       "https://server1.appsstaging.com/3672/SafeHunt/public";
   static const String MERCHANT_SUCCESS_URL =
@@ -15,11 +15,11 @@ class NetworkStrings {
       "pk_test_51Q2Xu4CHsLZSnNQo5FV27D4LKbnvWR083g9qnpFD1S8Gsm2rCoykfBTECVSuMaYkiAX8PzXWNLMkEh2U0XuH58bW00asSx3q5R";
 
   /// ============================== AUTH ENDPOINTS ============================
-  static const String LOGIN_ENDPOINT = "login";
+  static const String LOGIN_ENDPOINT = "auth/login";
   static const String SIGNUP_ENDPOINT = "auth/signup";
 
-  static const String OTP_VERIFICATION_ENDPOINT = "verification";
-  static const String RESEND_OTP_ENDPOINT = "re_send_code";
+  static const String OTP_VERIFICATION_ENDPOINT = "auth/otp-verification";
+  static const String RESEND_OTP_ENDPOINT = "auth/regenerate-otp";
   static const String COMPLETE_PROFILE_ENDPOINT = "completeProfile";
   static const String EDIT_PROFILE_ENDPOINT = "user-update-basic-info";
   static const String SOCIAL_LOGIN_ENDPOINT = "social_login";
@@ -29,6 +29,8 @@ class NetworkStrings {
   static const String MERCHANT_ACCOUNT_SETUP_ENDPOINT = "stripe_url";
   static const String OTHER_USER_PROFILE_ENDPOINT = "other_user_profile";
   static const String NOTIFICATION_END_POINT = 'notifications';
+  static const String REQUEST_RESET_PASSWORD_ENDPOINT =
+      "auth/request-reset-password";
 
   /// ============================ TOAST MESSAGES ==============================
   static const String NETWORK_ERROR = "Network error!";

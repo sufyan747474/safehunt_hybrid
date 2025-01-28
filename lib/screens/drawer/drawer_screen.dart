@@ -2,10 +2,16 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/app_main_screen.dart';
 import 'package:safe_hunt/screens/drawer/map_screen.dart';
 import 'package:safe_hunt/screens/drawer/profile_tab.dart';
 import 'package:safe_hunt/screens/drawer/setting.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
+import 'package:safe_hunt/utils/services/shared_preference.dart';
 import '../../widgets/big_text.dart';
 import '../../widgets/drawer_card.dart';
 import '../chats/chat_screen.dart';
@@ -213,7 +219,10 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       const Spacer(),
                       GestureDetector(
                         onTap: () {
-                          // Get.to(() => const ReferAFriend());
+                          SharedPreference().clear();
+                          AppNavigation.pushAndRemoveUntil(
+                              const AppMainScreen());
+                          AppDialogs.showToast(message: "Logout successfully");
                         },
                         child: DrawerCard(
                           svgPicture: 'assets/logout_white.svg',

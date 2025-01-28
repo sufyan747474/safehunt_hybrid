@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,15 +46,14 @@ class SharedPreference {
     _sharedPreferences?.setString(NetworkStrings.USER, user ?? '');
   }
 
-  // User?
-  getUser() {
+  UserData? getUser() {
     if (_sharedPreferences?.getString(NetworkStrings.USER) == null) {
       return null;
     } else {
       var jsonResponse = jsonDecode(
           (_sharedPreferences!.getString(NetworkStrings.USER) ?? ''));
-      // var user = User.fromJson(jsonResponse);
-      // return user;
+      var user = UserData.fromJson(jsonResponse);
+      return user;
     }
   }
 }

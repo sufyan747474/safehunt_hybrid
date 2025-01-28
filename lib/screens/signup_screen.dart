@@ -1,14 +1,22 @@
+import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/auth/login_bloc.dart';
+import 'package:safe_hunt/bloc/auth/otp_verification_bloc.dart';
 import 'package:safe_hunt/bloc/auth/register_bloc.dart';
+import 'package:safe_hunt/bloc/auth/resend_otp_bloc.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/login_screen.dart';
 import 'package:safe_hunt/screens/subscription_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/utils.dart';
 import 'package:safe_hunt/utils/validators.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
 import 'package:safe_hunt/widgets/custom_button.dart';
@@ -19,7 +27,9 @@ import '../widgets/app_text_field.dart';
 import '../widgets/get_back_button.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  final int activeIndex;
+
+  const SignUpScreen({super.key, this.activeIndex = 1});
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -33,6 +43,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController signupPasswordController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
 
+  final ValueNotifier<int> remainingSeconds = ValueNotifier<int>(0);
+  Timer? _timer;
+
+  void startTimer() {
+    remainingSeconds.value = 60; // Start the countdown from 60 seconds
+
+    _timer?.cancel(); // Cancel any previous timer
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (remainingSeconds.value > 0) {
+        remainingSeconds.value--;
+      } else {
+        timer.cancel(); // Stop the timer when it reaches 0
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    activeIndex = widget.activeIndex;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _timer?.cancel();
+    remainingSeconds.dispose();
+  }
+
   TextEditingController signupConfirmPasswordController =
       TextEditingController();
 
@@ -41,94 +81,165 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool obsecureTax = true;
   bool obsecureTax1 = true;
 
-  int activeIndex = 1;
+  late int activeIndex;
   int totalIndex = 2;
   bool isChecked = false;
   bool isSwitched = false;
-  final GlobalKey<FormState> _signFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _signUpFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _otpFormKey = GlobalKey<FormState>();
 
   Widget businessDetails() {
     return SafeArea(
       child: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 25.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                height: 150.h,
-              ),
-              BigText(
-                text: 'A confirmation code was sent to example123@gmail.com.',
-                maxLine: 2,
-                size: 20.sp,
-                color: appWhiteColor,
-              ),
-              SizedBox(
-                height: 70.h,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: BigText(
-                  text: 'Check your email and enter the code below.',
-                  size: 12.sp,
-                  color: appGreyColor,
-                  fontWeight: FontWeight.w400,
+          child: Form(
+            key: _otpFormKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  height: 150.h,
                 ),
-              ),
-              SizedBox(
-                height: 20.h,
-              ),
-              AppTextField(
-                textController: confirmationCodeController,
-                hintText: 'Confirmation Code ',
-              ),
-              SizedBox(
-                height: 20.h,
-              ),
-              Center(
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Didn’t receive a code?',
-                    style: TextStyle(
-                        color: appGreyColor,
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w400),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: ' Send again.',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500),
-                      )
-                    ],
+                BigText(
+                  text:
+                      'A confirmation code was sent to ${context.read<UserProvider>().user?.email ?? ""}',
+                  maxLine: 2,
+                  size: 20.sp,
+                  color: appWhiteColor,
+                ),
+                SizedBox(
+                  height: 70.h,
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w),
+                  child: BigText(
+                    text: 'Check your email and enter the code below.',
+                    size: 12.sp,
+                    color: appGreyColor,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
-              ),
-              SizedBox(
-                height: 100.h,
-              ),
-              GestureDetector(
-                  onTap: () {
-                    setState(
-                      () {
-                        Get.to(const SubscriptionScreen());
-                        // Navigator.of(context).pushReplacement(
-                        //   MaterialPageRoute(
-                        //     builder: (BuildContext context) =>
-                        //         WelcomeScreen(
-                        //       title: 'Home',
-                        //     ),
-                        //   ),
-                        // );
-                        print('helo');
-                      },
-                    );
+                SizedBox(
+                  height: 20.h,
+                ),
+                AppTextField(
+                  textController: confirmationCodeController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                      decimal: false, signed: false),
+                  hintText: 'Confirmation Code',
+                  maxLength: 6,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) {
+                    return CommonFieldValidators.validateEmptyOrNull(
+                        label: 'Confirmation Code', value: value);
                   },
-                  child: CustomButton(text: 'Continue')),
-            ],
+                ),
+                SizedBox(
+                  height: 20.h,
+                ),
+                Center(
+                  child: ValueListenableBuilder<int>(
+                      valueListenable: remainingSeconds,
+                      builder: (context, val, _) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                text: "Didn't receive a code?",
+                                style: TextStyle(
+                                    color: appGreyColor,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w400),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                      text: ' Send again.',
+                                      style: TextStyle(
+                                          color: val > 0
+                                              ? Colors.grey.shade600
+                                              : Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          val <= 0
+                                              ? ResendOtpBloc()
+                                                  .resendOtpBlocMethod(
+                                                  context: context,
+                                                  setProgressBar: () {
+                                                    AppDialogs
+                                                        .progressAlertDialog(
+                                                            context: context);
+                                                  },
+                                                  onSuccess: (res) {
+                                                    AppDialogs.showToast(
+                                                        message:
+                                                            'We have resend OTP verification code at your email address');
+                                                    startTimer();
+                                                  },
+                                                )
+                                              : null;
+                                        }),
+                                  if (val > 0)
+                                    TextSpan(
+                                      text: "  ${val.toString()}",
+                                      style: TextStyle(
+                                          color: val < 0
+                                              ? Colors.grey.shade600
+                                              : Colors.white,
+                                          fontSize: 14.sp,
+                                          fontWeight: FontWeight.w500),
+                                    )
+                                ],
+                              ),
+                            ),
+                            // Text(val.toString(),
+                            //     style: TextStyle(
+                            //         color: Colors.white,
+                            //         fontSize: 20.sp,
+                            //         fontWeight: FontWeight.w500)),
+                          ],
+                        );
+                      }),
+                ),
+                SizedBox(
+                  height: 100.h,
+                ),
+                GestureDetector(
+                    onTap: () {
+                      if (_otpFormKey.currentState!.validate()) {
+                        _otpFormKey.currentState?.save();
+
+                        Utils.unFocusKeyboard(context);
+                        OtpVerifiactionBloc().otpVerificatiobBlockMethod(
+                          context: context,
+                          setProgressBar: () {
+                            AppDialogs.progressAlertDialog(context: context);
+                          },
+                          otp: confirmationCodeController.text,
+                        );
+
+                        // setState(
+                        //   () {
+                        //     Get.to(const SubscriptionScreen());
+                        //     // Navigator.of(context).pushReplacement(
+                        //     //   MaterialPageRoute(
+                        //     //     builder: (BuildContext context) =>
+                        //     //         WelcomeScreen(
+                        //     //       title: 'Home',
+                        //     //     ),
+                        //     //   ),
+                        //     // );
+                        //     print('helo');
+                        //   },
+                        // );
+                      }
+                    },
+                    child: CustomButton(text: 'Continue')),
+              ],
+            ),
           ),
         ),
       ),
@@ -222,7 +333,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w),
           child: Form(
-            key: _signFormKey,
+            key: _signUpFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -483,8 +594,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         onTap: () {
                           log(phoneNumberController.text);
 
-                          if (_signFormKey.currentState!.validate()) {
-                            _signFormKey.currentState?.save();
+                          if (_signUpFormKey.currentState!.validate()) {
+                            _signUpFormKey.currentState?.save();
+                            Utils.unFocusKeyboard(context);
                             RegisterUserBloc().registerUserBlocMethod(
                               context: context,
                               setProgressBar: () {
