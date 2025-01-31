@@ -78,6 +78,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 textController: emailTextController,
                 hintText: 'Email',
                 maxLength: 35,
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   return CommonFieldValidators.emailValidator(value);
                 },

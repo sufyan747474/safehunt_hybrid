@@ -33,6 +33,7 @@ class RequestResetPasswordBloc {
       Navigator.pop(context);
       _requestResetPasswordResponseMethod(
         context: context,
+        email: email,
       );
     };
     _validateResponse();
@@ -66,10 +67,11 @@ class RequestResetPasswordBloc {
 
   void _requestResetPasswordResponseMethod({
     required BuildContext context,
+    String? email,
   }) {
     try {
       if (_response?.data != null) {
-        AppNavigation.pushReplacement(const ResetPasswordScreen());
+        AppNavigation.pushReplacement(ResetPasswordScreen(email: email));
       }
     } catch (error) {
       log(error.toString());

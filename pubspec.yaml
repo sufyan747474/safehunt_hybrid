@@ -21,6 +21,8 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.2.3 <4.0.0'
 
+  # flutter version 3.16.3
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -37,19 +39,24 @@ dependencies:
   cupertino_icons: ^1.0.2
   get: ^4.6.5
   flutter_screenutil:
-  google_fonts:
+  google_fonts: 6.1.0
   step_progress_indicator: ^1.0.2
   flutter_svg: ^1.1.6
   intl: ^0.17.0
   google_maps_flutter:
   geolocator:
-  flutter_google_places:
+  # flutter_google_places:
   flutter_polyline_points:
   location:
   lottie: ^2.6.0
   geocoding:
   flutter_native_image:
   mask_text_input_formatter: ^2.5.0
+  shimmer: ^3.0.0
+  image_picker: ^1.0.8
+  extended_image: ^8.3.1
+  image_cropper: ^5.0.1
+  path: ^1.8.3
   # beta package
   dio: ^5.4.3+1
   logger: ^2.3.0
@@ -63,6 +70,8 @@ dependencies:
   flutter_local_notifications: 9.5.2
   fluttertoast: ^8.2.5
   provider: ^6.1.2
+  
+
 
 
 

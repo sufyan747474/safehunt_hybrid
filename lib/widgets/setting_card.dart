@@ -9,38 +9,43 @@ import 'big_text.dart';
 class SettingCard extends StatelessWidget {
   final String label;
   final String svgPicture;
+  final void Function()? onTap;
 
   const SettingCard({
     super.key,
     required this.label,
     required this.svgPicture,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          BigText(
-            text: label,
-            color: appBrownColor,
-            size: 14.sp,
-            fontWeight: FontWeight.w400,
-          ),
-          Spacer(),
-          SvgPicture.asset(svgPicture),
-          SizedBox(
-            height: 10.h,
-          ),
-          // Container(
-          //   height: 1,
-          //   width: MediaQuery.of(context).size.width ,
-          //   color: Colors.grey,
-          // )
-        ],
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 15.h),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            BigText(
+              text: label,
+              color: appBrownColor,
+              size: 14.sp,
+              fontWeight: FontWeight.w400,
+            ),
+            Spacer(),
+            SvgPicture.asset(svgPicture),
+            SizedBox(
+              height: 10.h,
+            ),
+            // Container(
+            //   height: 1,
+            //   width: MediaQuery.of(context).size.width ,
+            //   color: Colors.grey,
+            // )
+          ],
+        ),
       ),
     );
   }

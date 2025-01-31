@@ -3,8 +3,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
+import 'package:safe_hunt/utils/colors.dart';
+import 'package:safe_hunt/widgets/image_picker_bottom_sheet.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:path/path.dart' as path;
 
 class Utils {
   ///-------------------- get date format -------------------- ///
@@ -125,162 +131,162 @@ class Utils {
   }
 
   //   ///-------------------- Image Picker Bottom Sheet (Image Picker and Cropper) -------------------- ///
-  // static void showImageSourceSheet({
-  //   BuildContext? context,
-  //   final Function(File)? setFile,
-  //   bool isPickedMedia = false,
-  //   bool isVideo = false,
-  // }) {
-  //   showModalBottomSheet(
-  //     backgroundColor: AppColors.whiteColor,
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.only(
-  //         topLeft: Radius.circular(24.r),
-  //         topRight: Radius.circular(24.r),
-  //       ),
-  //     ),
-  //     context: context!,
-  //     builder: (BuildContext context) {
-  //       return ImagePickerBottomSheet(
-  //         setFile: setFile,
-  //         isPickedMedia: isPickedMedia,
-  //         isVideo: isVideo,
-  //       );
-  //     },
-  //   );
-  // }
+  static void showImageSourceSheet({
+    BuildContext? context,
+    final Function(File)? setFile,
+    bool isPickedMedia = false,
+    bool isVideo = false,
+  }) {
+    showModalBottomSheet(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24.r),
+          topRight: Radius.circular(24.r),
+        ),
+      ),
+      context: context!,
+      builder: (BuildContext context) {
+        return ImagePickerBottomSheet(
+          setFile: setFile,
+          isPickedMedia: isPickedMedia,
+          isVideo: isVideo,
+        );
+      },
+    );
+  }
 
-  // static Future openVideoPicker({
-  //   ImageSource? source,
-  //   BuildContext? context,
-  //   Function(File)? setFile,
-  //   bool action = false,
-  // }) async {
-  //   FocusScope.of(context!).unfocus();
-  //   action == true ? AppNavigator.pop(context) : null;
-  //   try {
-  //     final video = await ImagePicker().pickVideo(
-  //       // maxDuration: const Duration(seconds: 30),
-  //       source: source!,
-  //     );
+  static Future openVideoPicker({
+    ImageSource? source,
+    BuildContext? context,
+    Function(File)? setFile,
+    bool action = false,
+  }) async {
+    FocusScope.of(context!).unfocus();
+    action == true ? AppNavigation.pop() : null;
+    try {
+      final video = await ImagePicker().pickVideo(
+        // maxDuration: const Duration(seconds: 30),
+        source: source!,
+      );
 
-  //     if (video != null) {
-  //       // Initialize the video player controller to get video duration
-  //       // VideoPlayerController videoPlayerController =
-  //       //     VideoPlayerController.file(File(video.path));
+      if (video != null) {
+        // Initialize the video player controller to get video duration
+        // VideoPlayerController videoPlayerController =
+        //     VideoPlayerController.file(File(video.path));
 
-  //       // await videoPlayerController.initialize();
+        // await videoPlayerController.initialize();
 
-  //       // // Get the video duration
-  //       // Duration duration = videoPlayerController.value.duration;
-  //       // print("Video Duration: ${duration.inSeconds} seconds");
+        // // Get the video duration
+        // Duration duration = videoPlayerController.value.duration;
+        // print("Video Duration: ${duration.inSeconds} seconds");
 
-  //       // // Dispose the video player controller to free up resources
-  //       // await videoPlayerController.dispose();
-  //       print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  //       print(video.path);
-  //       print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        // // Dispose the video player controller to free up resources
+        // await videoPlayerController.dispose();
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        print(video.path);
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-  //       File _video = File(video.path);
-  //       print(_video);
-  //       print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-  //       // if (duration.inSeconds < 45) {
-  //       // AppNavigator.push(
-  //       //     navigatorKey.currentContext!, TrimmerView(_video, setFile));
-  //       // // setFile!(_video);
-  //       // } else {
-  //       //   showToastMessage(
-  //       //       msg: 'Video duration should not exceed from 45 secounds');
-  //       // }
-  //     }
-  //   } catch (e) {
-  //     print(e.toString() + "5455555555555555555555555555555555555555555");
-  //   }
-  // }
+        File _video = File(video.path);
+        print(_video);
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        // if (duration.inSeconds < 45) {
+        // AppNavigator.push(
+        //     navigatorKey.currentContext!, TrimmerView(_video, setFile));
+        // // setFile!(_video);
+        // } else {
+        //   showToastMessage(
+        //       msg: 'Video duration should not exceed from 45 secounds');
+        // }
+      }
+    } catch (e) {
+      print(e.toString() + "5455555555555555555555555555555555555555555");
+    }
+  }
 
-  // static void cropImage({
-  //   final image,
-  //   Function(File)? setFile,
-  //   BuildContext? context,
-  // }) async {
-  //   try {
-  //     CroppedFile? croppedFile = await ImageCropper()
-  //         .cropImage(sourcePath: image, aspectRatioPresets: [
-  //       CropAspectRatioPreset.square,
-  //       CropAspectRatioPreset.ratio3x2,
-  //       CropAspectRatioPreset.original,
-  //       CropAspectRatioPreset.ratio4x3,
-  //       CropAspectRatioPreset.ratio16x9
-  //     ], uiSettings: [
-  //       AndroidUiSettings(
-  //         toolbarTitle: 'Linda Hands',
-  //         toolbarColor: AppColors.blueColor,
-  //         toolbarWidgetColor: AppColors.whiteColor,
-  //         initAspectRatio: CropAspectRatioPreset.original,
-  //         lockAspectRatio: false,
-  //       ),
-  //       IOSUiSettings(
-  //         minimumAspectRatio: 1.0,
-  //       ),
-  //     ]);
-  //     log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-  //     log(croppedFile.toString());
-  //     log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-  //     log(croppedFile!.path);
-  //     log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-  //     File _image = File(croppedFile.path);
-  //     print(_image);
-  //     log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-  //     // print(_image);
-  //     setFile!(_image);
-  //     print(setFile);
-  //     log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-  //   } catch (e) {
-  //     log(e.toString());
-  //   }
-  // }
+  static void cropImage({
+    final image,
+    Function(File)? setFile,
+    BuildContext? context,
+  }) async {
+    try {
+      CroppedFile? croppedFile = await ImageCropper()
+          .cropImage(sourcePath: image, aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+        CropAspectRatioPreset.ratio3x2,
+        CropAspectRatioPreset.original,
+        CropAspectRatioPreset.ratio4x3,
+        CropAspectRatioPreset.ratio16x9
+      ], uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Crop Photo',
+          toolbarColor: appButtonWhiteColor,
+          toolbarWidgetColor: Colors.green,
+          initAspectRatio: CropAspectRatioPreset.original,
+          lockAspectRatio: false,
+        ),
+        IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ),
+      ]);
+      log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      log(croppedFile.toString());
+      log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      log(croppedFile!.path);
+      log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      File _image = File(croppedFile.path);
+      print(_image);
+      log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      // print(_image);
+      setFile!(_image);
+      print(setFile);
+      log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 
-  // static Future openImagePicker({
-  //   ImageSource? source,
-  //   BuildContext? context,
-  //   Function(File)? setFile,
-  //   bool action = true,
-  //   bool isPickMedia = false,
-  // }) async {
-  //   FocusScope.of(context!).unfocus();
-  //   action == true ? Navigator.pop(context) : null;
+  static Future openImagePicker({
+    ImageSource? source,
+    BuildContext? context,
+    Function(File)? setFile,
+    bool action = true,
+    bool isPickMedia = false,
+  }) async {
+    FocusScope.of(context!).unfocus();
+    action == true ? Navigator.pop(context) : null;
 
-  //   try {
-  //     final XFile? media = isPickMedia
-  //         ? await ImagePicker().pickMedia(imageQuality: 50)
-  //         : await ImagePicker().pickImage(source: source!, imageQuality: 50);
+    try {
+      final XFile? media = isPickMedia
+          ? await ImagePicker().pickMedia(imageQuality: 50)
+          : await ImagePicker().pickImage(source: source!, imageQuality: 50);
 
-  //     if (media != null) {
-  //       log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  //       log(media.path);
-  //       log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+      if (media != null) {
+        log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        log(media.path);
+        log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-  //       final String extension = path.extension(media.path).toLowerCase();
-  //       if (['.jpg', '.jpeg', '.png'].contains(extension)) {
-  //         // Handle image cropping
-  //         cropImage(
-  //           image: media.path,
-  //           setFile: setFile,
-  //           context: context,
-  //         );
-  //       } else if (['.mp4', '.mov', '.avi'].contains(extension)) {
-  //         // Handle video file directly
-  //         if (setFile != null) {
-  //           setFile(File(media.path));
-  //         }
-  //       } else {
-  //         log('Unsupported file type: $extension');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     log(e.toString());
-  //   }
-  // }
+        final String extension = path.extension(media.path).toLowerCase();
+        if (['.jpg', '.jpeg', '.png'].contains(extension)) {
+          // Handle image cropping
+          cropImage(
+            image: media.path,
+            setFile: setFile,
+            context: context,
+          );
+        } else if (['.mp4', '.mov', '.avi'].contains(extension)) {
+          // Handle video file directly
+          if (setFile != null) {
+            setFile(File(media.path));
+          }
+        } else {
+          log('Unsupported file type: $extension');
+        }
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 
   // ///-------------------- rating bar -------------------- ///
   // static RatingBar ratingBar(

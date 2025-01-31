@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:safe_hunt/bloc/auth/login_bloc.dart';
-import 'package:safe_hunt/screens/drawer/main_screen.dart';
 import 'package:safe_hunt/screens/signup_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';

@@ -11,7 +11,7 @@ class AppTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final bool enabled;
   final bool readOnly;
-  Function(String)? onChanged;
+  final Function(String)? onChanged;
   final int minLines;
   final int maxLines;
   final double height;

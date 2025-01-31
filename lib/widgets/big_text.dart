@@ -19,7 +19,7 @@ class BigText extends StatelessWidget {
       this.fontWeight = FontWeight.normal,
       this.size = 0,
       this.maxLine = 500,
-      this.textAlign = TextAlign.left,
+      this.textAlign = TextAlign.center,
       this.textDecoration = TextDecoration.none})
       : super(key: key);
 
