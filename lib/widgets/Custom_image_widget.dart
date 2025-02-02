@@ -26,9 +26,11 @@ class CustomImageWidget extends StatefulWidget {
   final BorderRadius? borderRadius;
   final Color uploadIconColor;
   final String? uploadImage;
+  final bool isBaseUrl;
 
   const CustomImageWidget(
       {super.key,
+      this.isBaseUrl = true,
       this.pickedImage,
       this.fit,
       this.isPlaceHolderShow = true,
@@ -101,7 +103,9 @@ class _CustomImageWidgetState extends State<CustomImageWidget> {
                   )
                 : widget.imageUrl != null
                     ? ExtendedImage.network(
-                        NetworkStrings.IMAGE_BASE_URL + widget.imageUrl!,
+                        widget.isBaseUrl
+                            ? NetworkStrings.IMAGE_BASE_URL + widget.imageUrl!
+                            : widget.imageUrl!,
                         borderRadius: widget.borderRadius,
                         shape: widget.borderRadius == null
                             ? widget.shape

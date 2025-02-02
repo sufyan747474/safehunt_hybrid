@@ -1,11 +1,16 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:safe_hunt/screens/journals/model/location_model.dart';
+import 'package:safe_hunt/screens/journals/model/weather_model.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/widgets/image_picker_bottom_sheet.dart';
@@ -312,4 +317,90 @@ class Utils {
   //     onRatingUpdate: onRatingUpdate ?? (rating) {},
   //   );
   // }
+
+  static Future<(LocationModel?, WeatherModel?)> getLatLong() async {
+    await Geolocator.requestPermission();
+
+    final loc = await Geolocator.getCurrentPosition();
+    LocationModel? location;
+    WeatherModel? weather;
+
+    // Get Address
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(loc.latitude, loc.longitude);
+      Placemark place = placemarks[0];
+
+      final address =
+          "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+      log("Address: $address");
+
+      location = LocationModel(
+        address: address,
+        lat: loc.latitude,
+        lng: loc.longitude,
+      );
+    } catch (e) {
+      log("Error getting address: $e");
+    }
+
+    // Fetch Weather
+    const url = 'https://api.openweathermap.org/data/2.5/weather';
+    try {
+      final Dio dio = Dio();
+      final Response response = await dio.get(
+        url,
+        queryParameters: {
+          'APPID': 'be0e7ea07db2ec59d69dadf9c98a479c',
+          'lat': loc.latitude,
+          'lon': loc.longitude,
+          'units': 'Metric'
+        },
+      );
+
+      if (response.statusCode == 200) {
+        log('Weather Data: ${response.data}');
+        weather = WeatherModel.fromJson(response.data);
+      } else {
+        log('Failed to fetch weather data: ${response.statusMessage}');
+      }
+    } catch (e) {
+      log('Error occurred: $e');
+    }
+
+    return (location, weather);
+  }
+
+  /// Function to get icon based on weather condition
+  static IconData getWeatherIcon(String? condition, String? iconCode) {
+    bool isNight = iconCode?.endsWith("n") ?? false; // Check if it's night
+
+    switch (condition) {
+      case 'Clear':
+        return isNight ? Icons.nightlight_round : Icons.wb_sunny; // 🌙 / ☀️
+      case 'Clouds':
+        return isNight ? Icons.cloud_outlined : Icons.cloud; // ☁️
+      case 'Rain':
+        return Icons.umbrella; // 🌧️
+      case 'Drizzle':
+        return Icons.grain; // 🌦️
+      case 'Thunderstorm':
+        return Icons.flash_on; // ⚡
+      case 'Snow':
+        return Icons.ac_unit; // ❄️
+      case 'Mist':
+      case 'Fog':
+      case 'Haze':
+      case 'Smoke':
+        return Icons.blur_on; // 🌫️
+      case 'Dust':
+      case 'Sand':
+        return Icons.waves; // 🌪️
+      case 'Squall':
+      case 'Tornado':
+        return Icons.air; // 💨
+      default:
+        return Icons.help_outline; // ❓
+    }
+  }
 }

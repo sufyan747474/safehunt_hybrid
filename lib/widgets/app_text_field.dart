@@ -20,6 +20,9 @@ class AppTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final bool isSuffixIcons;
   final Widget? suffixIcon;
+  final void Function(String)? onFieldSubmitted;
+  final double? borderRdius;
+  final double? verticalPadding;
 
   AppTextField(
       {super.key,
@@ -37,6 +40,9 @@ class AppTextField extends StatelessWidget {
       this.validator,
       this.maxLength,
       this.inputFormatters,
+      this.onFieldSubmitted,
+      this.borderRdius,
+      this.verticalPadding,
       this.readOnly = false});
 
   @override
@@ -44,6 +50,7 @@ class AppTextField extends StatelessWidget {
     return SizedBox(
       // height: height.h,
       child: TextFormField(
+        onFieldSubmitted: onFieldSubmitted,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         maxLength: maxLength,
         inputFormatters: inputFormatters,
@@ -68,7 +75,8 @@ class AppTextField extends StatelessWidget {
               fontSize: MediaQuery.of(context).size.height / 42.2),
           hintText: hintText,
 
-          contentPadding: EdgeInsets.symmetric(horizontal: 20.w),
+          contentPadding: EdgeInsets.symmetric(
+              horizontal: 20.w, vertical: verticalPadding ?? 0),
           hintStyle: TextStyle(
             color: appGreyColor,
             fontSize: 14.sp,
@@ -78,20 +86,20 @@ class AppTextField extends StatelessWidget {
           filled: true,
           fillColor: appDarkGreenColor,
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(74.r),
+            borderRadius: BorderRadius.circular(borderRdius ?? 74.r),
             borderSide: const BorderSide(
               width: 2.0,
               color: appDarkGreenColor,
             ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(74.r),
+            borderRadius: BorderRadius.circular(borderRdius ?? 74.r),
             borderSide: const BorderSide(
               color: appDarkGreenColor,
             ),
           ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: BorderRadius.circular(borderRdius ?? 8.r),
             borderSide: const BorderSide(
               width: 2.0,
               color: appWhiteColor,

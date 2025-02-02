@@ -6,8 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/auth/edit_profile_bloc.dart';
 import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/custom_scafold.dart';
@@ -34,7 +36,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   TextEditingController userNameController = TextEditingController();
   TextEditingController signupPasswordController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController skilController = TextEditingController();
+  TextEditingController experienceController = TextEditingController();
+  TextEditingController bioController = TextEditingController();
+
   final GlobalKey<FormState> _editProfileFormKey = GlobalKey<FormState>();
+
+  List<String> skilList = [];
 
   String? profileImage;
   String? coverImage;
@@ -49,6 +57,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     user = context.read<UserProvider>().user;
+    displayNameController.text = user?.displayname ?? '';
+    userNameController.text = user?.username ?? "";
+    emailController.text = user?.email ?? '';
+    phoneNumberController.text = user?.phonenumber ?? "";
 
     setValues();
   }
@@ -116,6 +128,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             height: 20.h,
                           ),
                           AppTextField(
+                            enabled: false,
                             textController: emailController,
                             hintText: 'Email *',
                             maxLength: 35,
@@ -128,6 +141,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             height: 20.h,
                           ),
                           AppTextField(
+                            // enabled: false,
                             textController: displayNameController,
                             hintText: 'Display Name *',
                             maxLength: 35,
@@ -140,6 +154,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             height: 20.h,
                           ),
                           AppTextField(
+                            // enabled: false,
                             textController: userNameController,
                             hintText: 'User Name *',
                             maxLength: 35,
@@ -169,6 +184,110 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ),
                               LengthLimitingTextInputFormatter(16),
                             ],
+                          ),
+                          SizedBox(
+                            height: 20.h,
+                          ),
+
+                          // bio field
+
+                          AppTextField(
+                            hintText: 'Hunting Experience',
+                            keyboardType: TextInputType.number,
+                            textController: experienceController,
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(2),
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            verticalPadding: 10.w,
+                            borderRdius: 8.r,
+                          ),
+                          SizedBox(
+                            height: 20.h,
+                          ),
+                          // skil
+                          AppTextField(
+                            hintText: 'Skils',
+                            textController: skilController,
+                            onFieldSubmitted: (value) {
+                              if (value.isNotEmpty) {
+                                skilList.add(value);
+                                setState(() {});
+                              }
+                              skilController.clear();
+                            },
+                          ),
+                          10.verticalSpace,
+                          Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Wrap(
+                                runSpacing: 5.h,
+                                spacing: 5.w,
+                                alignment: WrapAlignment.start,
+                                children: [
+                                  if (skilList.isNotEmpty)
+                                    ...List.generate(
+                                      skilList.length,
+                                      (index) => Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          color: AppColors.greenColor,
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 8.h, horizontal: 10.w),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                skilList[index],
+                                                textAlign: TextAlign.start,
+                                                style: TextStyle(
+                                                  color: AppColors.whiteColor,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 14.sp,
+                                                ),
+                                                // maxLines: 2,
+                                              ),
+                                            ),
+                                            8.horizontalSpace,
+                                            CustomContainer(
+                                              onTap: () {
+                                                skilList.removeAt(index);
+                                                setState(() {});
+                                              },
+                                              conatinerColor:
+                                                  AppColors.whiteColor,
+                                              iconColor: AppColors.greenColor,
+                                              width: 14.w,
+                                              height: 14.w,
+                                              iconData: Icons.close,
+                                              iconWidth: 13.w,
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ]),
+                          ),
+                          SizedBox(
+                            height: 20.h,
+                          ),
+                          // bio field
+
+                          AppTextField(
+                            hintText: 'Bio',
+                            textController: bioController,
+                            maxLines: 5,
+                            minLines: 5,
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(375)
+                            ],
+                            verticalPadding: 10.w,
+                            borderRdius: 8.r,
                           ),
                           SizedBox(
                             height: 20.h,
@@ -203,6 +322,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               );
                             },
                           ),
+
                           SizedBox(
                             height: 50.h,
                           ),
@@ -214,6 +334,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   .validate()) {
                                 _editProfileFormKey.currentState?.save();
                                 Utils.unFocusKeyboard(context);
+                                EditProfileBloc().editProfileBlocMethod(
+                                  context: context,
+                                  setProgressBar: () {
+                                    AppDialogs.progressAlertDialog(
+                                        context: context);
+                                  },
+                                  displayName: displayNameController.text,
+                                  userName: userNameController.text,
+                                  bio: bioController.text,
+                                  email: emailController.text,
+                                  phoneNumber: phoneNumberController.text,
+                                  huntingExperience: experienceController.text,
+                                  skills: skilList,
+                                  coverPhoto: coverImage,
+                                  imageFilePath: profileImage,
+                                );
                               }
                             },
                             child: CustomButton(

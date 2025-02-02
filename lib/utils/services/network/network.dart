@@ -3,6 +3,8 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/app_main_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
@@ -158,7 +160,7 @@ class Network {
       {required BuildContext context,
       required String endPoint,
       Map<String, dynamic>? queryParameters,
-      FormData? formData,
+      dynamic formData,
       VoidCallback? onFailure,
       bool isToast = true,
       connectTimeOut = const Duration(seconds: 300),
@@ -256,6 +258,7 @@ class Network {
       {Response? response,
       VoidCallback? onSuccess,
       VoidCallback? onFailure,
+      bool isAllow404 = false,
       bool isToast = true}) {
     var validateResponseData = response?.data;
     print(validateResponseData);
@@ -263,7 +266,7 @@ class Network {
       isToast
           ? AppDialogs.showToast(message: validateResponseData['message'] ?? "")
           : null;
-      if (response!.statusCode == NetworkStrings.SUCCESS_CODE) {
+      if (response!.statusCode == NetworkStrings.SUCCESS_CODE || isAllow404) {
         if (validateResponseData['statusCode'] == NetworkStrings.SUCCESS_CODE) {
           if (onSuccess != null) {
             onSuccess();
@@ -301,8 +304,11 @@ class Network {
   }
 
   /// -----------------  Validate Response -----------------
-  void validateGifResponse(
-      {Response? response, VoidCallback? onSuccess, VoidCallback? onFailure}) {
+  void validateGifResponse({
+    Response? response,
+    VoidCallback? onSuccess,
+    VoidCallback? onFailure,
+  }) {
     var validateResponseData = response?.data;
     if (validateResponseData != null) {
       if (response!.statusCode == NetworkStrings.SUCCESS_CODE) {
@@ -365,7 +371,7 @@ class Network {
     }
     if (response?.statusCode == NetworkStrings.UNAUTHORIZED_CODE) {
       SharedPreference().clear();
-      // context.read<UserProvider>().clearProvider();
+      context.read<UserProvider>().clearUserProvider();
       // context.read<GerageProvider>().clearGerageProvider();
       // context.read<ChatProvider>().clearChatProvider();
 

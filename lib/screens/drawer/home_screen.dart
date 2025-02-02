@@ -5,6 +5,9 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
+import 'package:safe_hunt/screens/journals/model/weather_model.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
+import 'package:safe_hunt/utils/utils.dart';
 import '../../utils/colors.dart';
 import '../../widgets/big_text.dart';
 import '../../widgets/news_feed_card.dart';
@@ -19,6 +22,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showComments = false;
+  WeatherModel? wheather;
+
+  @override
+  void initState() {
+// Call getLatLong and update state
+    Utils.getLatLong().then((result) {
+      if (!mounted) return; // ✅ Prevent setState if widget is disposed
+      setState(() {
+        wheather = result.$2;
+      });
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(builder: (context, val, _) {
@@ -51,7 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const Spacer(),
               GestureDetector(
                 onTap: () {
-                  Get.to(HuntingJournalScreen());
+                  Utils.unFocusKeyboard(context);
+                  context.read<UserProvider>().emptyJournal();
+                  AppNavigation.push(const HuntingJournalScreen());
+                  // Get.to(HuntingJournalScreen());
                 },
                 child: SizedBox(
                   child: Container(
@@ -69,19 +90,47 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const Spacer(),
-              SizedBox(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  width: 70.w,
-                  height: 35.h,
-                  decoration: const BoxDecoration(
-                    color: appButtonColor,
-                    borderRadius: BorderRadius.all(Radius.circular(38)),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.standard,
+                      onPressed: () async {
+                        Utils.getLatLong().then((result) {
+                          if (!mounted)
+                          // ✅ Prevent setState if widget is disposed
+                          {
+                            setState(() {
+                              wheather = result.$2;
+                            });
+                          }
+                        });
+                      },
+                      icon:
+                          // CustomImageWidget(
+                          //   shape: BoxShape.rectangle,
+                          //   borderRadius: BorderRadius.zero,
+                          //   isBorder: false,
+                          //   isBaseUrl: false,
+                          //   imageUrl:
+                          //       'https://openweathermap.org/img/wn/${wheather?.weather?[0].icon}@2x.png',
+                          //   fit: BoxFit.contain,
+                          //   imageWidth: 20.w,
+                          //   imageHeight: 20.h,
+
+                          Icon(
+                              Utils.getWeatherIcon(wheather?.weather?[0].main,
+                                  wheather?.weather?[0].icon),
+                              color: appLightGreenColor)),
+                  BigText(
+                    text: '${wheather?.main?.temp?.round() ?? '-'}°',
+                    // 'Breezy with hazy sun Hi: 31°',
+                    size: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: appBlackColor,
                   ),
-                  child: SvgPicture.asset(
-                    'assets/light_add.svg',
-                  ),
-                ),
+                ],
               ),
               const Spacer(),
               SizedBox(

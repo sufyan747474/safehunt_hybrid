@@ -21,7 +21,7 @@ class NetworkStrings {
   static const String OTP_VERIFICATION_ENDPOINT = "auth/otp-verification";
   static const String RESEND_OTP_ENDPOINT = "auth/regenerate-otp";
   static const String COMPLETE_PROFILE_ENDPOINT = "completeProfile";
-  static const String EDIT_PROFILE_ENDPOINT = "user-update-basic-info";
+  static const String EDIT_PROFILE_ENDPOINT = "auth/update/";
   static const String SOCIAL_LOGIN_ENDPOINT = "social_login";
   static const String LOGOUT_ENDPOINT = "logout";
   static const String CONTENT_ENDPOINT = "content";
@@ -101,10 +101,11 @@ class NetworkStrings {
   //user listing
   static const String GET_USER_LISTING_ENDPOINT = "user_listing";
 
-  //pool
-  static const String POOL_CREATE_ENDPOINT = "pool/create";
-  static const String POOL_LISTING_ENDPOINT = "pool/listing";
-  static const String POOL_DETAILS_ENDPOINT = "pool/details";
+  //journalink
+  static const String JOURNALING_CREATE_ENDPOINT = "hunting-journal";
+  static const String JOURNALING_LISTING_ENDPOINT =
+      "hunting-journal/my-journals";
+  static const String JOURNALING_DELETE_ENDPOINT = "hunting-journal";
 
   // <============ dynamin linking ----------?
   static const String DYNAMIC_URL = "https://sixsigmaSafeHunt.page.link";

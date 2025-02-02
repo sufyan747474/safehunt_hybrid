@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:safe_hunt/utils/colors.dart';
+import 'package:safe_hunt/utils/common/app_colors.dart';
 
 class AppDialogs {
   static void showToast({String? message}) {
@@ -10,7 +11,7 @@ class AppDialogs {
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
-      backgroundColor: appLightGreenColor,
+      backgroundColor: AppColors.blackColor,
     );
   }
 
