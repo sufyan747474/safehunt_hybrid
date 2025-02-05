@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safe_hunt/bloc/auth/otp_verification_bloc.dart';
 import 'package:safe_hunt/bloc/auth/resend_otp_bloc.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
@@ -188,8 +189,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 onTap: () {
                   if (_confirmationFormKey.currentState?.validate() ?? false) {
                     _confirmationFormKey.currentState?.save();
+                    OtpVerifiactionBloc().otpVerificatiobBlockMethod(
+                      context: context,
+                      setProgressBar: () {
+                        AppDialogs.progressAlertDialog(context: context);
+                      },
+                    );
 
-                    AppNavigation.pushReplacement(const NewPasswordScreen());
+                    // AppNavigation.pushReplacement(const NewPasswordScreen());
                     // Get.to(const NewPasswordScreen());
                   }
                 },

@@ -21,11 +21,14 @@ class AppTextField extends StatelessWidget {
   final bool isSuffixIcons;
   final Widget? suffixIcon;
   final void Function(String)? onFieldSubmitted;
+  final void Function()? onEditingComplete;
   final double? borderRdius;
   final double? verticalPadding;
+  final TextInputAction? textInputAction;
 
   AppTextField(
       {super.key,
+      this.textInputAction,
       this.suffixIcon,
       this.isSuffixIcons = false,
       required this.textController,
@@ -43,6 +46,7 @@ class AppTextField extends StatelessWidget {
       this.onFieldSubmitted,
       this.borderRdius,
       this.verticalPadding,
+      this.onEditingComplete,
       this.readOnly = false});
 
   @override
@@ -50,6 +54,8 @@ class AppTextField extends StatelessWidget {
     return SizedBox(
       // height: height.h,
       child: TextFormField(
+        textInputAction: textInputAction,
+        onEditingComplete: onEditingComplete,
         onFieldSubmitted: onFieldSubmitted,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         maxLength: maxLength,

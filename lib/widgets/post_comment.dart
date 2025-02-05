@@ -36,7 +36,7 @@ class PostComment extends StatelessWidget {
                     height: 50.h,
                     fit: BoxFit.cover,
                   )),
-              SizedBox(
+              const SizedBox(
                 width: 16.0,
               ),
               Column(

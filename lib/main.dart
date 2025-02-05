@@ -7,6 +7,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/splash_screen.dart';
 import 'package:safe_hunt/utils/static_data.dart';
@@ -20,6 +21,9 @@ Future<void> main() async {
   ]).then((value) => runApp(MultiProvider(providers: [
         ChangeNotifierProvider(
           create: (context) => UserProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PostProvider(),
         )
       ], child: const MyApp())));
 }

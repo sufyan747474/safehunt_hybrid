@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:safe_hunt/screens/edit_profile_screen.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
 import 'package:safe_hunt/widgets/custom_button.dart';
 
@@ -154,8 +156,8 @@ class _ProfileTabState extends State<ProfileTab> {
                               width: MediaQuery.of(context).size.width * 0.9,
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                // mainAxisAlignment:
+                                //     MainAxisAlignment.spaceBetween,
                                 children: [
                                   GestureDetector(
                                     onTap: () {
@@ -190,6 +192,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                       ),
                                     ),
                                   ),
+                                  20.horizontalSpace,
                                   Container(
                                     width: 125.w,
                                     height: 36.h,
@@ -217,19 +220,30 @@ class _ProfileTabState extends State<ProfileTab> {
                                       ],
                                     ),
                                   ),
-                                  Container(
-                                    // width: 62.w,
-                                    // height: 35.h,
-                                    decoration: BoxDecoration(
-                                        color: appButtonColor,
-                                        borderRadius:
-                                            BorderRadius.circular(57.r)),
-                                    padding: EdgeInsets.all(15.w),
-                                    child: SvgPicture.asset(
-                                      'assets/horizontal_dots_icon.svg',
-                                      color: appBrownColor,
-                                    ),
-                                  ),
+                                  15.horizontalSpace,
+                                  IconButton(
+                                      onPressed: () {
+                                        AppNavigation.push(
+                                            const EditProfileScreen());
+                                      },
+                                      icon: const Icon(
+                                        Icons.edit,
+                                        color: appBrownColor,
+                                      ))
+
+                                  // Container(
+                                  //   // width: 62.w,
+                                  //   // height: 35.h,
+                                  //   decoration: BoxDecoration(
+                                  //       color: appButtonColor,
+                                  //       borderRadius:
+                                  //           BorderRadius.circular(57.r)),
+                                  //   padding: EdgeInsets.all(15.w),
+                                  //   child: SvgPicture.asset(
+                                  //     'assets/horizontal_dots_icon.svg',
+                                  //     color: appBrownColor,
+                                  //   ),
+                                  // ),
                                 ],
                               ),
                             ),
@@ -382,7 +396,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       ],
                     ),
                   )
-                : SizedBox(),
+                : const SizedBox.shrink(),
             Container(
               color: subscriptionCardColor,
               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),

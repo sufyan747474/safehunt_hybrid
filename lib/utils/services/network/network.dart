@@ -258,7 +258,6 @@ class Network {
       {Response? response,
       VoidCallback? onSuccess,
       VoidCallback? onFailure,
-      bool isAllow404 = false,
       bool isToast = true}) {
     var validateResponseData = response?.data;
     print(validateResponseData);
@@ -266,8 +265,10 @@ class Network {
       isToast
           ? AppDialogs.showToast(message: validateResponseData['message'] ?? "")
           : null;
-      if (response!.statusCode == NetworkStrings.SUCCESS_CODE || isAllow404) {
-        if (validateResponseData['statusCode'] == NetworkStrings.SUCCESS_CODE) {
+      if (response!.statusCode == NetworkStrings.SUCCESS_CODE ||
+          response.statusCode == 201) {
+        if (validateResponseData['statusCode'] == NetworkStrings.SUCCESS_CODE ||
+            validateResponseData['statusCode'] == 201) {
           if (onSuccess != null) {
             onSuccess();
           }
@@ -311,7 +312,8 @@ class Network {
   }) {
     var validateResponseData = response?.data;
     if (validateResponseData != null) {
-      if (response!.statusCode == NetworkStrings.SUCCESS_CODE) {
+      if (response!.statusCode == NetworkStrings.SUCCESS_CODE ||
+          response.statusCode == 201) {
         if (onSuccess != null) {
           onSuccess();
         }

@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:safe_hunt/screens/edit_profile_screen.dart';
+import 'package:safe_hunt/screens/new_password_screen.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/widgets/custom_button.dart';
 
@@ -99,6 +100,11 @@ class _SettingScreenState extends State<SettingScreen> {
                 thickness: 0.3,
               ),
               SettingCard(
+                onTap: () {
+                  AppNavigation.push(const NewPasswordScreen(
+                    isChangePassword: true,
+                  ));
+                },
                 label: 'Change Password',
                 svgPicture: 'assets/Arrow_right.svg',
               ),

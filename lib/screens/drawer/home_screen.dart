@@ -3,9 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/post/get_all_post_bloc.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
-import 'package:safe_hunt/screens/journals/model/weather_model.dart';
+import 'package:safe_hunt/screens/post/post_detail_screen.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import '../../utils/colors.dart';
@@ -22,15 +24,25 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showComments = false;
-  WeatherModel? wheather;
+  // WeatherModel? wheather;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      GetAllPostBloc().getAllPostBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        onSuccess: () {},
+      );
+    });
 // Call getLatLong and update state
     Utils.getLatLong().then((result) {
       if (!mounted) return; // ✅ Prevent setState if widget is disposed
       setState(() {
-        wheather = result.$2;
+        context.read<UserProvider>().setWeather(result.$2);
+        // wheather = result.$2;
       });
     });
 
@@ -102,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           // ✅ Prevent setState if widget is disposed
                           {
                             setState(() {
-                              wheather = result.$2;
+                              val.setWeather(result.$2);
                             });
                           }
                         });
@@ -120,11 +132,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           //   imageHeight: 20.h,
 
                           Icon(
-                              Utils.getWeatherIcon(wheather?.weather?[0].main,
-                                  wheather?.weather?[0].icon),
+                              Utils.getWeatherIcon(
+                                  val.wheather?.weather?[0].main,
+                                  val.wheather?.weather?[0].icon),
                               color: appLightGreenColor)),
                   BigText(
-                    text: '${wheather?.main?.temp?.round() ?? '-'}°',
+                    text: '${val.wheather?.main?.temp?.round() ?? '-'}°',
                     // 'Breezy with hazy sun Hi: 31°',
                     size: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -219,7 +232,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     itemBuilder: (BuildContext context, index) {
                       return Padding(
                         padding: EdgeInsets.symmetric(vertical: 10.h),
-                        child: const NewsFeedCard(),
+                        child: NewsFeedCard(
+                          functionOnTap: () {
+                            AppNavigation.push(const PostDetailScreen());
+                          },
+                        ),
                       );
                     }),
               ),

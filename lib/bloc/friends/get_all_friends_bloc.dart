@@ -1,30 +1,27 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:safe_hunt/providers/user_provider.dart';
-import 'package:safe_hunt/screens/journals/model/journal_model.dart';
+import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class GetAllJournalBloc {
+class GetAllFriendsBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> getAllJournalBlocMethod({
+  Future<void> getAllFriendsBlocMethod({
     required BuildContext context,
     required VoidCallback setProgressBar,
-    required Function() onSuccess,
+    required Function(List<UserData>) onSuccess,
   }) async {
     setProgressBar();
 
     _onFailure = () {
-      context.read<UserProvider>().setJournal([]);
       Navigator.pop(context);
     };
 
     await _getRequest(
-        endPoint: NetworkStrings.JOURNALING_LISTING_ENDPOINT, context: context);
+        endPoint: NetworkStrings.FRIENDS_ENDPOINT, context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
@@ -59,15 +56,13 @@ class GetAllJournalBloc {
 
   void _getAllPostResponseMethod({
     required BuildContext context,
-    required Function() onSuccess,
+    required Function(List<UserData>) onSuccess,
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final journal = List<JournalData>.from(
-                _response?.data['data']!.map((x) => JournalData.fromJson(x)))
-            .toList();
-
-        context.read<UserProvider>().setJournal(journal);
+        final friends = List<UserData>.from(
+            _response?.data['data']!.map((x) => UserData.fromJson(x))).toList();
+        onSuccess.call(friends);
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

@@ -1,11 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/post/add_post_bloc.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/journals/model/location_model.dart';
+import 'package:safe_hunt/screens/post/select_tag_people_screen.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
+import 'package:safe_hunt/utils/common/app_colors.dart';
+import 'package:safe_hunt/utils/utils.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
+import 'package:safe_hunt/widgets/custom_container.dart';
 
 class AddPost extends StatefulWidget {
   const AddPost({super.key});
@@ -16,6 +26,21 @@ class AddPost extends StatefulWidget {
 
 class _AddPostState extends State<AddPost> {
   final TextEditingController _messageTextController = TextEditingController();
+
+  String? postImage;
+  LocationModel? location;
+
+  @override
+  void initState() {
+    // Call getLatLong and update state
+    Utils.getLatLong().then((result) {
+      if (!mounted) return; // ✅ Prevent setState if widget is disposed
+      setState(() {
+        location = result.$1;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,9 +63,27 @@ class _AddPostState extends State<AddPost> {
           centerTitle: true,
           elevation: 0,
           actions: [
-            Padding(
+            IconButton(
               padding: const EdgeInsets.all(14.0),
-              child: BigText(
+              onPressed: () {
+                Utils.unFocusKeyboard(context);
+
+                if (_messageTextController.text.isEmpty) {
+                  AppDialogs.showToast(message: 'Description is required');
+                } else {
+                  AddPostBloc().addPostBlocMethod(
+                    context: context,
+                    setProgressBar: () {
+                      AppDialogs.progressAlertDialog(context: context);
+                    },
+                    description: _messageTextController.text,
+                    location: location,
+                    media: postImage,
+                    tagList: ["awdaw", "awdwad"],
+                  );
+                }
+              },
+              icon: BigText(
                 text: 'Post',
                 size: 16.sp,
                 fontWeight: FontWeight.w500,
@@ -90,6 +133,7 @@ class _AddPostState extends State<AddPost> {
                 child: SizedBox(
                   height: 340,
                   child: TextField(
+                    textInputAction: TextInputAction.done,
                     maxLines: 20,
                     minLines: 20,
                     style: GoogleFonts.montserrat(),
@@ -145,72 +189,118 @@ class _AddPostState extends State<AddPost> {
                 topRight: Radius.circular(20.r),
               ),
             ),
-            child: Column(
-              children: [
-                Container(
-                  height: 5.w,
-                  width: 32.h,
-                  decoration: BoxDecoration(
-                    color: appBrownColor,
-                    borderRadius: BorderRadius.all(Radius.circular(30.r)),
-                    // border: Border.all(width: 1, ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 5.w,
+                    width: 32.h,
+                    decoration: BoxDecoration(
+                      color: appBrownColor,
+                      borderRadius: BorderRadius.all(Radius.circular(30.r)),
+                      // border: Border.all(width: 1, ),
+                    ),
                   ),
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    SvgPicture.asset('assets/gallery.svg'),
-                    SizedBox(
-                      width: 15.w,
+                  10.verticalSpace,
+                  Row(
+                    children: [
+                      SvgPicture.asset('assets/gallery.svg'),
+                      SizedBox(
+                        width: 15.w,
+                      ),
+                      BigText(
+                        text: 'Media',
+                        size: 20.sp,
+                        fontWeight: FontWeight.w700,
+                        color: appBrownColor,
+                      )
+                    ],
+                  ),
+                  10.verticalSpace,
+                  // upload cover photo
+                  CustomContainer(
+                    decortionImage: postImage != null
+                        ? DecorationImage(
+                            image: FileImage(File(postImage!)),
+                            fit: BoxFit.cover)
+                        : null,
+                    width: 1.sw,
+                    height: 145.h,
+                    borderRadius: BorderRadius.circular(5.r),
+                    conatinerColor: AppColors.greenColor.withOpacity(0.4),
+                    shape: BoxShape.rectangle,
+                    iconData: Icons.file_upload_outlined,
+                    iconWidth: 30.w,
+                    iconColor: AppColors.greenColor,
+                    text: "Upload Photo",
+                    fontColor: AppColors.greenColor,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w500,
+                    onTap: () {
+                      Utils.unFocusKeyboard(context);
+                      Utils.showImageSourceSheet(
+                        context: context,
+                        setFile: (file) {
+                          postImage = file.path;
+                          setState(() {});
+                        },
+                      );
+                    },
+                  ),
+                  10.verticalSpace,
+
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/post_location_icon.svg',
+                        height: 24.h,
+                        width: 24.w,
+                      ),
+                      SizedBox(
+                        width: 15.w,
+                      ),
+                      Flexible(
+                        child: BigText(
+                          textAlign: TextAlign.start,
+                          text: location?.address ?? "",
+
+                          //  'Location',
+                          size: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: appBrownColor,
+                        ),
+                      )
+                    ],
+                  ),
+                  10.verticalSpace,
+                  InkWell(
+                    onTap: () {
+                      AppNavigation.push(SelectTagPeople());
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/tag_person_icon.svg',
+                          height: 24.h,
+                          width: 24.w,
+                        ),
+                        SizedBox(
+                          width: 15.w,
+                        ),
+                        BigText(
+                          text: 'Tag',
+                          size: 20.sp,
+                          fontWeight: FontWeight.w700,
+                          color: appBrownColor,
+                        )
+                      ],
                     ),
-                    BigText(
-                      text: 'Media',
-                      size: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: appBrownColor,
-                    )
-                  ],
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/post_location_icon.svg',
-                      height: 24.h,
-                      width: 24.w,
-                    ),
-                    SizedBox(
-                      width: 15.w,
-                    ),
-                    BigText(
-                      text: 'Location',
-                      size: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: appBrownColor,
-                    )
-                  ],
-                ),
-                const Spacer(),
-                Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/tag_person_icon.svg',
-                      height: 24.h,
-                      width: 24.w,
-                    ),
-                    SizedBox(
-                      width: 15.w,
-                    ),
-                    BigText(
-                      text: 'Tag',
-                      size: 20.sp,
-                      fontWeight: FontWeight.w700,
-                      color: appBrownColor,
-                    )
-                  ],
-                ),
-                const Spacer(),
-              ],
+                  ),
+                ],
+              ),
             )),
       );
     });

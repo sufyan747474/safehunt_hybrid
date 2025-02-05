@@ -7,11 +7,11 @@ import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class GetAllJournalBloc {
+class GetAllPostBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> getAllJournalBlocMethod({
+  Future<void> getAllPostBlocMethod({
     required BuildContext context,
     required VoidCallback setProgressBar,
     required Function() onSuccess,
@@ -19,12 +19,11 @@ class GetAllJournalBloc {
     setProgressBar();
 
     _onFailure = () {
-      context.read<UserProvider>().setJournal([]);
       Navigator.pop(context);
     };
 
     await _getRequest(
-        endPoint: NetworkStrings.JOURNALING_LISTING_ENDPOINT, context: context);
+        endPoint: NetworkStrings.ADD_POST_ENDPOINT, context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
@@ -63,11 +62,11 @@ class GetAllJournalBloc {
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final journal = List<JournalData>.from(
-                _response?.data['data']!.map((x) => JournalData.fromJson(x)))
-            .toList();
+        // final Post = List<JournalData>.from(
+        //         _response?.data['data']!.map((x) => JournalData.fromJson(x)))
+        //     .toList();
 
-        context.read<UserProvider>().setJournal(journal);
+        // context.read<UserProvider>().setJournal(Post);
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

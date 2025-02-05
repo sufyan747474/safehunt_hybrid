@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,7 +10,11 @@ import '../utils/colors.dart';
 import 'big_text.dart';
 
 class NewsFeedCard extends StatefulWidget {
-  const NewsFeedCard({super.key});
+  final void Function()? functionOnTap;
+  final bool isPostDetails;
+
+  const NewsFeedCard(
+      {super.key, this.functionOnTap, this.isPostDetails = false});
 
   @override
   State<NewsFeedCard> createState() => _NewsFeedCardState();
@@ -182,55 +184,55 @@ class _NewsFeedCardState extends State<NewsFeedCard> {
               ),
             ),
           ),
-          showPostComments
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 8.w,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w),
-                      child: Row(
-                        children: [
-                          BigText(
-                            text: 'All Comments',
-                            size: 12.sp,
-                            color: appBlackColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          Icon(
-                            Icons.keyboard_arrow_down_rounded,
-                            weight: 0.3,
-                            color: appBlackColor,
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 200.h,
-                      child: ListView.builder(
-                          itemCount: 3,
-                          itemBuilder: (BuildContext context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: const PostComment(
-                                time: '9:00AM',
-                                postComment:
-                                    'Impressive harvest! How was the experience out in the wild?',
-                                profileName: 'Henry',
-                                profileImage: 'assets/subscription_picture.png',
-                                likeCount: 1,
-                              ),
-                            );
-                          }),
-                    ),
-                  ],
-                )
-              : SizedBox(),
+          // showPostComments
+          //     ? Column(
+          //         crossAxisAlignment: CrossAxisAlignment.start,
+          //         children: [
+          //           SizedBox(
+          //             height: 8.w,
+          //           ),
+          //           Padding(
+          //             padding: EdgeInsets.symmetric(horizontal: 20.w),
+          //             child: Row(
+          //               children: [
+          //                 BigText(
+          //                   text: 'All Comments',
+          //                   size: 12.sp,
+          //                   color: appBlackColor,
+          //                   fontWeight: FontWeight.w600,
+          //                 ),
+          //                 SizedBox(
+          //                   width: 10.w,
+          //                 ),
+          //                 const Icon(
+          //                   Icons.keyboard_arrow_down_rounded,
+          //                   weight: 0.3,
+          //                   color: appBlackColor,
+          //                 )
+          //               ],
+          //             ),
+          //           ),
+          //           SizedBox(
+          //             height: 200.h,
+          //             child: ListView.builder(
+          //                 itemCount: 3,
+          //                 itemBuilder: (BuildContext context, index) {
+          //                   return const Padding(
+          //                     padding: EdgeInsets.all(8.0),
+          //                     child: PostComment(
+          //                       time: '9:00AM',
+          //                       postComment:
+          //                           'Impressive harvest! How was the experience out in the wild?',
+          //                       profileName: 'Henry',
+          //                       profileImage: 'assets/subscription_picture.png',
+          //                       likeCount: 1,
+          //                     ),
+          //                   );
+          //                 }),
+          //           ),
+          //         ],
+          //       )
+          //     : SizedBox(),
           SizedBox(
             height: 10.h,
           ),
@@ -270,24 +272,27 @@ class _NewsFeedCardState extends State<NewsFeedCard> {
                   ),
                 ),
                 Spacer(),
-                Container(
-                  width: 117.w,
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                      color: appButtonColor,
-                      borderRadius: BorderRadius.circular(30.r)),
-                  padding: EdgeInsets.all(5.w),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SvgPicture.asset('assets/icon_comment.svg'),
-                      BigText(
-                        text: "Comment",
-                        size: 10.sp,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ],
+                InkWell(
+                  onTap: widget.functionOnTap,
+                  child: Container(
+                    width: 117.w,
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                        color: appButtonColor,
+                        borderRadius: BorderRadius.circular(30.r)),
+                    padding: EdgeInsets.all(5.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SvgPicture.asset('assets/icon_comment.svg'),
+                        BigText(
+                          text: "Comment",
+                          size: 10.sp,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 Spacer(),

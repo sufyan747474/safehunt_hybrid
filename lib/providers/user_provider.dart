@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/screens/journals/model/journal_model.dart';
+import 'package:safe_hunt/screens/journals/model/weather_model.dart';
 
 class UserProvider extends ChangeNotifier {
   UserData? _user;
@@ -10,6 +11,15 @@ class UserProvider extends ChangeNotifier {
 
   setUser(UserData? user) {
     _user = user;
+    notifyListeners();
+  }
+
+// <--------------------  wheather ------------------>
+  WeatherModel? _wheather;
+  WeatherModel? get wheather => _wheather;
+
+  setWeather(WeatherModel? wheather) {
+    _wheather = wheather;
     notifyListeners();
   }
 

@@ -11,8 +11,14 @@ import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';
 import 'package:safe_hunt/screens/journals/model/weather_model.dart';
+import 'package:safe_hunt/screens/post/enums/enums.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
+import 'package:safe_hunt/utils/common/app_colors.dart';
+import 'package:safe_hunt/utils/static_data.dart';
+import 'package:safe_hunt/widgets/app_text_field.dart';
+import 'package:safe_hunt/widgets/custom_button.dart';
 import 'package:safe_hunt/widgets/image_picker_bottom_sheet.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:path/path.dart' as path;
@@ -402,5 +408,149 @@ class Utils {
       default:
         return Icons.help_outline; // ❓
     }
+  }
+
+  static void typingModal(
+    modalType type, {
+    isEdit = false,
+    String? text,
+    String? postId,
+    String? sharePostId,
+    String? commentId,
+    String? parrentId,
+    String? comment,
+    bool isChild = false,
+    bool isSharedPost = false,
+  }) {
+    final msgController = TextEditingController(text: text);
+    isEdit ? msgController.text = comment ?? '' : null;
+    log('comment id : $commentId');
+
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: StaticData.navigatorKey.currentContext!,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, setState) {
+            return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Container(
+                height: .3.sh,
+                width: 1.sw,
+                decoration: BoxDecoration(
+                    color: appButtonColor,
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(20.r))),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: .06.sw),
+                  child: Column(
+                    children: [
+                      8.verticalSpace,
+                      Container(
+                          width: 70.w,
+                          height: 6.h,
+                          decoration: BoxDecoration(
+                              color: appBrownColor,
+                              borderRadius: BorderRadius.circular(10.r))),
+                      20.verticalSpace,
+                      Text(
+                        type == modalType.comment ? "Comment" : "Reply",
+                        style: TextStyle(
+                            fontSize: 18.sp, fontWeight: FontWeight.w700),
+                      ),
+                      20.verticalSpace,
+                      AppTextField(
+                        textController: msgController,
+                        maxLength: 275,
+                        onChanged: (val) {
+                          setState(() {});
+                        },
+                        onEditingComplete: () {
+                          if (msgController.text.trim().isNotEmpty) {
+                            AppNavigation.pop();
+                            AppDialogs.showToast(message: " Successfully");
+                          }
+                        },
+                        textInputAction: TextInputAction.send,
+                        hintText: "Write your ${type.name}...",
+                      ),
+                      15.verticalSpace,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              onTap: () {
+                                AppNavigation.pop();
+                              },
+                              child: CustomButton(
+                                textColor: AppColors.whiteColor,
+                                text: "Cancel",
+                                border: Border.all(
+                                    width: 1.5, color: AppColors.darkRedColor),
+                                color: appBrownColor,
+                              ),
+                            ),
+                          ),
+                          8.horizontalSpace,
+                          Expanded(
+                            child: Opacity(
+                              opacity:
+                                  msgController.text.trim().isEmpty ? .5 : 1,
+                              child: InkWell(
+                                onTap: () {
+                                  if (msgController.text.trim().isNotEmpty) {
+                                    if (isEdit) {
+                                      // EditCommentBloc().commentBlocMethod(
+                                      //     context: context,
+                                      //     setProgressBar: () {
+                                      //       AppDialogs.progressAlertDialog(
+                                      //           context: context);
+                                      //     },
+                                      //     comment: msgController.text.trim(),
+                                      //     isChild: isChild,
+                                      //     parrentId: parrentId,
+                                      //     isSharedPost: isSharedPost,
+                                      //     postSharedId: sharePostId,
+
+                                      //     // postId: postId,
+                                      //     // shareId: sharePostId,
+                                      //     commentId: commentId);
+                                    } else {
+                                      // CommentBloc().commentBlocMethod(
+                                      //     context: context,
+                                      //     setProgressBar: () {
+                                      //       AppDialogs.progressAlertDialog(
+                                      //           context: context);
+                                      //     },
+                                      //     comment: msgController.text.trim(),
+                                      //     postId: postId,
+                                      //     shareId: sharePostId,
+                                      //     commentId: commentId);
+                                      AppNavigation.pop();
+                                      AppDialogs.showToast(
+                                          message:
+                                              "${isEdit ? "Edit" : "Add"} ${type.name} Successfully");
+                                    }
+                                  }
+                                },
+                                child: CustomButton(
+                                    textColor: AppColors.whiteColor,
+                                    border: Border.all(
+                                        width: 1.5,
+                                        color: AppColors.darkRedColor),
+                                    color: appBrownColor,
+                                    text: isEdit ? "Edit" : "Add",
+                                    fontWeight: FontWeight.w400),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          });
+        });
   }
 }

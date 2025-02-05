@@ -31,6 +31,7 @@ class NetworkStrings {
   static const String NOTIFICATION_END_POINT = 'notifications';
   static const String REQUEST_RESET_PASSWORD_ENDPOINT =
       "auth/request-reset-password";
+  static const String CHANGE_PASSWORD_ENDPOINT = "auth/change-password";
 
   /// ============================ TOAST MESSAGES ==============================
   static const String NETWORK_ERROR = "Network error!";
@@ -106,6 +107,12 @@ class NetworkStrings {
   static const String JOURNALING_LISTING_ENDPOINT =
       "hunting-journal/my-journals";
   static const String JOURNALING_DELETE_ENDPOINT = "hunting-journal";
+
+  // / POST
+  static const String ADD_POST_ENDPOINT = "post";
+
+  // / FRIENDS
+  static const String FRIENDS_ENDPOINT = "friends";
 
   // <============ dynamin linking ----------?
   static const String DYNAMIC_URL = "https://sixsigmaSafeHunt.page.link";

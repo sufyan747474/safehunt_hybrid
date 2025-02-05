@@ -8,7 +8,6 @@ import 'package:safe_hunt/bloc/hunting_journal/get_all_gournaling_bloc.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
-import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import '../../utils/colors.dart';
 import '../../widgets/big_text.dart';
@@ -153,11 +152,14 @@ class _HuntingJournalScreenState extends State<HuntingJournalScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    BigText(
-                                      text: '${data.title ?? ''} \n',
-                                      size: 12.sp,
-                                      fontWeight: FontWeight.w700,
-                                      color: appBrownColor,
+                                    Flexible(
+                                      child: BigText(
+                                        textAlign: TextAlign.start,
+                                        text: '${data.title ?? ''} \n',
+                                        size: 12.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: appBrownColor,
+                                      ),
                                     ),
                                     GestureDetector(
                                         onTap: () {
@@ -186,8 +188,10 @@ class _HuntingJournalScreenState extends State<HuntingJournalScreen> {
                                     ),
                                     Expanded(
                                         child: BigText(
+                                      textAlign: TextAlign.start,
+                                      overflow: TextOverflow.visible,
                                       text: data.description ?? '',
-                                      maxLine: 2,
+                                      // maxLine: 2,
                                       size: 10.sp,
                                       color: appBrownColor,
                                     ))

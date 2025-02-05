@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safe_hunt/bloc/auth/change_password_bloc.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/custom_scafold.dart';
+import 'package:safe_hunt/utils/validators.dart';
 import 'package:safe_hunt/widgets/app_text_field.dart';
 import '../utils/colors.dart';
 import '../widgets/big_text.dart';
@@ -8,17 +11,24 @@ import '../widgets/custom_button.dart';
 import '../widgets/get_back_button.dart';
 
 class NewPasswordScreen extends StatefulWidget {
-  const NewPasswordScreen({super.key});
+  final bool isChangePassword;
+  const NewPasswordScreen({super.key, this.isChangePassword = false});
 
   @override
   State<NewPasswordScreen> createState() => _NewPasswordScreenState();
 }
 
 class _NewPasswordScreenState extends State<NewPasswordScreen> {
+  TextEditingController currentPasswordTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
   TextEditingController confirmPasswordTextController = TextEditingController();
-  bool _valueOne = false;
-  bool _valueTwo = false;
+  // bool _valueOne = false;
+  // bool _valueTwo = false;
+  bool obsecureTax1 = true;
+  bool obsecureTax2 = true;
+  bool obsecureTax3 = true;
+
+  final GlobalKey<FormState> _passwordFormKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,71 +46,188 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                 )),
           ),
           title: BigText(
-            text: 'Forgot Password',
+            text: '${widget.isChangePassword ? 'Change' : 'Forgot'} Password',
             fontWeight: FontWeight.bold,
             size: 20.sp,
             color: appWhiteColor,
           ),
           centerTitle: true,
         ),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 30.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 50.h,
-              ),
-              const Spacer(),
-              BigText(
-                text: 'Create new password',
-                size: 20.sp,
-                color: appWhiteColor,
-                fontWeight: FontWeight.w400,
-              ),
-              SizedBox(
-                height: 20.h,
-              ),
-              AppTextField(
-                  textController: passwordTextController,
-                  hintText: 'Password *'),
-              SizedBox(
-                height: 20.h,
-              ),
-              AppTextField(
-                  textController: confirmPasswordTextController,
-                  hintText: 'Confirm Password *'),
-              SizedBox(
-                height: 30.h,
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    BigText(
-                      text: 'Password Requirements:',
-                      color: appGreyColor,
-                      size: 14.sp,
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Row(
+        body: Form(
+          key: _passwordFormKey,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 30.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 200.h,
+                  ),
+                  BigText(
+                    text: 'Create new password',
+                    size: 20.sp,
+                    color: appWhiteColor,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  AppTextField(
+                    textController: currentPasswordTextController,
+                    hintText: 'Current Password *',
+                    maxLength: 35,
+                    isObscure: obsecureTax3,
+                    isSuffixIcons: true,
+                    validator: (value) {
+                      return CommonFieldValidators.passwordValidator(value);
+                    },
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          obsecureTax3 = !obsecureTax3;
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          !obsecureTax3
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: appWhiteColor,
+                        )),
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  AppTextField(
+                    textController: passwordTextController,
+                    hintText: 'New Password *',
+                    maxLength: 35,
+                    isObscure: obsecureTax1,
+                    isSuffixIcons: true,
+                    validator: (value) {
+                      return CommonFieldValidators.passwordValidator(value);
+                    },
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          obsecureTax1 = !obsecureTax1;
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          !obsecureTax1
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: appWhiteColor,
+                        )),
+                  ),
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  AppTextField(
+                    textController: confirmPasswordTextController,
+                    hintText: 'New Confirm Password *',
+                    maxLength: 35,
+                    validator: (value) {
+                      return CommonFieldValidators.confirmPasswordValidator(
+                        passwordTextController.text,
+                        value,
+                      );
+                    },
+                    isObscure: obsecureTax2,
+                    isSuffixIcons: true,
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          obsecureTax2 = !obsecureTax2;
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          !obsecureTax2
+                              ? Icons.visibility_outlined
+                              : Icons.visibility_off_outlined,
+                          color: appWhiteColor,
+                        )),
+                  ),
+                  SizedBox(
+                    height: 30.h,
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Column(
+                        BigText(
+                          text: 'Password Requirements:',
+                          color: appGreyColor,
+                          size: 14.sp,
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(
-                              height: 5.h,
+                            Column(
+                              children: [
+                                SizedBox(
+                                  height: 5.h,
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    // setState(() {
+                                    //   _valueOne = !_valueOne;
+                                    // });
+                                  },
+                                  child: Container(
+                                    width: 15.w,
+                                    height: 15.h,
+                                    decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: appButtonColor),
+                                    // child: _valueOne
+                                    //     ? Icon(
+                                    //         Icons.check,
+                                    //         size: 10.0.sp,
+                                    //         color: Colors.black,
+                                    //         weight: 10,
+                                    //       )
+                                    //     : Icon(
+                                    //         Icons.check_box_outline_blank,
+                                    //         size: 10.0.sp,
+                                    //         color: appButtonColor,
+                                    //         weight: 10,
+                                    //       ),
+                                  ),
+                                ),
+                              ],
                             ),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            Flexible(
+                              child: BigText(
+                                maxLine: 2,
+                                text:
+                                    'Must contain at least 8 characters, 1 special symbol (!@#\$%&), 1 number',
+                                size: 12.sp,
+                                color: appGreyColor,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10.h,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
                             GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  _valueOne = !_valueOne;
-                                });
+                                // setState(() {
+                                //   _valueTwo = !_valueTwo;
+                                // });
                               },
                               child: Container(
                                 width: 15.w,
@@ -108,102 +235,67 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                                 decoration: const BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: appButtonColor),
-                                child: _valueOne
-                                    ? Icon(
-                                        Icons.check,
-                                        size: 10.0.sp,
-                                        color: Colors.black,
-                                        weight: 10,
-                                      )
-                                    : Icon(
-                                        Icons.check_box_outline_blank,
-                                        size: 10.0.sp,
-                                        color: appButtonColor,
-                                        weight: 10,
-                                      ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(1.0),
+                                  // child: _valueTwo
+                                  //     ? Icon(
+                                  //         Icons.check,
+                                  //         size: 10.0.sp,
+                                  //         color: Colors.black,
+                                  //         weight: 10,
+                                  //       )
+                                  //     : Icon(
+                                  //         Icons.check_box_outline_blank,
+                                  //         size: 10.0.sp,
+                                  //         color: appButtonColor,
+                                  //         weight: 10,
+                                  //       ),
+                                ),
                               ),
                             ),
+                            SizedBox(
+                              width: 10.w,
+                            ),
+                            Flexible(
+                                child: BigText(
+                              text: 'May not be a previously used password',
+                              size: 12.sp,
+                              color: appGreyColor,
+                              fontWeight: FontWeight.w400,
+                            ))
                           ],
                         ),
-                        SizedBox(
-                          width: 10.w,
-                        ),
-                        Expanded(
-                          child: BigText(
-                            maxLine: 2,
-                            text:
-                                'Must contain at least 8 characters, 1 special symbol (!@#\$%&), 1 number',
-                            size: 12.sp,
-                            color: appGreyColor,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        )
                       ],
                     ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _valueTwo = !_valueTwo;
-                            });
+                  ),
+                  SizedBox(
+                    height: 50.h,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      if (_passwordFormKey.currentState!.validate()) {
+                        _passwordFormKey.currentState?.save();
+                        ChangePasswordBloc().changePasswordBlocMethod(
+                          context: context,
+                          setProgressBar: () {
+                            AppDialogs.progressAlertDialog(context: context);
                           },
-                          child: Container(
-                            width: 15.w,
-                            height: 15.h,
-                            decoration: const BoxDecoration(
-                                shape: BoxShape.circle, color: appButtonColor),
-                            child: Padding(
-                              padding: const EdgeInsets.all(1.0),
-                              child: _valueTwo
-                                  ? Icon(
-                                      Icons.check,
-                                      size: 10.0.sp,
-                                      color: Colors.black,
-                                      weight: 10,
-                                    )
-                                  : Icon(
-                                      Icons.check_box_outline_blank,
-                                      size: 10.0.sp,
-                                      color: appButtonColor,
-                                      weight: 10,
-                                    ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10.w,
-                        ),
-                        Expanded(
-                            child: BigText(
-                          text: 'May not be a previously used password',
-                          size: 12.sp,
-                          color: appGreyColor,
-                          fontWeight: FontWeight.w400,
-                        ))
-                      ],
+                          newPassword: confirmPasswordTextController.text,
+                          currentPassword: currentPasswordTextController.text,
+                        );
+                      }
+                    },
+                    child: CustomButton(
+                      text: widget.isChangePassword
+                          ? 'Change Password'
+                          : 'Reset Password',
+                      color: appButtonColor,
+                      textColor: appBrownColor,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              SizedBox(
-                height: 50.h,
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: CustomButton(
-                  text: 'Reset Password',
-                  color: appButtonColor,
-                  textColor: appBrownColor,
-                ),
-              ),
-              const Spacer(),
-            ],
+            ),
           ),
         ));
   }

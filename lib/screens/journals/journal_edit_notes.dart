@@ -8,7 +8,6 @@ import 'package:safe_hunt/screens/journals/model/location_model.dart';
 import 'package:safe_hunt/screens/journals/model/weather_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
-import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import '../../utils/colors.dart';
 import '../../widgets/big_text.dart';
