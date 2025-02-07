@@ -14,10 +14,10 @@ class PostProvider extends ChangeNotifier {
     if (getTagPeople.isNotEmpty) {
       hasTagPeople = true;
       _getTagPeople = getTagPeople;
-      // _getTagPeople = getTagPeople
-      //   ..sort((a, b) =>
-      //       DateTime.parse(b.createdAt ?? DateTime.now().toString()).compareTo(
-      //           DateTime.parse(a.createdAt ?? DateTime.now().toString())));
+      _getTagPeople = getTagPeople
+        ..sort((a, b) =>
+            DateTime.parse(b.createdAt ?? DateTime.now().toString()).compareTo(
+                DateTime.parse(a.createdAt ?? DateTime.now().toString())));
     } else {
       hasTagPeople = false;
     }

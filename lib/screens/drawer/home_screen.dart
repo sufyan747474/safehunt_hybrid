@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/post/get_all_post_bloc.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
 import 'package:safe_hunt/screens/post/post_detail_screen.dart';
@@ -178,7 +178,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: GestureDetector(
                   onTap: () {
-                    Get.to(const AddPost());
+                    context.read<PostProvider>().emptySelectedTagPeople();
+                    context.read<PostProvider>().emptyTagPeopleList();
+                    AppNavigation.push(const AddPost());
                   },
                   child: Container(
                     decoration: BoxDecoration(

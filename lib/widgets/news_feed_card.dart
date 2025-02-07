@@ -1,30 +1,30 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
-import 'package:safe_hunt/widgets/post_comment.dart';
+import 'package:safe_hunt/utils/utils.dart';
 
 import '../screens/drawer/profile_tab.dart';
 import '../utils/colors.dart';
 import 'big_text.dart';
 
-class NewsFeedCard extends StatefulWidget {
+class NewsFeedCard extends StatelessWidget {
   final void Function()? functionOnTap;
   final bool isPostDetails;
 
   const NewsFeedCard(
       {super.key, this.functionOnTap, this.isPostDetails = false});
 
-  @override
-  State<NewsFeedCard> createState() => _NewsFeedCardState();
-}
+  // bool showPostComments = false;
 
-class _NewsFeedCardState extends State<NewsFeedCard> {
-  bool showPostComments = false;
-  bool likePost = false;
+  // bool likePost = false;
+
   @override
   Widget build(BuildContext context) {
+    log('message');
     return Container(
       // padding: EdgeInsets.all(10.w),
       width: MediaQuery.of(context).size.width,
@@ -77,30 +77,39 @@ class _NewsFeedCardState extends State<NewsFeedCard> {
                           SizedBox(
                             height: 5.h,
                           ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              BigText(
-                                text: '1h',
-                                size: 10.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black87,
-                              ),
-                              SizedBox(
-                                width: 3.w,
-                              ),
-                              SvgPicture.asset('assets/post_location_icon.svg'),
-                              SizedBox(
-                                width: 3.w,
-                              ),
-                              BigText(
-                                text: "Sierra National Forest",
-                                size: 10.sp,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                              )
-                            ],
-                          )
+                          FutureBuilder(
+                              future: Utils.getLocationFromLatLng(
+                                  lat: 24.8970, lng: 67.2136),
+                              builder: (context, snapShot) {
+                                return Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    BigText(
+                                      text: '1h',
+                                      size: 10.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.black87,
+                                    ),
+                                    SizedBox(
+                                      width: 3.w,
+                                    ),
+                                    SvgPicture.asset(
+                                        'assets/post_location_icon.svg'),
+                                    SizedBox(
+                                      width: 3.w,
+                                    ),
+                                    BigText(
+                                      text: snapShot.data.toString(),
+                                      // Utils.getLocationFromLatLng(
+                                      //     lat: 24.8970, lng: 67.2136),
+                                      // "Sierra National Forest",
+                                      size: 10.sp,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    )
+                                  ],
+                                );
+                              })
                         ],
                       )
                     ],
@@ -148,9 +157,9 @@ class _NewsFeedCardState extends State<NewsFeedCard> {
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  showPostComments = !showPostComments;
-                });
+                // setState(() {
+                //   showPostComments = !showPostComments;
+                // });
               },
               child: Row(
                 children: [
@@ -244,9 +253,9 @@ class _NewsFeedCardState extends State<NewsFeedCard> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      likePost = !likePost;
-                    });
+                    // setState(() {
+                    //   likePost = !likePost;
+                    // });
                   },
                   child: Container(
                     width: 117.w,
@@ -258,9 +267,11 @@ class _NewsFeedCardState extends State<NewsFeedCard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        likePost
-                            ? SvgPicture.asset('assets/like_color_icon.svg')
-                            : SvgPicture.asset('assets/icons_like.svg'),
+                        // likePost
+                        //     ?
+                        // SvgPicture.asset('assets/like_color_icon.svg')
+                        // :
+                        SvgPicture.asset('assets/icons_like.svg'),
                         BigText(
                           text: "Like",
                           size: 10.sp,
@@ -273,7 +284,7 @@ class _NewsFeedCardState extends State<NewsFeedCard> {
                 ),
                 Spacer(),
                 InkWell(
-                  onTap: widget.functionOnTap,
+                  onTap: functionOnTap,
                   child: Container(
                     width: 117.w,
                     height: 40.h,

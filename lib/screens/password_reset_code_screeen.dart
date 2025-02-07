@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safe_hunt/bloc/auth/otp_verification_bloc.dart';
 import 'package:safe_hunt/bloc/auth/resend_otp_bloc.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
-import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/validators.dart';
 import '../utils/colors.dart';
 import '../utils/custom_scafold.dart';
@@ -15,7 +14,6 @@ import '../widgets/app_text_field.dart';
 import '../widgets/big_text.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/get_back_button.dart';
-import 'new_password_screen.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key, this.email});
@@ -194,6 +192,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       setProgressBar: () {
                         AppDialogs.progressAlertDialog(context: context);
                       },
+                      otp: resetPasswordController.text,
                     );
 
                     // AppNavigation.pushReplacement(const NewPasswordScreen());

@@ -1,9 +1,11 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
@@ -26,8 +28,10 @@ class AddPostBloc {
 
     userObject = {
       "description": description,
-      "location": location?.toJson(),
-      "tags": tagList
+      // "location": location?.toJson(),
+      "latitude": location?.lat,
+      "longitude": location?.lng,
+      "tags": context.read<PostProvider>().selectedTagPeople
     };
 
     log("body : $userObject");
@@ -84,7 +88,10 @@ class AddPostBloc {
     required BuildContext context,
   }) {
     try {
-      if (_response?.data != null) {}
+      if (_response?.data != null) {
+        AppNavigation.pop();
+        AppDialogs.showToast(message: "Post Created Successfully");
+      }
     } catch (error) {
       log(error.toString());
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

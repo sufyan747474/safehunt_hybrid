@@ -553,4 +553,33 @@ class Utils {
           });
         });
   }
+
+  static getLocationFromLatLng({
+    required double lat,
+    required double lng,
+  }) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+
+        String address = [
+          place.street,
+          place.locality,
+          place.administrativeArea,
+          place.country
+        ].where((element) => element != null && element.isNotEmpty).join(", ");
+
+        log("Address: $address");
+        return address;
+      } else {
+        log("No address found for coordinates.");
+        return "No address found";
+      }
+    } catch (e) {
+      log("Error getting address: $e");
+      return "Error fetching address";
+    }
+  }
 }

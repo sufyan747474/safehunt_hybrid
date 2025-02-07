@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/post/add_post_bloc.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';
 import 'package:safe_hunt/screens/post/select_tag_people_screen.dart';
@@ -44,7 +45,8 @@ class _AddPostState extends State<AddPost> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(builder: (context, val, _) {
+    return Consumer2<UserProvider, PostProvider>(
+        builder: (context, val, postData, _) {
       return Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: appButtonColor,
@@ -194,13 +196,16 @@ class _AddPostState extends State<AddPost> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    height: 5.w,
-                    width: 32.h,
-                    decoration: BoxDecoration(
-                      color: appBrownColor,
-                      borderRadius: BorderRadius.all(Radius.circular(30.r)),
-                      // border: Border.all(width: 1, ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Container(
+                      height: 5.w,
+                      width: 32.h,
+                      decoration: BoxDecoration(
+                        color: appBrownColor,
+                        borderRadius: BorderRadius.all(Radius.circular(30.r)),
+                        // border: Border.all(width: 1, ),
+                      ),
                     ),
                   ),
                   10.verticalSpace,
@@ -298,6 +303,59 @@ class _AddPostState extends State<AddPost> {
                         )
                       ],
                     ),
+                  ),
+                  if (postData.tagPeopleList.isNotEmpty) 15.verticalSpace,
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Wrap(
+                        runSpacing: 5.h,
+                        spacing: 5.w,
+                        alignment: WrapAlignment.start,
+                        children: [
+                          if (postData.tagPeopleList.isNotEmpty)
+                            ...List.generate(
+                              postData.tagPeopleList.length,
+                              (index) => Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  color: appBrownColor,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 8.h, horizontal: 10.w),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: BigText(
+                                        text: postData
+                                                .tagPeopleList[0].displayname ??
+                                            "",
+                                        color: AppColors.whiteColor,
+                                        fontWeight: FontWeight.w500,
+                                        size: 14.sp,
+                                        textAlign: TextAlign.start,
+                                        // maxLines: 2,
+                                      ),
+                                    ),
+                                    8.horizontalSpace,
+                                    CustomContainer(
+                                      onTap: () {
+                                        postData.removeTagPeopleId(
+                                            postData.tagPeopleList[index].id!);
+                                      },
+                                      conatinerColor: AppColors.whiteColor,
+                                      iconColor: appBrownColor,
+                                      width: 15.w,
+                                      height: 15.w,
+                                      iconData: Icons.close,
+                                      iconWidth: 13.w,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ]),
                   ),
                 ],
               ),

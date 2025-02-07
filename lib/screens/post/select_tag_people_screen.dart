@@ -98,17 +98,17 @@ class _AddPostState extends State<SelectTagPeople> {
           ),
           centerTitle: true,
           elevation: 0,
-          actions: [
-            IconButton(
-              padding: const EdgeInsets.all(14.0),
-              onPressed: () {},
-              icon: BigText(
-                text: 'Done',
-                size: 16.sp,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+          // actions: [
+          //   IconButton(
+          //     padding: const EdgeInsets.all(14.0),
+          //     onPressed: () {},
+          //     icon: BigText(
+          //       text: 'Done',
+          //       size: 16.sp,
+          //       fontWeight: FontWeight.w500,
+          //     ),
+          //   ),
+          // ],
         ),
         body: Column(
           children: [
@@ -152,9 +152,14 @@ class _AddPostState extends State<SelectTagPeople> {
                   AppDialogs.showToast(message: 'Please select member.');
                 }
               },
-              child: CustomButton(
-                text: 'Done',
-                fontWeight: FontWeight.w600,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                child: CustomButton(
+                  text: 'Done',
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.greenColor,
+                  textColor: AppColors.whiteColor,
+                ),
               ),
             ),
             20.verticalSpace,
@@ -166,40 +171,43 @@ class _AddPostState extends State<SelectTagPeople> {
 
   _buildTagPeopleRow(int index, UserData val) {
     return Consumer<PostProvider>(builder: (context, tag, _) {
-      return BuildRowWidget(
-        image: val.profilePhoto,
-        name: val.displayname,
-        onTap: () {
-          if (selectedItems[index] == true) {
-            selectedItems[index] = false;
-            tag.removeTagPeopleId(val.id!);
-            // tag.removeTagPeopleList(val);
-          } else {
-            selectedItems[index] = true;
-            tag.setTagPeopleId(id: val.id!);
-            tag.addTagPeopleList(val);
-          }
-          setState(() {});
-        },
-        child: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(8),
-          width: 35.w,
-          height: 35.w,
-          decoration: BoxDecoration(
-            border: Border.all(width: 1.w, color: AppColors.greenColor),
-            color: selectedItems[index]
-                ? AppColors.greenColor
-                : AppColors.transparentColor,
-            shape: BoxShape.circle,
-          ),
-          child: Image.asset(
-            'assets/check_icon.png',
-            width: 24.w,
-            height: 24.h,
-            color: selectedItems[index]
-                ? AppColors.whiteColor
-                : AppColors.transparentColor,
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15.w),
+        child: BuildRowWidget(
+          image: val.profilePhoto,
+          name: val.displayname,
+          onTap: () {
+            if (selectedItems[index] == true) {
+              selectedItems[index] = false;
+              tag.removeTagPeopleId(val.id!);
+              // tag.removeTagPeopleList(val);
+            } else {
+              selectedItems[index] = true;
+              tag.setTagPeopleId(id: val.id!);
+              tag.addTagPeopleList(val);
+            }
+            setState(() {});
+          },
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.all(8),
+            width: 30.w,
+            height: 30.w,
+            decoration: BoxDecoration(
+              border: Border.all(width: 1.w, color: AppColors.greenColor),
+              color: selectedItems[index]
+                  ? AppColors.greenColor
+                  : AppColors.transparentColor,
+              shape: BoxShape.circle,
+            ),
+            child: Image.asset(
+              'assets/check_icon.png',
+              width: 24.w,
+              height: 24.h,
+              color: selectedItems[index]
+                  ? AppColors.whiteColor
+                  : AppColors.transparentColor,
+            ),
           ),
         ),
       );
@@ -225,8 +233,8 @@ class BuildRowWidget extends StatelessWidget {
             canSelectImage: false,
             imageUrl: image,
             isBorder: true,
-            imageWidth: 60.w,
-            imageHeight: 60.w,
+            imageWidth: 40.w,
+            imageHeight: 40.w,
             borderWidth: 3.w,
           ),
         ),
