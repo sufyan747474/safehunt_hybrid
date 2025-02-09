@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/comment/childComment/delete_child_comment_bloc.dart';
+import 'package:safe_hunt/bloc/comment/delete_comment_bloc.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/post/enums/enums.dart';
 import 'package:safe_hunt/screens/post/model/comment_model.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/colors.dart';
-import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 
@@ -26,10 +27,13 @@ class _CommentWidgetState extends State<CommentWidget> {
   double? height;
   final key = GlobalKey();
 
+  String? currentUserId;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    currentUserId = context.read<UserProvider>().user?.id;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (widget.model?.type == commentType.comment) {
         final renderBox = key.currentContext?.findRenderObject() as RenderBox?;
@@ -84,86 +88,95 @@ class _CommentWidgetState extends State<CommentWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // if (widget.model?.userId !=
-                    //     context.read<UserProvider>().user?.id)
-                    //   10.verticalSpace,
+                    if (widget.model?.userId != currentUserId) 10.verticalSpace,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Henry',
-                          // Utils.getDayFromDateTime(widget.model?.createdAt ??
-                          //     DateTime.now().toString()),
-                          // "2 mins",
-                          style: TextStyle(
-                              fontSize: 14.sp,
-                              color: appBrownColor,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: ""),
+                        Flexible(
+                          child: Text(
+                            (widget.model?.user?.displayname) ?? '',
+                            // "2 mins",
+                            style: TextStyle(
+                                fontSize: 14.sp,
+                                color: appBrownColor,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: ""),
+                          ),
                         ),
-                        // if (widget.model?.userId ==
-                        //     context.read<UserProvider>().user?.id)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                                alignment: Alignment.center,
-                                padding: EdgeInsets.zero,
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () {
-                                  // DeleteCommentBloc().deleteCommentBlocMethod(
-                                  //   context: context,
-                                  //   setProgressBar: () {
-                                  //     AppDialogs.progressAlertDialog(
-                                  //         context: context);
-                                  //   },
-                                  //   commentId: widget.model?.commentId,
-                                  //   postId: widget.model?.postId,
-                                  //   postSharedId: widget.model?.postSharedId,
-                                  // );
-                                },
-                                icon: Icon(
-                                  Icons.delete,
-                                  size: 18.r,
-                                  color: appBrownColor,
-                                ),
+                        if (widget.model?.userId == currentUserId)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.zero,
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    if (widget.model?.isChild == true) {
+                                      DeleteChildCommentBloc()
+                                          .deleteChildCommentBlocMethod(
+                                        context: context,
+                                        setProgressBar: () {
+                                          AppDialogs.progressAlertDialog(
+                                              context: context);
+                                        },
+                                        commentId: widget.model?.commentId,
+                                        parrentId: widget.model?.parrentId,
+                                      );
+                                    } else if (widget.model?.isChild == false) {
+                                      DeleteCommentBloc()
+                                          .deleteCommentBlocMethod(
+                                        context: context,
+                                        setProgressBar: () {
+                                          AppDialogs.progressAlertDialog(
+                                              context: context);
+                                        },
+                                        commentId: widget.model?.commentId,
+                                        postId: widget.model?.postId,
+                                      );
+                                    }
+                                  },
+                                  icon: Icon(
+                                    Icons.delete,
+                                    size: 18.r,
+                                    color: appBrownColor,
+                                  ),
 
-                                // size: 30.r,
-                                color: appBrownColor),
-                            // if (widget.model?.userId ==
-                            //     context.read<UserProvider>().user?.id)
-                            IconButton(
-                                alignment: Alignment.center,
-                                padding: EdgeInsets.zero,
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () {
-                                  Utils.typingModal(
-                                    modalType.comment,
-                                    commentId: widget.model?.commentId,
-                                    comment: widget.model?.comment,
-                                    isChild: widget.model?.isChild ?? false,
-                                    parrentId: widget.model?.parrentId,
-                                    isEdit: true,
-                                    isSharedPost:
-                                        widget.model?.isSharedPost ?? false,
-                                    sharePostId: widget.model?.postSharedId,
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.edit,
-                                  size: 18.r,
-                                  color: appBrownColor,
-                                ),
+                                  // size: 30.r,
+                                  color: appBrownColor),
+                              // if (widget.model?.userId ==
+                              //     context.read<UserProvider>().user?.id)
+                              IconButton(
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.zero,
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    Utils.typingModal(
+                                      modalType.comment,
+                                      commentId: widget.model?.commentId,
+                                      comment: widget.model?.comment,
+                                      isChild: widget.model?.isChild ?? false,
+                                      parrentId: widget.model?.parrentId,
+                                      isEdit: true,
+                                      isSharedPost:
+                                          widget.model?.isSharedPost ?? false,
+                                      sharePostId: widget.model?.postSharedId,
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.edit,
+                                    size: 18.r,
+                                    color: appBrownColor,
+                                  ),
 
-                                // size: 30.r,
-                                color: appBrownColor),
-                          ],
-                        )
+                                  // size: 30.r,
+                                  color: appBrownColor),
+                            ],
+                          )
                       ],
                     ),
-                    // if (widget.model?.userId !=
-                    //     context.read<UserProvider>().user?.id)
-                    //   10.verticalSpace,
+                    if (widget.model?.userId != currentUserId) 10.verticalSpace,
                     Padding(
                       padding: EdgeInsets.only(right: 10.r),
                       child: Text(
@@ -218,9 +231,19 @@ class _CommentWidgetState extends State<CommentWidget> {
                                 icon: "assets/icon_comment.svg"),
                           )
                       ],
-                    )
+                    ),
                   ],
                 ),
+              ),
+              5.verticalSpace,
+              Text(
+                Utils.getDayFromDateTime(
+                    widget.model?.createdAt ?? DateTime.now().toString()),
+                style: TextStyle(
+                    fontSize: 12.sp,
+                    color: appBrownColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: ""),
               ),
               if ((widget.model?.replies ?? []).isNotEmpty)
                 AnimatedSize(

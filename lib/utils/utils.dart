@@ -9,6 +9,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:safe_hunt/bloc/comment/add_comment_bloc.dart';
+import 'package:safe_hunt/bloc/comment/childComment/add_child_comment_bloc.dart';
+import 'package:safe_hunt/bloc/comment/comment_update_bloc.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';
 import 'package:safe_hunt/screens/journals/model/weather_model.dart';
 import 'package:safe_hunt/screens/post/enums/enums.dart';
@@ -425,6 +428,7 @@ class Utils {
     final msgController = TextEditingController(text: text);
     isEdit ? msgController.text = comment ?? '' : null;
     log('comment id : $commentId');
+    log('comment type : ${type.name}');
 
     showModalBottomSheet(
         isScrollControlled: true,
@@ -466,8 +470,18 @@ class Utils {
                         },
                         onEditingComplete: () {
                           if (msgController.text.trim().isNotEmpty) {
-                            AppNavigation.pop();
-                            AppDialogs.showToast(message: " Successfully");
+                            if (isEdit) {
+                              updateCommentMethod(context, msgController,
+                                  commentId, isEdit, type);
+                            } else {
+                              if (type == modalType.comment) {
+                                addCommentMethod(context, msgController, postId,
+                                    isEdit, type);
+                              } else if (type == modalType.reply) {
+                                addChildCommentMethod(context, msgController,
+                                    postId, commentId, isEdit, type);
+                              }
+                            }
                           }
                         },
                         textInputAction: TextInputAction.send,
@@ -499,36 +513,25 @@ class Utils {
                                 onTap: () {
                                   if (msgController.text.trim().isNotEmpty) {
                                     if (isEdit) {
-                                      // EditCommentBloc().commentBlocMethod(
-                                      //     context: context,
-                                      //     setProgressBar: () {
-                                      //       AppDialogs.progressAlertDialog(
-                                      //           context: context);
-                                      //     },
-                                      //     comment: msgController.text.trim(),
-                                      //     isChild: isChild,
-                                      //     parrentId: parrentId,
-                                      //     isSharedPost: isSharedPost,
-                                      //     postSharedId: sharePostId,
-
-                                      //     // postId: postId,
-                                      //     // shareId: sharePostId,
-                                      //     commentId: commentId);
+                                      updateCommentMethod(
+                                          context,
+                                          msgController,
+                                          commentId,
+                                          isEdit,
+                                          type);
                                     } else {
-                                      // CommentBloc().commentBlocMethod(
-                                      //     context: context,
-                                      //     setProgressBar: () {
-                                      //       AppDialogs.progressAlertDialog(
-                                      //           context: context);
-                                      //     },
-                                      //     comment: msgController.text.trim(),
-                                      //     postId: postId,
-                                      //     shareId: sharePostId,
-                                      //     commentId: commentId);
-                                      AppNavigation.pop();
-                                      AppDialogs.showToast(
-                                          message:
-                                              "${isEdit ? "Edit" : "Add"} ${type.name} Successfully");
+                                      if (type == modalType.comment) {
+                                        addCommentMethod(context, msgController,
+                                            postId, isEdit, type);
+                                      } else if (type == modalType.reply) {
+                                        addChildCommentMethod(
+                                            context,
+                                            msgController,
+                                            postId,
+                                            commentId,
+                                            isEdit,
+                                            type);
+                                      }
                                     }
                                   }
                                 },
@@ -551,6 +554,72 @@ class Utils {
               ),
             );
           });
+        });
+  }
+
+  static void addChildCommentMethod(
+      BuildContext context,
+      TextEditingController msgController,
+      String? postId,
+      String? commentId,
+      isEdit,
+      modalType type) {
+    AddChildCommentBloc().addChildCommentBlocMethod(
+      context: context,
+      setProgressBar: () {
+        AppDialogs.progressAlertDialog(context: context);
+      },
+      comment: msgController.text,
+      postId: postId,
+      parrentId: commentId,
+      onSuccess: () {
+        AppNavigation.pop();
+        AppDialogs.showToast(
+            message: "${isEdit ? "Edit" : "Add"} ${type.name} Successfully");
+      },
+    );
+  }
+
+  static void updateCommentMethod(
+      BuildContext context,
+      TextEditingController msgController,
+      String? commentId,
+      isEdit,
+      modalType type) {
+    UpdateCommentBloc().updateCommentBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        comment: msgController.text.trim(),
+
+        // postId: postId,
+        // shareId: sharePostId,
+        commentId: commentId,
+        onSuccess: () {
+          AppNavigation.pop();
+          AppDialogs.showToast(
+              message: "${isEdit ? "Edit" : "Add"} ${type.name} Successfully");
+        });
+  }
+
+  static void addCommentMethod(
+      BuildContext context,
+      TextEditingController msgController,
+      String? postId,
+      isEdit,
+      modalType type) {
+    AddCommentBloc().addCommentBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        comment: msgController.text.trim(),
+        postId: postId,
+        onSuccess: () {
+          AppNavigation.pop();
+          AppDialogs.showToast(
+              message: "${isEdit ? "Edit" : "Add"} ${type.name} Successfully");
         });
   }
 

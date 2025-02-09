@@ -2,19 +2,19 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
-import 'package:safe_hunt/screens/post/model/post_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class GetAllPostBloc {
+class DeletePostBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> getAllPostBlocMethod({
+  Future<void> deletePostBlocMethod({
     required BuildContext context,
     required VoidCallback setProgressBar,
-    required Function() onSuccess,
+    Function()? onSuccess,
+    required String postId,
   }) async {
     setProgressBar();
 
@@ -22,21 +22,22 @@ class GetAllPostBloc {
       Navigator.pop(context);
     };
 
-    await _getRequest(
-        endPoint: NetworkStrings.ADD_POST_ENDPOINT, context: context);
+    await _deleteRequest(
+        endPoint: '${NetworkStrings.ADD_POST_ENDPOINT}/$postId',
+        context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _getAllPostResponseMethod(context: context, onSuccess: onSuccess);
+      _deletePostResponseMethod(
+          context: context, onSuccess: onSuccess, postId: postId);
     };
     _validateResponse();
   }
 
   ///----------------------------------- Get Request -----------------------------------
-  Future<void> _getRequest(
+  Future<void> _deleteRequest(
       {required String endPoint, required BuildContext context}) async {
-    _response = await Network().getRequest(
-        baseUrl: NetworkStrings.API_BASE_URL,
+    _response = await Network().deleteRequest(
         endPoint: endPoint,
         context: context,
         onFailure: _onFailure,
@@ -56,16 +57,19 @@ class GetAllPostBloc {
     }
   }
 
-  void _getAllPostResponseMethod({
+  void _deletePostResponseMethod({
     required BuildContext context,
-    required Function() onSuccess,
+    Function()? onSuccess,
+    String? postId,
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final post = List<PostData>.from(
-            _response?.data['data']!.map((x) => PostData.fromJson(x))).toList();
+        // final post = List<PostData>.from(
+        //     _response?.data['data']!.map((x) => PostData.fromJson(x))).toList();
 
-        context.read<PostProvider>().setPosts(post);
+        context.read<PostProvider>().deletePost(postId ?? "");
+        onSuccess?.call();
+        AppDialogs.showToast(message: "Post deleted successfully");
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

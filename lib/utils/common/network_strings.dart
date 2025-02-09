@@ -3,8 +3,7 @@ class NetworkStrings {
 
   ///================================= BASE URLS ================================
   static const String API_BASE_URL = "http://109.176.198.34:5050/";
-  static const String IMAGE_BASE_URL =
-      "https://server1.appsstaging.com/3672/SafeHunt/public";
+  static const String IMAGE_BASE_URL = "https://safehunt.app/";
   static const String MERCHANT_SUCCESS_URL =
       "https://host2.appsstaging.com:3005/privacy_policy";
   static const String MERCHANT_THANK_YOU_URL =
@@ -110,6 +109,18 @@ class NetworkStrings {
 
   // / POST
   static const String ADD_POST_ENDPOINT = "post";
+
+  // POST LIKE
+  static const String POST_LIKE_ENDPOINT = "likes";
+
+  // COMMENT
+  static const String COMMENT_ENDPOINT = "comments";
+
+  // CHILD COMMENT
+  static const String CHILD_COMMENT_ENDPOINT = "comments/replies";
+
+  // / POST
+  static const String POST_SHARE_ENDPOINT = "shares";
 
   // / FRIENDS
   static const String FRIENDS_ENDPOINT = "friends";

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
+import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import 'package:shimmer/shimmer.dart';
@@ -75,7 +76,7 @@ class _CustomImageWidgetState extends State<CustomImageWidget> {
               image: widget.isPlaceHolderShow
                   ? DecorationImage(
                       image: AssetImage(
-                        widget.imageAssets ?? "assets/imagePlaceholder.png",
+                        widget.imageAssets ?? AppAssets.imagePlaceholder,
                       ),
                       fit: widget.fit ?? BoxFit.cover,
                     )
@@ -117,6 +118,11 @@ class _CustomImageWidgetState extends State<CustomImageWidget> {
                               return ExtendedRawImage(
                                 image: state.extendedImageInfo?.image,
                                 fit: widget.fit ?? BoxFit.cover,
+                              );
+                            case LoadState.failed:
+                              return Image.asset(
+                                widget.imageAssets ??
+                                    AppAssets.imagePlaceholder,
                               );
                             default:
                               return Shimmer.fromColors(

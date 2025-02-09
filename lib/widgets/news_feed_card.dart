@@ -1,11 +1,19 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
+import 'package:safe_hunt/bloc/post/delete_post_bloc.dart';
+import 'package:safe_hunt/bloc/post/like_unlike_post_bloc.dart';
+import 'package:safe_hunt/bloc/post/post_share_bloc.dart';
+import 'package:safe_hunt/screens/post/model/post_model.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
+import 'package:safe_hunt/utils/common/app_colors.dart';
+import 'package:safe_hunt/utils/common/asset_path.dart';
+import 'package:safe_hunt/utils/custom_bottom_sheet.dart';
 import 'package:safe_hunt/utils/utils.dart';
+import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 
 import '../screens/drawer/profile_tab.dart';
 import '../utils/colors.dart';
@@ -14,9 +22,10 @@ import 'big_text.dart';
 class NewsFeedCard extends StatelessWidget {
   final void Function()? functionOnTap;
   final bool isPostDetails;
+  final PostData? post;
 
   const NewsFeedCard(
-      {super.key, this.functionOnTap, this.isPostDetails = false});
+      {super.key, this.functionOnTap, this.isPostDetails = false, this.post});
 
   // bool showPostComments = false;
 
@@ -24,126 +33,190 @@ class NewsFeedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    log('message');
     return Container(
-      // padding: EdgeInsets.all(10.w),
-      width: MediaQuery.of(context).size.width,
+      padding: EdgeInsets.symmetric(vertical: 10.w),
+      width: 1.sw,
       color: subscriptionCardColor,
-
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 23.w, vertical: 15.h),
+          Flexible(
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                GestureDetector(
-                  onTap: () {
-                    Get.to(ProfileTab());
-                  },
+                Flexible(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: appLightGreenColor,
-                          borderRadius: BorderRadius.all(Radius.circular(38)),
-                          border:
-                              Border.all(color: appLightGreenColor, width: 2.w),
+                      InkWell(
+                        onTap: () {
+                          Get.to(ProfileTab());
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 15.w),
+                          child: CustomImageWidget(
+                            imageUrl: post?.user?.profilePhoto,
+                            imageHeight: 50.w,
+                            imageWidth: 50.w,
+                            borderColor: AppColors.greenColor,
+                            borderWidth: 2.r,
+                          ),
                         ),
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(30.r),
-                            child: Image.asset(
-                              'assets/profile_picture.png',
-                              height: 50.h,
-                              width: 50.w,
-                            )),
                       ),
-                      SizedBox(
-                        width: 5.w,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          BigText(
-                            text: "Henry",
-                            size: 17.sp,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black,
-                          ),
-                          SizedBox(
-                            height: 5.h,
-                          ),
-                          FutureBuilder(
-                              future: Utils.getLocationFromLatLng(
-                                  lat: 24.8970, lng: 67.2136),
-                              builder: (context, snapShot) {
-                                return Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    BigText(
-                                      text: '1h',
+                      10.horizontalSpace,
+                      Flexible(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: BigText(
+                                textAlign: TextAlign.start,
+                                text: post?.user?.displayname ?? "",
+                                size: 17.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 5.h,
+                            ),
+                            Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: BigText(
+                                      textAlign: TextAlign.start,
+                                      text: Utils.getDayFromDateTime(
+                                          post?.user?.createdAt ??
+                                              DateTime.now().toString()),
                                       size: 10.sp,
-                                      fontWeight: FontWeight.w500,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.black87,
+                                      overflow: TextOverflow.visible,
                                     ),
-                                    SizedBox(
-                                      width: 3.w,
-                                    ),
-                                    SvgPicture.asset(
-                                        'assets/post_location_icon.svg'),
-                                    SizedBox(
-                                      width: 3.w,
-                                    ),
-                                    BigText(
-                                      text: snapShot.data.toString(),
-                                      // Utils.getLocationFromLatLng(
-                                      //     lat: 24.8970, lng: 67.2136),
-                                      // "Sierra National Forest",
-                                      size: 10.sp,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500,
-                                    )
-                                  ],
-                                );
-                              })
-                        ],
+                                  ),
+                                  8.verticalSpace,
+                                  FutureBuilder(
+                                      future: Utils.getLocationFromLatLng(
+                                          lat: 24.8970, lng: 67.2136),
+                                      builder: (context, snapShot) {
+                                        return Flexible(
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SvgPicture.asset(
+                                                  'assets/post_location_icon.svg'),
+                                              SizedBox(
+                                                width: 3.w,
+                                              ),
+                                              Flexible(
+                                                child: BigText(
+                                                  textAlign: TextAlign.start,
+                                                  text:
+                                                      snapShot.data.toString(),
+                                                  // Utils.getLocationFromLatLng(
+                                                  //     lat: 24.8970, lng: 67.2136),
+                                                  // "Sierra National Forest",
+                                                  size: 10.sp,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w500,
+                                                  overflow:
+                                                      TextOverflow.visible,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       )
                     ],
                   ),
                 ),
-                Column(
-                  children: [
-                    Icon(Icons.more_vert),
-                    SizedBox(
-                      height: 7.h,
-                    ),
-                  ],
-                )
+                10.horizontalSpace,
+                IconButton(
+                  onPressed: () {
+                    showOptionsBottomSheet(
+                        context: context,
+                        sheetHeight: 150.h,
+                        option: [
+                          buildOptionTile(
+                              icon: Icons.edit,
+                              title: 'Edit Post',
+                              subTitle: 'Do you want to edit this post',
+                              iconwidth: 15.w,
+                              iconHeight: 15.w,
+                              onTap: () {},
+                              context: context),
+                          buildOptionTile(
+                              icon: Icons.delete,
+                              title: 'Delete Post',
+                              subTitle: 'Do you want to delete this post',
+                              iconwidth: 15.w,
+                              iconHeight: 15.w,
+                              containsDivider: false,
+                              onTap: () {
+                                DeletePostBloc().deletePostBlocMethod(
+                                  context: context,
+                                  setProgressBar: () {
+                                    AppDialogs.progressAlertDialog(
+                                        context: context);
+                                  },
+                                  postId: post?.id ?? "",
+                                  onSuccess: () {
+                                    isPostDetails ? AppNavigation.pop() : null;
+                                    AppNavigation.pop();
+                                  },
+                                );
+                              },
+                              context: context)
+                        ]);
+                  },
+                  icon: const Icon(Icons.more_vert),
+                ),
+                // SizedBox(
+                //   height: 1.h,
+                // )
               ],
             ),
           ),
+          8.verticalSpace,
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: 23.w,
             ),
             child: BigText(
-              text: 'Embracing the wild, one hunt at a time. #DeerSeason 🦌🌿',
+              textAlign: TextAlign.start,
+              text: '${post?.description ?? ''} 🦌🌿',
               size: 12.sp,
               color: appBrownColor,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(
-            height: 5.h,
+          8.verticalSpace,
+          CustomImageWidget(
+            imageWidth: 1.sw,
+            imageHeight: 330.h,
+            imageUrl: post?.image,
+            shape: BoxShape.rectangle,
+            isBorder: false,
+            imageAssets: AppAssets.postImagePlaceHolder,
           ),
-          Image.asset('assets/post_picture.png',
-              height: 331.h,
-              width: MediaQuery.of(context).size.width,
-              fit: BoxFit.cover),
+          // Image.asset('assets/post_picture.png',
+          //     height: 331.h,
+          //     width: MediaQuery.of(context).size.width,
+          //     fit: BoxFit.cover),
           // Image.network(
           //   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHByb2ZpbGV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=900&q=60",
           //   height: 331.h,
@@ -167,15 +240,16 @@ class NewsFeedCard extends StatelessWidget {
                     'assets/like_color_icon.svg',
                     width: 16,
                   ),
+                  5.horizontalSpace,
                   BigText(
-                    text: " Robert and 214 Other",
+                    text: post?.likesCount ?? '0',
                     size: 12.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
-                  Spacer(),
+                  const Spacer(),
                   BigText(
-                    text: " 25",
+                    text: post?.comments?.length.toString() ?? '0',
                     size: 12.sp,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
@@ -193,55 +267,6 @@ class NewsFeedCard extends StatelessWidget {
               ),
             ),
           ),
-          // showPostComments
-          //     ? Column(
-          //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         children: [
-          //           SizedBox(
-          //             height: 8.w,
-          //           ),
-          //           Padding(
-          //             padding: EdgeInsets.symmetric(horizontal: 20.w),
-          //             child: Row(
-          //               children: [
-          //                 BigText(
-          //                   text: 'All Comments',
-          //                   size: 12.sp,
-          //                   color: appBlackColor,
-          //                   fontWeight: FontWeight.w600,
-          //                 ),
-          //                 SizedBox(
-          //                   width: 10.w,
-          //                 ),
-          //                 const Icon(
-          //                   Icons.keyboard_arrow_down_rounded,
-          //                   weight: 0.3,
-          //                   color: appBlackColor,
-          //                 )
-          //               ],
-          //             ),
-          //           ),
-          //           SizedBox(
-          //             height: 200.h,
-          //             child: ListView.builder(
-          //                 itemCount: 3,
-          //                 itemBuilder: (BuildContext context, index) {
-          //                   return const Padding(
-          //                     padding: EdgeInsets.all(8.0),
-          //                     child: PostComment(
-          //                       time: '9:00AM',
-          //                       postComment:
-          //                           'Impressive harvest! How was the experience out in the wild?',
-          //                       profileName: 'Henry',
-          //                       profileImage: 'assets/subscription_picture.png',
-          //                       likeCount: 1,
-          //                     ),
-          //                   );
-          //                 }),
-          //           ),
-          //         ],
-          //       )
-          //     : SizedBox(),
           SizedBox(
             height: 10.h,
           ),
@@ -253,6 +278,13 @@ class NewsFeedCard extends StatelessWidget {
               children: [
                 GestureDetector(
                   onTap: () {
+                    LikeUnlikePostBloc().likeUnlikePostBlocMethod(
+                      context: context,
+                      setProgressBar: () {
+                        AppDialogs.progressAlertDialog(context: context);
+                      },
+                      postId: post?.id,
+                    );
                     // setState(() {
                     //   likePost = !likePost;
                     // });
@@ -271,9 +303,15 @@ class NewsFeedCard extends StatelessWidget {
                         //     ?
                         // SvgPicture.asset('assets/like_color_icon.svg')
                         // :
-                        SvgPicture.asset('assets/icons_like.svg'),
+
+                        SvgPicture.asset(
+                          'assets/icons_like.svg',
+                          color: post?.postLiked == true
+                              ? AppColors.redColor
+                              : null,
+                        ),
                         BigText(
-                          text: "Like",
+                          text: post?.postLiked == true ? "Liked" : "Like",
                           size: 10.sp,
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -306,25 +344,36 @@ class NewsFeedCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Spacer(),
-                Container(
-                  width: 117.w,
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                      color: appButtonColor,
-                      borderRadius: BorderRadius.circular(30.r)),
-                  padding: EdgeInsets.all(5.w),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SvgPicture.asset('assets/icons_share.svg'),
-                      BigText(
-                        text: "Share",
-                        size: 10.sp,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ],
+                const Spacer(),
+                InkWell(
+                  onTap: () {
+                    PostShareBloc().postShareBlocMethod(
+                      context: context,
+                      setProgressBar: () {
+                        AppDialogs.progressAlertDialog(context: context);
+                      },
+                      postId: post?.id,
+                    );
+                  },
+                  child: Container(
+                    width: 117.w,
+                    height: 40.h,
+                    decoration: BoxDecoration(
+                        color: appButtonColor,
+                        borderRadius: BorderRadius.circular(30.r)),
+                    padding: EdgeInsets.all(5.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SvgPicture.asset('assets/icons_share.svg'),
+                        BigText(
+                          text: "Share",
+                          size: 10.sp,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],

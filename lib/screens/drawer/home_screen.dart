@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/post/get_all_post_bloc.dart';
+import 'package:safe_hunt/bloc/post/get_post_details_bloc.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
@@ -51,7 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(builder: (context, val, _) {
+    return Consumer2<UserProvider, PostProvider>(
+        builder: (context, val, post, _) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -230,13 +232,24 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.7,
                 child: ListView.builder(
-                    itemCount: 3,
+                    itemCount: post.post.length,
                     itemBuilder: (BuildContext context, index) {
                       return Padding(
                         padding: EdgeInsets.symmetric(vertical: 10.h),
                         child: NewsFeedCard(
+                          post: post.post[index],
                           functionOnTap: () {
-                            AppNavigation.push(const PostDetailScreen());
+                            PostDetailBloc().postDetailBlocMethod(
+                              context: context,
+                              setProgressBar: () {
+                                AppDialogs.progressAlertDialog(
+                                    context: context);
+                              },
+                              postId: post.post[index].id ?? '0',
+                              onSuccess: () {
+                                AppNavigation.push(const PostDetailScreen());
+                              },
+                            );
                           },
                         ),
                       );

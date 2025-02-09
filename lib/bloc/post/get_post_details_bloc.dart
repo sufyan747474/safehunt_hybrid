@@ -7,14 +7,15 @@ import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class GetAllPostBloc {
+class PostDetailBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> getAllPostBlocMethod({
+  Future<void> postDetailBlocMethod({
     required BuildContext context,
     required VoidCallback setProgressBar,
     required Function() onSuccess,
+    required String postId,
   }) async {
     setProgressBar();
 
@@ -23,11 +24,12 @@ class GetAllPostBloc {
     };
 
     await _getRequest(
-        endPoint: NetworkStrings.ADD_POST_ENDPOINT, context: context);
+        endPoint: "${NetworkStrings.ADD_POST_ENDPOINT}/$postId",
+        context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _getAllPostResponseMethod(context: context, onSuccess: onSuccess);
+      _postDetailResponseMethod(context: context, onSuccess: onSuccess);
     };
     _validateResponse();
   }
@@ -36,7 +38,6 @@ class GetAllPostBloc {
   Future<void> _getRequest(
       {required String endPoint, required BuildContext context}) async {
     _response = await Network().getRequest(
-        baseUrl: NetworkStrings.API_BASE_URL,
         endPoint: endPoint,
         context: context,
         onFailure: _onFailure,
@@ -56,16 +57,16 @@ class GetAllPostBloc {
     }
   }
 
-  void _getAllPostResponseMethod({
+  void _postDetailResponseMethod({
     required BuildContext context,
     required Function() onSuccess,
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final post = List<PostData>.from(
-            _response?.data['data']!.map((x) => PostData.fromJson(x))).toList();
+        final post = PostData.fromJson(_response?.data['data']);
 
-        context.read<PostProvider>().setPosts(post);
+        context.read<PostProvider>().setPostDetail(post);
+        onSuccess.call();
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

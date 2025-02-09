@@ -22,7 +22,7 @@ class PostComment extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 10.0, right: 10.0, top: 5.0),
+      padding: const EdgeInsets.only(left: 10.0, right: 10.0, top: 5.0),
       child: Column(
         children: [
           Row(
