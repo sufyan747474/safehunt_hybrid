@@ -3,9 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
+import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/post/delete_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/like_unlike_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/post_share_bloc.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
 import 'package:safe_hunt/screens/post/model/post_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
@@ -94,7 +97,7 @@ class NewsFeedCard extends StatelessWidget {
                                     child: BigText(
                                       textAlign: TextAlign.start,
                                       text: Utils.getDayFromDateTime(
-                                          post?.user?.createdAt ??
+                                          post?.createdAt ??
                                               DateTime.now().toString()),
                                       size: 10.sp,
                                       fontWeight: FontWeight.bold,
@@ -105,7 +108,12 @@ class NewsFeedCard extends StatelessWidget {
                                   8.verticalSpace,
                                   FutureBuilder(
                                       future: Utils.getLocationFromLatLng(
-                                          lat: 24.8970, lng: 67.2136),
+                                          lat: double.tryParse(
+                                                  post?.latitude ?? '0.0') ??
+                                              0.0,
+                                          lng: double.tryParse(
+                                                  post?.longitude ?? '0.0') ??
+                                              0.0),
                                       builder: (context, snapShot) {
                                         return Flexible(
                                           child: Row(
@@ -120,7 +128,12 @@ class NewsFeedCard extends StatelessWidget {
                                                 child: BigText(
                                                   textAlign: TextAlign.start,
                                                   text:
-                                                      snapShot.data.toString(),
+                                                      snapShot.connectionState ==
+                                                              ConnectionState
+                                                                  .waiting
+                                                          ? ''
+                                                          : snapShot.data
+                                                              .toString(),
                                                   // Utils.getLocationFromLatLng(
                                                   //     lat: 24.8970, lng: 67.2136),
                                                   // "Sierra National Forest",
@@ -145,45 +158,56 @@ class NewsFeedCard extends StatelessWidget {
                   ),
                 ),
                 10.horizontalSpace,
-                IconButton(
-                  onPressed: () {
-                    showOptionsBottomSheet(
-                        context: context,
-                        sheetHeight: 150.h,
-                        option: [
-                          buildOptionTile(
-                              icon: Icons.edit,
-                              title: 'Edit Post',
-                              subTitle: 'Do you want to edit this post',
-                              iconwidth: 15.w,
-                              iconHeight: 15.w,
-                              onTap: () {},
-                              context: context),
-                          buildOptionTile(
-                              icon: Icons.delete,
-                              title: 'Delete Post',
-                              subTitle: 'Do you want to delete this post',
-                              iconwidth: 15.w,
-                              iconHeight: 15.w,
-                              containsDivider: false,
-                              onTap: () {
-                                DeletePostBloc().deletePostBlocMethod(
-                                  context: context,
-                                  setProgressBar: () {
-                                    AppDialogs.progressAlertDialog(
-                                        context: context);
-                                  },
-                                  postId: post?.id ?? "",
-                                  onSuccess: () {
-                                    isPostDetails ? AppNavigation.pop() : null;
-                                    AppNavigation.pop();
-                                  },
-                                );
-                              },
-                              context: context)
-                        ]);
-                  },
-                  icon: const Icon(Icons.more_vert),
+                Visibility(
+                  visible:
+                      post?.user?.id == context.read<UserProvider>().user?.id,
+                  child: IconButton(
+                    onPressed: () {
+                      showOptionsBottomSheet(
+                          context: context,
+                          sheetHeight: 150.h,
+                          option: [
+                            buildOptionTile(
+                                icon: Icons.edit,
+                                title: 'Edit Post',
+                                subTitle: 'Do you want to edit this post',
+                                iconwidth: 15.w,
+                                iconHeight: 15.w,
+                                onTap: () {
+                                  AppNavigation.pushReplacement(AddPost(
+                                    isEdit: true,
+                                    post: post,
+                                  ));
+                                },
+                                context: context),
+                            buildOptionTile(
+                                icon: Icons.delete,
+                                title: 'Delete Post',
+                                subTitle: 'Do you want to delete this post',
+                                iconwidth: 15.w,
+                                iconHeight: 15.w,
+                                containsDivider: false,
+                                onTap: () {
+                                  DeletePostBloc().deletePostBlocMethod(
+                                    context: context,
+                                    setProgressBar: () {
+                                      AppDialogs.progressAlertDialog(
+                                          context: context);
+                                    },
+                                    postId: post?.id ?? "",
+                                    onSuccess: () {
+                                      isPostDetails
+                                          ? AppNavigation.pop()
+                                          : null;
+                                      AppNavigation.pop();
+                                    },
+                                  );
+                                },
+                                context: context)
+                          ]);
+                    },
+                    icon: const Icon(Icons.more_vert),
+                  ),
                 ),
                 // SizedBox(
                 //   height: 1.h,

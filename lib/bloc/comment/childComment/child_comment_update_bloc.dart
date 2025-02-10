@@ -32,12 +32,16 @@ class UpdateChildCommentBloc {
 
     // ignore: use_build_context_synchronously
     await _postRequest(
-        endPoint: "${NetworkStrings.CHILD_COMMENT_ENDPOINT}/$commentId",
+        endPoint: "${NetworkStrings.COMMENT_ENDPOINT}/$commentId",
         context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _updateChildCommentResponseMethod(context: context, onSuccess: onSuccess);
+      _updateChildCommentResponseMethod(
+          context: context,
+          onSuccess: onSuccess,
+          commentId: commentId,
+          parrentId: parrendId);
     };
     _validateResponse();
   }
@@ -71,14 +75,16 @@ class UpdateChildCommentBloc {
     required BuildContext context,
     Function? onSuccess,
     String? parrentId,
+    String? commentId,
   }) {
     try {
       if (_response?.data != null) {
         // final comment = PostComment.fromJson(_response?.data['data']);
 
-        context.read<PostProvider>().updateCommentInPostDetails(
+        context.read<PostProvider>().updateChildCommentInPostDetails(
             _response?.data['data']['content'],
-            _response?.data['data']['id'].toString() ?? '');
+            commentId ?? '',
+            parrentId ?? '');
         onSuccess?.call();
       }
     } catch (error) {

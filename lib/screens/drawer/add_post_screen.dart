@@ -1,25 +1,32 @@
 import 'dart:io';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
 import 'package:safe_hunt/bloc/post/add_post_bloc.dart';
+import 'package:safe_hunt/bloc/post/update_post_bloc.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';
+import 'package:safe_hunt/screens/post/model/post_model.dart';
 import 'package:safe_hunt/screens/post/select_tag_people_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
+import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
 import 'package:safe_hunt/widgets/custom_container.dart';
 
 class AddPost extends StatefulWidget {
-  const AddPost({super.key});
+  const AddPost({super.key, this.isEdit = false, this.post});
+  final bool isEdit;
+  final PostData? post;
 
   @override
   State<AddPost> createState() => _AddPostState();
@@ -30,16 +37,56 @@ class _AddPostState extends State<AddPost> {
 
   String? postImage;
   LocationModel? location;
+  List<String> tagIds = [];
+  PostProvider? postProvider;
 
   @override
   void initState() {
     // Call getLatLong and update state
-    Utils.getLatLong().then((result) {
-      if (!mounted) return; // ✅ Prevent setState if widget is disposed
-      setState(() {
-        location = result.$1;
+    if (widget.isEdit) {
+      postProvider = context.read<PostProvider>();
+      _messageTextController.text = widget.post?.description ?? '';
+
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        GetAllFriendsBloc().getAllFriendsBlocMethod(
+          context: context,
+          setProgressBar: () {
+            AppDialogs.progressAlertDialog(context: context);
+          },
+          onSuccess: (friends) {
+            postProvider?.setTagPeople(friends);
+            postProvider?.setTagPeopleList(
+              postProvider!.getTagPeople.where((element) {
+                // Ensure tags is a list, otherwise convert it into a list
+
+                if (widget.post?.tags is String) {
+                  tagIds = [
+                    widget.post!.tags.toString()
+                  ]; // Convert single string into a list
+                } else if (widget.post?.tags is List) {
+                  tagIds = (widget.post!.tags as List)
+                      .map((tag) => tag.toString())
+                      .toList(); // Convert list items to strings
+                }
+
+                return tagIds.contains(
+                    element.id.toString()); // Match user ID with tag ID
+              }).toList(),
+            );
+            for (String people in tagIds) {
+              postProvider?.setTagPeopleId(id: people);
+            }
+          },
+        );
       });
-    });
+    } else {
+      Utils.getLatLong().then((result) {
+        if (!mounted) return; // ✅ Prevent setState if widget is disposed
+        setState(() {
+          location = result.$1;
+        });
+      });
+    }
     super.initState();
   }
 
@@ -58,7 +105,7 @@ class _AddPostState extends State<AddPost> {
               },
               child: const Icon(Icons.close)),
           title: BigText(
-            text: 'Create a Post',
+            text: '${widget.isEdit ? 'Update' : 'Create'} a Post',
             size: 16.sp,
             fontWeight: FontWeight.w700,
           ),
@@ -73,20 +120,35 @@ class _AddPostState extends State<AddPost> {
                 if (_messageTextController.text.isEmpty) {
                   AppDialogs.showToast(message: 'Description is required');
                 } else {
-                  AddPostBloc().addPostBlocMethod(
-                    context: context,
-                    setProgressBar: () {
-                      AppDialogs.progressAlertDialog(context: context);
-                    },
-                    description: _messageTextController.text,
-                    location: location,
-                    media: postImage,
-                    tagList: ["awdaw", "awdwad"],
-                  );
+                  if (widget.isEdit) {
+                    UpdatePostBloc().updatePostBlocMethod(
+                        context: context,
+                        setProgressBar: () {
+                          AppDialogs.progressAlertDialog(context: context);
+                        },
+                        description: _messageTextController.text,
+                        location: LocationModel(
+                            lat:
+                                double.tryParse(widget.post?.latitude ?? '0.0'),
+                            lng: double.tryParse(
+                                widget.post?.longitude ?? '0.0')),
+                        media: postImage,
+                        postId: widget.post?.id ?? "");
+                  } else {
+                    AddPostBloc().addPostBlocMethod(
+                      context: context,
+                      setProgressBar: () {
+                        AppDialogs.progressAlertDialog(context: context);
+                      },
+                      description: _messageTextController.text,
+                      location: location,
+                      media: postImage,
+                    );
+                  }
                 }
               },
               icon: BigText(
-                text: 'Post',
+                text: widget.isEdit ? 'Update' : 'Post',
                 size: 16.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -230,7 +292,14 @@ class _AddPostState extends State<AddPost> {
                         ? DecorationImage(
                             image: FileImage(File(postImage!)),
                             fit: BoxFit.cover)
-                        : null,
+                        : widget.isEdit && widget.post?.image != null
+                            ? DecorationImage(
+                                fit: BoxFit.cover,
+                                image: ExtendedNetworkImageProvider(
+                                  NetworkStrings.IMAGE_BASE_URL +
+                                      widget.post!.image!,
+                                ))
+                            : null,
                     width: 1.sw,
                     height: 145.h,
                     borderRadius: BorderRadius.circular(5.r),
@@ -266,23 +335,54 @@ class _AddPostState extends State<AddPost> {
                       SizedBox(
                         width: 15.w,
                       ),
-                      Flexible(
-                        child: BigText(
-                          textAlign: TextAlign.start,
-                          text: location?.address ?? "",
+                      widget.isEdit
+                          ? FutureBuilder(
+                              future: Utils.getLocationFromLatLng(
+                                  lat: double.tryParse(
+                                          widget.post?.latitude ?? '0.0') ??
+                                      0.0,
+                                  lng: double.tryParse(
+                                          widget.post?.longitude ?? '0.0') ??
+                                      0.0),
+                              builder: (context, snapShot) {
+                                return Flexible(
+                                  child: BigText(
+                                    textAlign: TextAlign.start,
+                                    text: snapShot.connectionState ==
+                                            ConnectionState.waiting
+                                        ? ''
+                                        : snapShot.data.toString(),
+                                    // Utils.getLocationFromLatLng(
+                                    //     lat: 24.8970, lng: 67.2136),
+                                    // "Sierra National Forest",
+                                    size: 10.sp,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                );
+                              })
+                          : Flexible(
+                              child: BigText(
+                                textAlign: TextAlign.start,
+                                text: location?.address ?? "",
 
-                          //  'Location',
-                          size: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: appBrownColor,
-                        ),
-                      )
+                                //  'Location',
+                                size: 14.sp,
+                                fontWeight: FontWeight.w700,
+                                color: appBrownColor,
+                              ),
+                            )
                     ],
                   ),
                   10.verticalSpace,
                   InkWell(
                     onTap: () {
-                      AppNavigation.push(SelectTagPeople());
+                      // postData.emptyTagPeople();
+                      AppNavigation.push(SelectTagPeople(
+                        isEditPost: widget.isEdit,
+                        usertaglist: postProvider?.selectedTagPeople,
+                      ));
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -341,6 +441,9 @@ class _AddPostState extends State<AddPost> {
                                     8.horizontalSpace,
                                     CustomContainer(
                                       onTap: () {
+                                        // tagIds.removeWhere((element) =>
+                                        //     element ==
+                                        //     postData.tagPeopleList[index].id!);
                                         postData.removeTagPeopleId(
                                             postData.tagPeopleList[index].id!);
                                       },

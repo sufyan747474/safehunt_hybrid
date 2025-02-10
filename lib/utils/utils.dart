@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:safe_hunt/bloc/comment/add_comment_bloc.dart';
 import 'package:safe_hunt/bloc/comment/childComment/add_child_comment_bloc.dart';
+import 'package:safe_hunt/bloc/comment/childComment/child_comment_update_bloc.dart';
 import 'package:safe_hunt/bloc/comment/comment_update_bloc.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';
 import 'package:safe_hunt/screens/journals/model/weather_model.dart';
@@ -87,7 +88,7 @@ class Utils {
     }
 
     // Return the full date and time
-    return DateFormat('MMMM dd').format(dateTime);
+    return DateFormat('MMMM dd yyy').format(dateTime);
     // return DateFormat('MMMM dd, yyyy hh:mm a')
     // .format(dateTime);
     // Example: "April 19, 2024 12:57 PM"
@@ -428,6 +429,8 @@ class Utils {
     final msgController = TextEditingController(text: text);
     isEdit ? msgController.text = comment ?? '' : null;
     log('comment id : $commentId');
+    log('is child comment : $isChild');
+
     log('comment type : ${type.name}');
 
     showModalBottomSheet(
@@ -471,8 +474,13 @@ class Utils {
                         onEditingComplete: () {
                           if (msgController.text.trim().isNotEmpty) {
                             if (isEdit) {
-                              updateCommentMethod(context, msgController,
-                                  commentId, isEdit, type);
+                              if (isChild) {
+                                updateChildCommentMethod(context, msgController,
+                                    commentId, parrentId, isEdit, type);
+                              } else {
+                                updateCommentMethod(context, msgController,
+                                    commentId, isEdit, type);
+                              }
                             } else {
                               if (type == modalType.comment) {
                                 addCommentMethod(context, msgController, postId,
@@ -513,12 +521,22 @@ class Utils {
                                 onTap: () {
                                   if (msgController.text.trim().isNotEmpty) {
                                     if (isEdit) {
-                                      updateCommentMethod(
-                                          context,
-                                          msgController,
-                                          commentId,
-                                          isEdit,
-                                          type);
+                                      if (isChild) {
+                                        updateChildCommentMethod(
+                                            context,
+                                            msgController,
+                                            commentId,
+                                            parrentId,
+                                            isEdit,
+                                            type);
+                                      } else {
+                                        updateCommentMethod(
+                                            context,
+                                            msgController,
+                                            commentId,
+                                            isEdit,
+                                            type);
+                                      }
                                     } else {
                                       if (type == modalType.comment) {
                                         addCommentMethod(context, msgController,
@@ -595,6 +613,30 @@ class Utils {
 
         // postId: postId,
         // shareId: sharePostId,
+        commentId: commentId,
+        onSuccess: () {
+          AppNavigation.pop();
+          AppDialogs.showToast(
+              message: "${isEdit ? "Edit" : "Add"} ${type.name} Successfully");
+        });
+  }
+
+  static void updateChildCommentMethod(
+      BuildContext context,
+      TextEditingController msgController,
+      String? commentId,
+      String? parrentId,
+      isEdit,
+      modalType type) {
+    UpdateChildCommentBloc().updateChildCommentBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        comment: msgController.text.trim(),
+        // postId: postId,
+        // shareId: sharePostId,
+        parrendId: parrentId,
         commentId: commentId,
         onSuccess: () {
           AppNavigation.pop();

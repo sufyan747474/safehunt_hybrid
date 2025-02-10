@@ -19,7 +19,6 @@ class AddPostBloc {
     required BuildContext context,
     String? description,
     LocationModel? location,
-    required List<String> tagList,
     String? media,
     required VoidCallback setProgressBar,
   }) async {

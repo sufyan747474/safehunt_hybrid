@@ -79,7 +79,7 @@ class PostProvider extends ChangeNotifier {
   }
 
   removeTagPeopleId(String id) {
-    _selectedTagpeople.remove(id);
+    _selectedTagpeople.removeWhere((element) => element == id);
     _tagPeopleList.removeWhere((element) => element.id == id);
 
     log('Tag People Length ${_selectedTagpeople.length}');
@@ -168,7 +168,7 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <--------------------- add comment in post ( post details)--------------->
+  // <--------------------- update comment in post ( post details)--------------->
 
   updateCommentInPostDetails(String comment, String commentId) {
     // update comment in post details
@@ -243,6 +243,26 @@ class PostProvider extends ChangeNotifier {
     if (parrentIndex != -1) {
       _postDetail?.comments?[parrentIndex!].replies
           ?.removeWhere((element) => element.id == commentId);
+    }
+
+    notifyListeners();
+  }
+
+  // <--------------------- update child comment in post ( post details)--------------->
+
+  updateChildCommentInPostDetails(
+      String comment, String commentId, String parrentId) {
+    // update comment in post details
+
+    final parrentIndex =
+        _postDetail?.comments?.indexWhere((element) => element.id == parrentId);
+    if (parrentIndex != -1) {
+      final commentIndex = _postDetail?.comments?[parrentIndex!].replies
+          ?.indexWhere((element) => element.id == commentId);
+      if (commentIndex != -1) {
+        _postDetail?.comments?[parrentIndex!].replies?[commentIndex!].content =
+            comment;
+      }
     }
 
     notifyListeners();
