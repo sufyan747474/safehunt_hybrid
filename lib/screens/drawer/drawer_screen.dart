@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/app_main_screen.dart';
 import 'package:safe_hunt/screens/drawer/map_screen.dart';
@@ -70,8 +71,8 @@ class _DrawerScreenState extends State<DrawerScreen> {
                                 color: appButtonColor, shape: BoxShape.circle),
                             child: BigText(
                               textAlign: TextAlign.center,
-                              text: val.user?.username?.isNotEmpty ?? false
-                                  ? val.user!.username![0].toUpperCase()
+                              text: val.user?.displayname?.isNotEmpty ?? false
+                                  ? val.user!.displayname![0].toUpperCase()
                                   : '',
                               size: 22.sp,
                               fontWeight: FontWeight.w900,
@@ -96,7 +97,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       height: 40.h,
                     ),
                     BigText(
-                      text: val.user?.username ?? '',
+                      text: val.user?.displayname ?? '',
                       color: appWhiteColor,
                       size: 16.sp,
                       fontWeight: FontWeight.w700,
@@ -120,7 +121,8 @@ class _DrawerScreenState extends State<DrawerScreen> {
                       children: [
                         GestureDetector(
                             onTap: () {
-                              Get.to(ProfileTab());
+                              Navigator.pop(context);
+                              AppNavigation.push(const ProfileTab());
                             },
                             child: DrawerCard(
                               label: "My profile",
@@ -132,7 +134,8 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            Get.to(() => const NotificationScreen());
+                            Navigator.pop(context);
+                            AppNavigation.push(const NotificationScreen());
                           },
                           child: DrawerCard(
                             svgPicture: 'assets/push_notification_white.svg',
@@ -143,7 +146,7 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            // Get.to(() => const HelpAndFaq());
+                            AppNavigation.pop();
                           },
                           child: DrawerCard(
                             svgPicture: 'assets/feed_white.svg',
@@ -154,7 +157,8 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            Get.to(() => const ChatsScreen());
+                            Navigator.pop(context);
+                            AppNavigation.push(const ChatsScreen());
                           },
                           child: DrawerCard(
                             svgPicture: 'assets/message_white.svg',
@@ -176,7 +180,8 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            Get.to(() => const SettingScreen());
+                            Navigator.pop(context);
+                            AppNavigation.push(const SettingScreen());
                           },
                           child: DrawerCard(
                             svgPicture: 'assets/setting_white.svg',
@@ -221,6 +226,8 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         GestureDetector(
                           onTap: () {
                             SharedPreference().clear();
+                            val.clearUserProvider();
+                            context.read<PostProvider>().clearPostProvider();
                             AppNavigation.pushAndRemoveUntil(
                                 const AppMainScreen());
                             AppDialogs.showToast(

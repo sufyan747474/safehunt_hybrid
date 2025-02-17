@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:safe_hunt/screens/chats/chat_screen.dart';
 import 'package:safe_hunt/screens/drawer/notification_screen.dart';
 import 'package:safe_hunt/screens/drawer/map_screen.dart';
 import 'package:safe_hunt/screens/drawer/setting.dart';
 import 'package:safe_hunt/utils/colors.dart';
-import 'chat_screen.dart';
 import 'drawer_screen.dart';
 import 'home_screen.dart';
 
@@ -47,10 +47,10 @@ class _MainScreenState extends State<MainScreen> {
   ];
   var mainScreenItems = [
     const HomeScreen(),
-    const NotificationScreen(),
+    const NotificationScreen(isLeadingIcon: false),
     const MapScreen(),
-    const ChatsScreen(),
-    const SettingScreen(),
+    const ChatsScreen(isLeadingIcon: false),
+    const SettingScreen(isLeadingIcon: false),
   ];
 
   @override

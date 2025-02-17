@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,6 +13,7 @@ import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
+import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/custom_scafold.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import 'package:safe_hunt/utils/validators.dart';
@@ -50,17 +52,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   UserData? user;
 
   setValues() {
-    emailController.text = user?.email ?? "";
+    displayNameController.text = user?.displayname ?? '';
+    userNameController.text = user?.username ?? "";
+    emailController.text = user?.email ?? '';
+    phoneNumberController.text = user?.phonenumber ?? "";
+    experienceController.text = user?.huntingExperience ?? '';
+    bioController.text = user?.bio ?? '';
+    skilList.addAll(user?.skills ?? []);
   }
 
   @override
   void initState() {
     super.initState();
     user = context.read<UserProvider>().user;
-    displayNameController.text = user?.displayname ?? '';
-    userNameController.text = user?.username ?? "";
-    emailController.text = user?.email ?? '';
-    phoneNumberController.text = user?.phonenumber ?? "";
 
     setValues();
   }
@@ -113,6 +117,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             child: CustomImageWidget(
                               canSelectImage: true,
                               borderWidth: 1.5.r,
+                              imageUrl: user?.profilePhoto,
                               pickedImage: profileImage != null
                                   ? File(profileImage!)
                                   : null,
@@ -199,6 +204,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               LengthLimitingTextInputFormatter(2),
                               FilteringTextInputFormatter.digitsOnly
                             ],
+                            validator: (value) {
+                              return CommonFieldValidators.validateEmptyOrNull(
+                                label: 'Hunting Experience',
+                                value: value,
+                              );
+                            },
                             verticalPadding: 10.w,
                             borderRdius: 8.r,
                           ),
@@ -286,6 +297,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(375)
                             ],
+                            validator: (value) {
+                              return CommonFieldValidators.validateEmptyOrNull(
+                                label: 'Bio',
+                                value: value,
+                              );
+                            },
                             verticalPadding: 10.w,
                             borderRdius: 8.r,
                           ),
@@ -298,7 +315,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ? DecorationImage(
                                     image: FileImage(File(coverImage!)),
                                     fit: BoxFit.cover)
-                                : null,
+                                : user?.coverPhoto != null
+                                    ? DecorationImage(
+                                        image: ExtendedNetworkImageProvider(
+                                            NetworkStrings.IMAGE_BASE_URL +
+                                                user!.coverPhoto!),
+                                        fit: BoxFit.cover)
+                                    : null,
                             width: 1.sw,
                             height: 165.h,
                             borderRadius: BorderRadius.circular(5.r),
@@ -332,24 +355,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                               if (_editProfileFormKey.currentState!
                                   .validate()) {
-                                _editProfileFormKey.currentState?.save();
-                                Utils.unFocusKeyboard(context);
-                                EditProfileBloc().editProfileBlocMethod(
-                                  context: context,
-                                  setProgressBar: () {
-                                    AppDialogs.progressAlertDialog(
-                                        context: context);
-                                  },
-                                  displayName: displayNameController.text,
-                                  userName: userNameController.text,
-                                  bio: bioController.text,
-                                  email: emailController.text,
-                                  phoneNumber: phoneNumberController.text,
-                                  huntingExperience: experienceController.text,
-                                  skills: skilList,
-                                  coverPhoto: coverImage,
-                                  imageFilePath: profileImage,
-                                );
+                                if (skilList.isEmpty) {
+                                  AppDialogs.showToast(
+                                      message: "Skill  field can't be  empty.");
+                                } else {
+                                  _editProfileFormKey.currentState?.save();
+                                  Utils.unFocusKeyboard(context);
+                                  EditProfileBloc().editProfileBlocMethod(
+                                    context: context,
+                                    setProgressBar: () {
+                                      AppDialogs.progressAlertDialog(
+                                          context: context);
+                                    },
+                                    displayName: displayNameController.text,
+                                    userName: userNameController.text,
+                                    bio: bioController.text,
+                                    email: emailController.text,
+                                    phoneNumber: phoneNumberController.text,
+                                    huntingExperience:
+                                        experienceController.text,
+                                    skills: skilList,
+                                    coverPhoto: coverImage,
+                                    imageFilePath: profileImage,
+                                  );
+                                }
                               }
                             },
                             child: CustomButton(

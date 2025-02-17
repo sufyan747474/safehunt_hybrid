@@ -1,4 +1,4 @@
-package com.example.safe_hunt
+package com.safe.hunt
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:safe_hunt/bloc/auth/social_auth_bloc.dart';
 import 'package:safe_hunt/screens/signup_screen.dart';
 import 'package:safe_hunt/utils/custom_scafold.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
@@ -67,23 +68,28 @@ class _AppMainScreenState extends State<AppMainScreen> {
               SizedBox(
                 height: 30.h,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  BigText(
-                    text: 'Sign Up With',
-                    color: appWhiteColor,
-                    size: 14.sp,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  SizedBox(
-                    width: 10.w,
-                  ),
-                  Image.asset(
-                    "assets/google_icon.png",
-                    fit: BoxFit.fill,
-                  )
-                ],
+              InkWell(
+                onTap: () {
+                  FirebaseAuthBloc().signInWithGoogle(mainContext: context);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    BigText(
+                      text: 'Sign Up With',
+                      color: appWhiteColor,
+                      size: 14.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    SizedBox(
+                      width: 10.w,
+                    ),
+                    Image.asset(
+                      "assets/google_icon.png",
+                      fit: BoxFit.fill,
+                    )
+                  ],
+                ),
               ),
               SizedBox(
                 height: 70.h,

@@ -108,6 +108,14 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  addPostInList(PostData post) {
+    post.likesCount = '0';
+    _post.insert(0, post);
+    isPost = true;
+
+    notifyListeners();
+  }
+
   // <--------------------- delete post--------------->
 
   deletePost(String postId) {

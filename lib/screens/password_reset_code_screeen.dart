@@ -151,6 +151,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                                       .progressAlertDialog(
                                                           context: context);
                                                 },
+                                                email: widget.email,
                                                 onSuccess: (res) {
                                                   AppDialogs.showToast(
                                                       message:
@@ -188,12 +189,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   if (_confirmationFormKey.currentState?.validate() ?? false) {
                     _confirmationFormKey.currentState?.save();
                     OtpVerifiactionBloc().otpVerificatiobBlockMethod(
-                      context: context,
-                      setProgressBar: () {
-                        AppDialogs.progressAlertDialog(context: context);
-                      },
-                      otp: resetPasswordController.text,
-                    );
+                        context: context,
+                        setProgressBar: () {
+                          AppDialogs.progressAlertDialog(context: context);
+                        },
+                        email: widget.email,
+                        otp: resetPasswordController.text,
+                        isChangePassword: true);
 
                     // AppNavigation.pushReplacement(const NewPasswordScreen());
                     // Get.to(const NewPasswordScreen());

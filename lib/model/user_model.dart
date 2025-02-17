@@ -8,8 +8,8 @@ class UserData {
   String? coverPhoto;
   String? profilePhoto;
   String? bio;
-  dynamic huntingExperience;
-  dynamic skills;
+  String? huntingExperience;
+  List<String>? skills;
   dynamic equipmentImages;
   String? displayname;
   String? username;
@@ -52,7 +52,6 @@ class UserData {
         profilePhoto: json["profilePhoto"],
         bio: json["bio"],
         huntingExperience: json["huntingExperience"],
-        skills: json["skills"],
         equipmentImages: json["equipmentImages"],
         displayname: json["displayname"],
         username: json["username"],
@@ -65,6 +64,9 @@ class UserData {
         otp: json["otp"],
         otpexpiry: json["otpexpiry"],
         token: json["token"],
+        skills: json["skills"] == null
+            ? []
+            : List<String>.from(json["skills"]!.map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
@@ -74,7 +76,8 @@ class UserData {
         "profilePhoto": profilePhoto,
         "bio": bio,
         "huntingExperience": huntingExperience,
-        "skills": skills,
+        "skills":
+            skills == null ? [] : List<dynamic>.from(skills!.map((x) => x)),
         "equipmentImages": equipmentImages,
         "displayname": displayname,
         "username": username,

@@ -2,11 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/auth/app_notification_on_off_bloc.dart';
+import 'package:safe_hunt/bloc/auth/notification_on_off_bloc.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/app_main_screen.dart';
 import 'package:safe_hunt/screens/edit_profile_screen.dart';
 import 'package:safe_hunt/screens/new_password_screen.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
+import 'package:safe_hunt/utils/services/shared_preference.dart';
 import 'package:safe_hunt/widgets/custom_button.dart';
 
 import '../../utils/colors.dart';
@@ -15,7 +21,8 @@ import '../../widgets/drawer_card.dart';
 import '../../widgets/setting_card.dart';
 
 class SettingScreen extends StatefulWidget {
-  const SettingScreen({super.key});
+  final bool isLeadingIcon;
+  const SettingScreen({super.key, this.isLeadingIcon = true});
 
   @override
   State<SettingScreen> createState() => _SettingScreenState();
@@ -34,21 +41,23 @@ class _SettingScreenState extends State<SettingScreen> {
         scrolledUnderElevation: 0,
         elevation: 0,
         backgroundColor: appButtonColor,
-        leading: Padding(
-          padding: EdgeInsets.all(8.0.w),
-          child: Transform.translate(
-              offset: Offset(1.w, 0),
-              child: GestureDetector(
-                  onTap: () {
-                    Get.back();
-                  },
-                  child: Icon(
-                    Icons.arrow_back_ios,
-                    size: 23.sp,
-                    color: Colors.black,
-                  ))),
-        ),
-        titleSpacing: -10,
+        leading: widget.isLeadingIcon
+            ? Padding(
+                padding: EdgeInsets.all(8.0.w),
+                child: Transform.translate(
+                    offset: Offset(1.w, 0),
+                    child: GestureDetector(
+                        onTap: () {
+                          AppNavigation.pop();
+                        },
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          size: 23.sp,
+                          color: Colors.black,
+                        ))),
+              )
+            : null,
+        titleSpacing: widget.isLeadingIcon ? -10 : null,
         title: BigText(
           text: 'Settings',
           size: 16.sp,
@@ -112,7 +121,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 color: appBrownColor,
                 thickness: 0.3,
               ),
-              SettingCard(
+              const SettingCard(
                 label: 'Block',
                 svgPicture: 'assets/Arrow_right.svg',
               ),
@@ -143,7 +152,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       size: 14.sp,
                       fontWeight: FontWeight.w400,
                     ),
-                    Spacer(),
+                    const Spacer(),
 
                     Transform.scale(
                       scale: 0.7,
@@ -158,10 +167,22 @@ class _SettingScreenState extends State<SettingScreen> {
                         activeColor: inactiveTrackColor,
                         trackColor: inactiveSwitchColor,
                         onChanged: (bool? value) {
+                          NotificationOnOffBloc().notificationOnOffBlocMethod(
+                              context: context,
+                              setProgressBar: () {
+                                AppDialogs.progressAlertDialog(
+                                    context: context);
+                              },
+                              setState: () {
+                                setState(() {
+                                  switchToggle = value ?? false;
+                                });
+                              },
+                              enableNotificaion: value ?? false);
                           // This is called when the user toggles the switch.
-                          setState(() {
-                            switchToggle = value ?? false;
-                          });
+                          // setState(() {
+                          //   switchToggle = value ?? false;
+                          // });
                         },
                       ),
                     ),
@@ -193,7 +214,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       size: 14.sp,
                       fontWeight: FontWeight.w400,
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Transform.scale(
                       scale: 0.7,
                       // scaleX: 0.7,
@@ -208,9 +229,23 @@ class _SettingScreenState extends State<SettingScreen> {
                         trackColor: inactiveSwitchColor,
                         onChanged: (bool? value) {
                           // This is called when the user toggles the switch.
-                          setState(() {
-                            switchToggleTwo = value ?? false;
-                          });
+
+                          AppNotificationOnOffBloc()
+                              .appNotificationOnOffBlocMethod(
+                                  context: context,
+                                  setProgressBar: () {
+                                    AppDialogs.progressAlertDialog(
+                                        context: context);
+                                  },
+                                  setState: () {
+                                    setState(() {
+                                      switchToggleTwo = value ?? false;
+                                    });
+                                  },
+                                  enableNotificaion: value ?? false);
+                          // setState(() {
+                          //   switchToggleTwo = value ?? false;
+                          // });
                         },
                       ),
                     ),
@@ -235,7 +270,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 color: appBrownColor,
                 thickness: 0.3,
               ),
-              SettingCard(
+              const SettingCard(
                 label: 'Terms & Conditions',
                 svgPicture: 'assets/Arrow_right.svg',
               ),
@@ -243,7 +278,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 color: appBrownColor,
                 thickness: 0.3,
               ),
-              SettingCard(
+              const SettingCard(
                 label: 'Privacy Policy',
                 svgPicture: 'assets/Arrow_right.svg',
               ),
@@ -251,7 +286,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 color: appBrownColor,
                 thickness: 0.3,
               ),
-              SettingCard(
+              const SettingCard(
                 label: 'Rate Our App',
                 svgPicture: 'assets/Arrow_right.svg',
               ),
@@ -264,11 +299,20 @@ class _SettingScreenState extends State<SettingScreen> {
               ),
               SizedBox(
                   width: MediaQuery.of(context).size.width * 0.5,
-                  child: CustomButton(
-                    text: 'Logout',
-                    color: appButtonColor,
-                    textColor: appBrownColor,
-                    fontWeight: FontWeight.w600,
+                  child: InkWell(
+                    onTap: () {
+                      SharedPreference().clear();
+                      context.read<UserProvider>().clearUserProvider();
+                      context.read<PostProvider>().clearPostProvider();
+                      AppNavigation.pushAndRemoveUntil(const AppMainScreen());
+                      AppDialogs.showToast(message: "Logout successfully");
+                    },
+                    child: CustomButton(
+                      text: 'Logout',
+                      color: appButtonColor,
+                      textColor: appBrownColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   )),
               SizedBox(
                 height: 85.h,

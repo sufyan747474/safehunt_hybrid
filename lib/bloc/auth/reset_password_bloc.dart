@@ -1,80 +1,76 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:logger/logger.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class ResendOtpBloc {
+class ResetPasswordBloc {
   dynamic _formData;
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  void resendOtpBlocMethod({
+  void resetPasswordBlocMethod({
     required BuildContext context,
-    required VoidCallback setProgressBar,
-    Function(dynamic)? onSuccess,
     String? email,
+    String? newPassword,
+    required VoidCallback setProgressBar,
   }) async {
     setProgressBar();
-    _formData = {"email": email ?? context.read<UserProvider>().user?.email};
+
+    /// Form Data
+    _formData = {
+      "email": email,
+      "newPassword": newPassword,
+    };
+    Logger().i("password Data");
 
     _onFailure = () {
-      Navigator.pop(context); // StopLoader
+      Navigator.pop(context);
     };
 
     // ignore: use_build_context_synchronously
     await _postRequest(
-        endPoint: NetworkStrings.RESEND_OTP_ENDPOINT, context: context);
+        endPoint: NetworkStrings.RESET_PASSWORD_ENDPOINT, context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _resendOtpResponseMethod(
-        onSuccess: onSuccess,
-        context: context,
-      );
+      _resetPasswordResponseMethod(context: context);
     };
     _validateResponse();
   }
 
-  //-------------------------- Post Request ----------------------------------
-
+  ///----------------------------------- Post Request -----------------------------------
   Future<void> _postRequest(
       {required String endPoint, required BuildContext context}) async {
     _response = await Network().postRequest(
-      baseUrl: NetworkStrings.API_BASE_URL,
       endPoint: endPoint,
+      formData: _formData,
       context: context,
       onFailure: _onFailure,
-      formData: _formData,
       isHeaderRequire: true,
     );
   }
 
-  //-------------------------- Validate Response --------------------------
+  ///----------------------------------- Validate Response -----------------------------------
   void _validateResponse() {
     if (_response != null) {
       Network().validateResponse(
-        isToast: false,
-        response: _response,
-        onSuccess: _onSuccess,
-        onFailure: _onFailure,
-      );
+          response: _response,
+          onSuccess: _onSuccess,
+          onFailure: _onFailure,
+          isToast: false);
     }
   }
 
-  void _resendOtpResponseMethod({
-    Function(dynamic)? onSuccess,
-    required BuildContext context,
-  }) {
+  void _resetPasswordResponseMethod({required BuildContext context}) async {
     try {
       if (_response?.data != null) {
-        onSuccess!('');
+        AppDialogs.showToast(message: "Password reset successfully");
+        AppNavigation.pop();
       }
     } catch (error) {
-      log(error.toString());
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);
     }
   }

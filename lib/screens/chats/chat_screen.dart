@@ -3,12 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:safe_hunt/screens/drawer/user_chat_screen.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import '../../../utils/colors.dart';
 import '../../../widgets/big_text.dart';
 import '../../../widgets/chats_card.dart';
 
 class ChatsScreen extends StatefulWidget {
-  const ChatsScreen({super.key});
+  final bool isLeadingIcon;
+
+  const ChatsScreen({super.key, this.isLeadingIcon = true});
 
   @override
   State<ChatsScreen> createState() => _ChatsScreenState();
@@ -20,21 +23,31 @@ class _ChatsScreenState extends State<ChatsScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
-        centerTitle: true,
         bottomOpacity: 0.0,
         scrolledUnderElevation: 0,
-        toolbarOpacity: 0,
         elevation: 0,
         backgroundColor: appButtonColor,
-        leadingWidth: 200,
-        leading: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: BigText(
-            text: 'Message',
-            size: 16.sp,
-            color: appBlackColor,
-            fontWeight: FontWeight.w700,
-          ),
+        leading: widget.isLeadingIcon
+            ? Padding(
+                padding: EdgeInsets.all(8.0.w),
+                child: Transform.translate(
+                    offset: Offset(1.w, 0),
+                    child: GestureDetector(
+                        onTap: () {
+                          AppNavigation.pop();
+                        },
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          size: 23.sp,
+                          color: Colors.black,
+                        ))),
+              )
+            : null,
+        titleSpacing: widget.isLeadingIcon ? -10 : null,
+        title: BigText(
+          text: 'Message',
+          size: 16.sp,
+          fontWeight: FontWeight.w700,
         ),
         actions: [
           Padding(

@@ -88,18 +88,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   AppNavigation.push(const HuntingJournalScreen());
                   // Get.to(HuntingJournalScreen());
                 },
-                child: SizedBox(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    width: 70.w,
-                    height: 35.h,
-                    decoration: const BoxDecoration(
-                      color: appBrownColor,
-                      borderRadius: BorderRadius.all(Radius.circular(38)),
-                    ),
-                    child: SvgPicture.asset(
-                      'assets/solar_notes-bold.svg',
-                    ),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 30.w,
+                  width: 65.w,
+                  decoration: BoxDecoration(
+                    color: appBrownColor,
+                    borderRadius: BorderRadius.all(Radius.circular(18.r)),
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/solar_notes-bold.svg',
                   ),
                 ),
               ),
@@ -148,22 +146,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const Spacer(),
-              SizedBox(
-                child: Container(
-                  // padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 7.w),
-                  width: 70.w,
-                  height: 35.h,
-                  decoration: const BoxDecoration(
-                    color: appRedColor,
-                    borderRadius: BorderRadius.all(Radius.circular(38)),
-                  ),
-                  child: BigText(
-                    text: 'SOS',
-                    size: 20.sp,
-                    color: appWhiteColor,
-                    fontWeight: FontWeight.w700,
-                    textAlign: TextAlign.center,
-                  ),
+              Container(
+                // padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 7.w),
+                alignment: Alignment.center,
+                height: 30.w,
+                width: 65.w,
+                decoration: BoxDecoration(
+                  color: appRedColor,
+                  borderRadius: BorderRadius.all(Radius.circular(18.r)),
+                ),
+                child: BigText(
+                  text: 'SOS',
+                  size: 18.sp,
+                  color: appWhiteColor,
+                  fontWeight: FontWeight.w700,
+                  textAlign: TextAlign.center,
                 ),
               )
             ],
@@ -199,8 +196,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: const BoxDecoration(
                               color: appBrownColor, shape: BoxShape.circle),
                           child: BigText(
-                            text: val.user?.username?.isNotEmpty ?? false
-                                ? val.user!.username![0].toUpperCase()
+                            text: val.user?.displayname?.isNotEmpty ?? false
+                                ? val.user!.displayname![0].toUpperCase()
                                 : '',
                             size: 22.sp,
                             fontWeight: FontWeight.w900,
@@ -231,29 +228,34 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.7,
-                child: ListView.builder(
-                    itemCount: post.post.length,
-                    itemBuilder: (BuildContext context, index) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(vertical: 10.h),
-                        child: NewsFeedCard(
-                          post: post.post[index],
-                          functionOnTap: () {
-                            PostDetailBloc().postDetailBlocMethod(
-                              context: context,
-                              setProgressBar: () {
-                                AppDialogs.progressAlertDialog(
-                                    context: context);
-                              },
-                              postId: post.post[index].id ?? '0',
-                              onSuccess: () {
-                                AppNavigation.push(const PostDetailScreen());
-                              },
+                child: Center(
+                  child: post.isPost == false
+                      ? BigText(text: 'Post not found')
+                      : ListView.builder(
+                          itemCount: post.post.length,
+                          itemBuilder: (BuildContext context, index) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 10.h),
+                              child: NewsFeedCard(
+                                post: post.post[index],
+                                functionOnTap: () {
+                                  PostDetailBloc().postDetailBlocMethod(
+                                    context: context,
+                                    setProgressBar: () {
+                                      AppDialogs.progressAlertDialog(
+                                          context: context);
+                                    },
+                                    postId: post.post[index].id ?? '0',
+                                    onSuccess: () {
+                                      AppNavigation.push(
+                                          const PostDetailScreen());
+                                    },
+                                  );
+                                },
+                              ),
                             );
-                          },
-                        ),
-                      );
-                    }),
+                          }),
+                ),
               ),
               const SizedBox(
                 height: 13,

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/main_screen.dart';
+import 'package:safe_hunt/screens/new_password_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
@@ -21,12 +22,13 @@ class OtpVerifiactionBloc {
     String? otp,
     required VoidCallback setProgressBar,
     bool isChangePassword = false,
+    String? email,
   }) async {
     setProgressBar();
 
     //Form Data
     _formData = {
-      "email": context.read<UserProvider>().user?.email,
+      "email": email ?? context.read<UserProvider>().user?.email,
       "otp": otp,
     };
     print({_formData});
@@ -40,8 +42,7 @@ class OtpVerifiactionBloc {
     _onSuccess = () {
       Navigator.pop(context);
       _verifyOtpResponseMethod(
-        context: context,
-      );
+          context: context, isChangePassword: isChangePassword, email: email);
     };
     _validateResponse();
   }
@@ -72,12 +73,20 @@ class OtpVerifiactionBloc {
 
   void _verifyOtpResponseMethod({
     required BuildContext context,
+    bool isChangePassword = false,
+    String? email,
   }) {
     try {
-      SharedPreference()
-          .setUser(user: jsonEncode(context.read<UserProvider>().user));
-      AppNavigation.pushAndRemoveUntil(const MainScreen());
-      AppDialogs.showToast(message: "Login successfully");
+      if (isChangePassword) {
+        AppNavigation.pushReplacement(NewPasswordScreen(
+          email: email,
+        ));
+      } else {
+        SharedPreference()
+            .setUser(user: jsonEncode(context.read<UserProvider>().user));
+        AppNavigation.pushAndRemoveUntil(const MainScreen());
+        AppDialogs.showToast(message: "Login successfully");
+      }
     } catch (error) {
       log(error.toString());
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

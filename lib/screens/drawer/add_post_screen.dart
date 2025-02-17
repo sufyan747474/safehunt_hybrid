@@ -171,8 +171,8 @@ class _AddPostState extends State<AddPost> {
                     decoration: const BoxDecoration(
                         color: appBrownColor, shape: BoxShape.circle),
                     child: BigText(
-                      text: val.user?.username?.isNotEmpty ?? false
-                          ? val.user!.username![0].toUpperCase()
+                      text: val.user?.displayname?.isNotEmpty ?? false
+                          ? val.user!.displayname![0].toUpperCase()
                           : '',
                       size: 22.sp,
                       fontWeight: FontWeight.w900,
@@ -225,21 +225,7 @@ class _AddPostState extends State<AddPost> {
                     ),
                   ),
                 ),
-              )
-              // AppTextFieldTwo(
-              //
-              //   minLines: 10,
-              //   maxLines: 20,
-              //   height: 200,
-              //   textController: _messageTextController,
-              //   hintText: 'What are you thinking about?',
-              // )
-              // BigText(
-              //   text: 'What are you thinking about?',
-              //   size: 14.sp,
-              //   fontWeight: FontWeight.w400,
-              //   color: appBrownColor,
-              // )
+              ),
             ],
           ),
         ),

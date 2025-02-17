@@ -44,9 +44,16 @@ class EditProfileBloc {
       "displayname": displayName,
       'phonenumber': phoneNumber,
       'huntingExperience': huntingExperience,
-      'skills': skills,
       'bio': bio,
     };
+
+    /// Dynamically adding skills in the correct format
+    userObject.addAll(
+      {
+        for (var index in List.generate(skills?.length ?? 0, (index) => index))
+          'skills[$index]': skills?[index]
+      },
+    );
     Logger().i("User Profile Data");
     print(userObject);
 
@@ -103,18 +110,6 @@ class EditProfileBloc {
         SharedPreference().setUser(user: jsonEncode(user));
         AppDialogs.showToast(message: "Profile updated successfully");
         AppNavigation.pop();
-        // _profileResponse = UserData.fromJson(_response?.data['data']);
-        // SharedPreference().setUser(user: jsonEncode(_profileResponse));
-        // context
-        //     .read<UserProvider>()
-        //     .setUserData(_profileResponse ?? UserData());
-        // if (_isEdit) {
-        //   AppNavigation.navigatorPop();
-        //   AppDialogs.showToast(message: "Profile Edited Successfully");
-        // } else {
-        //   AppNavigation.navigateToRemovingAll(AppRouteName.MAIN_SCREEN_ROUTE);
-        //   AppDialogs.showToast(message: "Profile Created Successfully");
-        // }
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

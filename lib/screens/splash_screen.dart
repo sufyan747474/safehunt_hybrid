@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/main_screen.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
+import 'package:safe_hunt/utils/services/firebase_messaging_service.dart';
 import 'package:safe_hunt/utils/services/shared_preference.dart';
 
 import 'app_main_screen.dart';
@@ -24,6 +26,29 @@ class _SplashScreenState extends State<SplashScreen> {
   //sharepreference
   initSharedPreference() async {
     await SharedPreference().sharedPreference;
+  }
+
+  void _requestNotification() async {
+    log('request Notification');
+    await FirebaseMessagingService().initializeNotificationSettings();
+    _setNotification();
+  }
+
+  void _setNotification() async {
+    log('set Notification');
+
+    FirebaseMessagingService().foregroundNotification();
+    FirebaseMessagingService().backgroundTapNotification();
+  }
+
+  // fetch token
+  void fetchToken() async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      log('Firebase Messaging Token: $token');
+    } catch (e) {
+      log('Error fetching token: $e');
+    }
   }
 
   Future<void> splashFunction() async {
@@ -51,6 +76,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     super.initState();
     initSharedPreference();
+    _requestNotification();
+    fetchToken();
     Timer(Duration(seconds: splashDuration), () => splashFunction());
   }
 

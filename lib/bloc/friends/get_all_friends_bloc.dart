@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
@@ -62,6 +64,7 @@ class GetAllFriendsBloc {
       if (_response?.data['statusCode'] == 200) {
         final friends = List<UserData>.from(
             _response?.data['data']!.map((x) => UserData.fromJson(x))).toList();
+        context.read<UserProvider>().setFriend(friends);
         onSuccess.call(friends);
       }
     } catch (error) {

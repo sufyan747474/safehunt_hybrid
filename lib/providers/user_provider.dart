@@ -99,11 +99,34 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // <--------------------- get all friend ------------------------->
+
+  List<UserData> _friend = [];
+  List<UserData> get friend => _friend;
+  bool? hasFriends;
+
+  setFriend(List<UserData> frinds) {
+    if (frinds.isNotEmpty) {
+      _friend = frinds;
+      hasFriends = true;
+    } else if (frinds.isEmpty) {
+      hasFriends = false;
+    }
+    notifyListeners();
+  }
+
+  emptyFriends() {
+    _friend = [];
+    hasFriends = null;
+    notifyListeners();
+  }
   // <--------------------- clear user provider ------------------------->
 
   clearUserProvider() {
     _user = null;
     _journal = [];
     isJournal = null;
+    _friend = [];
+    hasFriends = null;
   }
 }

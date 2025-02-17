@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:safe_hunt/bloc/auth/change_password_bloc.dart';
+import 'package:safe_hunt/bloc/auth/reset_password_bloc.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/custom_scafold.dart';
 import 'package:safe_hunt/utils/validators.dart';
@@ -12,7 +13,9 @@ import '../widgets/get_back_button.dart';
 
 class NewPasswordScreen extends StatefulWidget {
   final bool isChangePassword;
-  const NewPasswordScreen({super.key, this.isChangePassword = false});
+  final String? email;
+  const NewPasswordScreen(
+      {super.key, this.isChangePassword = false, this.email});
 
   @override
   State<NewPasswordScreen> createState() => _NewPasswordScreenState();
@@ -74,30 +77,32 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                   SizedBox(
                     height: 20.h,
                   ),
-                  AppTextField(
-                    textController: currentPasswordTextController,
-                    hintText: 'Current Password *',
-                    maxLength: 35,
-                    isObscure: obsecureTax3,
-                    isSuffixIcons: true,
-                    validator: (value) {
-                      return CommonFieldValidators.passwordValidator(value);
-                    },
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          obsecureTax3 = !obsecureTax3;
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          !obsecureTax3
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: appWhiteColor,
-                        )),
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
+                  if (widget.isChangePassword) ...[
+                    AppTextField(
+                      textController: currentPasswordTextController,
+                      hintText: 'Current Password *',
+                      maxLength: 35,
+                      isObscure: obsecureTax3,
+                      isSuffixIcons: true,
+                      validator: (value) {
+                        return CommonFieldValidators.passwordValidator(value);
+                      },
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            obsecureTax3 = !obsecureTax3;
+                            setState(() {});
+                          },
+                          icon: Icon(
+                            !obsecureTax3
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            color: appWhiteColor,
+                          )),
+                    ),
+                    SizedBox(
+                      height: 20.h,
+                    ),
+                  ],
                   AppTextField(
                     textController: passwordTextController,
                     hintText: 'New Password *',
@@ -172,32 +177,12 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                                 SizedBox(
                                   height: 5.h,
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    // setState(() {
-                                    //   _valueOne = !_valueOne;
-                                    // });
-                                  },
-                                  child: Container(
-                                    width: 15.w,
-                                    height: 15.h,
-                                    decoration: const BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: appButtonColor),
-                                    // child: _valueOne
-                                    //     ? Icon(
-                                    //         Icons.check,
-                                    //         size: 10.0.sp,
-                                    //         color: Colors.black,
-                                    //         weight: 10,
-                                    //       )
-                                    //     : Icon(
-                                    //         Icons.check_box_outline_blank,
-                                    //         size: 10.0.sp,
-                                    //         color: appButtonColor,
-                                    //         weight: 10,
-                                    //       ),
-                                  ),
+                                Container(
+                                  width: 15.w,
+                                  height: 15.h,
+                                  decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: appButtonColor),
                                 ),
                               ],
                             ),
@@ -223,34 +208,14 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                // setState(() {
-                                //   _valueTwo = !_valueTwo;
-                                // });
-                              },
-                              child: Container(
-                                width: 15.w,
-                                height: 15.h,
-                                decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: appButtonColor),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(1.0),
-                                  // child: _valueTwo
-                                  //     ? Icon(
-                                  //         Icons.check,
-                                  //         size: 10.0.sp,
-                                  //         color: Colors.black,
-                                  //         weight: 10,
-                                  //       )
-                                  //     : Icon(
-                                  //         Icons.check_box_outline_blank,
-                                  //         size: 10.0.sp,
-                                  //         color: appButtonColor,
-                                  //         weight: 10,
-                                  //       ),
-                                ),
+                            Container(
+                              width: 15.w,
+                              height: 15.h,
+                              decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: appButtonColor),
+                              child: const Padding(
+                                padding: EdgeInsets.all(1.0),
                               ),
                             ),
                             SizedBox(
@@ -275,14 +240,25 @@ class _NewPasswordScreenState extends State<NewPasswordScreen> {
                     onTap: () {
                       if (_passwordFormKey.currentState!.validate()) {
                         _passwordFormKey.currentState?.save();
-                        ChangePasswordBloc().changePasswordBlocMethod(
-                          context: context,
-                          setProgressBar: () {
-                            AppDialogs.progressAlertDialog(context: context);
-                          },
-                          newPassword: confirmPasswordTextController.text,
-                          currentPassword: currentPasswordTextController.text,
-                        );
+                        if (widget.isChangePassword) {
+                          ChangePasswordBloc().changePasswordBlocMethod(
+                            context: context,
+                            setProgressBar: () {
+                              AppDialogs.progressAlertDialog(context: context);
+                            },
+                            newPassword: confirmPasswordTextController.text,
+                            currentPassword: currentPasswordTextController.text,
+                          );
+                        } else {
+                          ResetPasswordBloc().resetPasswordBlocMethod(
+                            context: context,
+                            setProgressBar: () {
+                              AppDialogs.progressAlertDialog(context: context);
+                            },
+                            email: widget.email,
+                            newPassword: confirmPasswordTextController.text,
+                          );
+                        }
                       }
                     },
                     child: CustomButton(

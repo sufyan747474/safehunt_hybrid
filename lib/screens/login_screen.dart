@@ -155,6 +155,7 @@ class _LogInScreenState extends State<LogInScreen> {
                   const Spacer(),
                   GestureDetector(
                     onTap: () {
+                      Utils.unFocusKeyboard(context);
                       AppNavigation.push(const ForgotPasswordScreen());
                       // Get.to(const ForgotPasswordScreen());
                     },

@@ -1,33 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
 
 import '../../utils/colors.dart';
 
 class NotificationScreen extends StatelessWidget {
-  const NotificationScreen({super.key});
+  final bool isLeadingIcon;
+
+  const NotificationScreen({super.key, this.isLeadingIcon = true});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: appButtonColor,
       appBar: AppBar(
-        centerTitle: true,
         bottomOpacity: 0.0,
         scrolledUnderElevation: 0,
-        toolbarOpacity: 0,
         elevation: 0,
         backgroundColor: appButtonColor,
-        leadingWidth: 200,
-        leading: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: BigText(
-            text: 'Notificatons',
-            size: 16.sp,
-            color: appBlackColor,
-            fontWeight: FontWeight.w700,
-          ),
+        leading: isLeadingIcon
+            ? Padding(
+                padding: EdgeInsets.all(8.0.w),
+                child: Transform.translate(
+                    offset: Offset(1.w, 0),
+                    child: GestureDetector(
+                        onTap: () {
+                          AppNavigation.pop();
+                        },
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          size: 23.sp,
+                          color: Colors.black,
+                        ))),
+              )
+            : null,
+        titleSpacing: isLeadingIcon ? -10 : null,
+        title: BigText(
+          text: 'Notifications',
+          size: 16.sp,
+          fontWeight: FontWeight.w700,
         ),
         actions: [
           Padding(

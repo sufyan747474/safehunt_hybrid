@@ -27,10 +27,14 @@ class NetworkStrings {
   static const String FOLLOW_UNFOLLOW_ENDPOINT = "follow_user";
   static const String MERCHANT_ACCOUNT_SETUP_ENDPOINT = "stripe_url";
   static const String OTHER_USER_PROFILE_ENDPOINT = "other_user_profile";
-  static const String NOTIFICATION_END_POINT = 'notifications';
+  static const String NOTIFICATION_ON_OFF_END_POINT = 'notifications';
+  static const String APP_NOTIFICATION_ON_OFF_END_POINT =
+      'application-notifications';
+
   static const String REQUEST_RESET_PASSWORD_ENDPOINT =
       "auth/request-reset-password";
   static const String CHANGE_PASSWORD_ENDPOINT = "auth/change-password";
+  static const String RESET_PASSWORD_ENDPOINT = "auth/reset-password";
 
   /// ============================ TOAST MESSAGES ==============================
   static const String NETWORK_ERROR = "Network error!";
