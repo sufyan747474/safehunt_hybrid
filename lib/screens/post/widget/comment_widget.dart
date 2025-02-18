@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/comment/childComment/delete_child_comment_bloc.dart';
+import 'package:safe_hunt/bloc/comment/comment_like_unlike_bloc.dart';
 import 'package:safe_hunt/bloc/comment/delete_comment_bloc.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/post/enums/enums.dart';
@@ -193,23 +194,25 @@ class _CommentWidgetState extends State<CommentWidget> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            // LikeUnlikeCommentBloc().likeUnlikeCommentBlocMethod(
-                            //   context: context,
-                            //   like: widget.model?.isLiked == true ? '0' : '1',
-                            //   commentId: widget.model?.commentId,
-                            //   postId: widget.model?.postId,
-                            //   postSharedId: widget.model?.postSharedId,
-                            //   setProgressBar: () {
-                            //     AppDialogs.progressAlertDialog(
-                            //         context: context);
-                            //   },
-                            // );
+                            LikeUnlikeCommentBloc().likeUnlikeCommentBlocMethod(
+                              context: context,
+                              isChild: widget.model?.isChild,
+                              liked:
+                                  widget.model?.isLiked == true ? false : true,
+                              commentId: widget.model?.commentId,
+                              parrentId: widget.model?.parrentId,
+                              setProgressBar: () {
+                                AppDialogs.progressAlertDialog(
+                                    context: context);
+                              },
+                            );
                             // like = !like;
                             // setState(() {});
                           },
                           child: textIcon(
-                              text: "${widget.model?.totalLiked ?? '0'} Like",
-                              icon: like
+                              text:
+                                  "${widget.model?.totalLiked ?? '0'} ${widget.model?.isLiked == true ? 'Liked' : 'Like'}",
+                              icon: widget.model?.isLiked == true
                                   ? "assets/like_color_icon.svg"
                                   : "assets/icons_like.svg"),
                         ),

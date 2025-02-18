@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/get_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/post/delete_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/like_unlike_post_bloc.dart';
@@ -26,9 +24,14 @@ class NewsFeedCard extends StatelessWidget {
   final void Function()? functionOnTap;
   final bool isPostDetails;
   final PostData? post;
+  final bool profileOntap;
 
   const NewsFeedCard(
-      {super.key, this.functionOnTap, this.isPostDetails = false, this.post});
+      {super.key,
+      this.functionOnTap,
+      this.isPostDetails = false,
+      this.post,
+      this.profileOntap = true});
 
   // bool showPostComments = false;
 
@@ -56,7 +59,9 @@ class NewsFeedCard extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () {
-                          Get.to(ProfileTab());
+                          profileOntap
+                              ? AppNavigation.push(const ProfileTab())
+                              : null;
                         },
                         child: Padding(
                           padding: EdgeInsets.only(left: 15.w),
@@ -344,7 +349,7 @@ class NewsFeedCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 InkWell(
                   onTap: functionOnTap,
                   child: Container(

@@ -59,16 +59,22 @@ class PostComment {
   String? content;
   String? createdAt;
   String? likeCount;
+  String? commentReplyCount;
   List<PostComment>? replies;
   UserData? user;
+  bool? commentLiked;
+  bool? replyLiked;
 
   PostComment({
     this.id,
     this.content,
     this.createdAt,
     this.likeCount,
+    this.commentReplyCount,
     this.replies,
     this.user,
+    this.commentLiked,
+    this.replyLiked,
   });
 
   factory PostComment.fromJson(Map<String, dynamic> json) => PostComment(
@@ -76,10 +82,13 @@ class PostComment {
         content: json["content"],
         createdAt: json["createdAt"],
         likeCount: json["likeCount"].toString(),
+        commentReplyCount: json["CommentreplyCount"].toString(),
         replies: json["replies"] == null
             ? []
             : List<PostComment>.from(
                 json["replies"]!.map((x) => PostComment.fromJson(x))),
         user: json["user"] == null ? null : UserData.fromJson(json["user"]),
+        commentLiked: json["commentLiked"],
+        replyLiked: json["replyLiked"],
       );
 }

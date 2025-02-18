@@ -27,10 +27,12 @@ class PostDetailScreen extends StatefulWidget {
     this.isUser,
     this.postShareId,
     this.postData,
+    this.profileOntap = true,
   });
   final bool? isUser;
   final String? postShareId;
   final PostData? postData;
+  final bool profileOntap;
 
   @override
   State<PostDetailScreen> createState() => _PostDetailScreenState();
@@ -84,6 +86,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           child: Column(
             children: [
               NewsFeedCard(
+                profileOntap: widget.profileOntap,
                 isPostDetails: true,
                 post: val.postDetail,
                 functionOnTap: () {
@@ -112,7 +115,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   final commentData = val.postDetail?.comments?[index];
                   return CommentModel(
                     commentId: commentData?.id,
-                    isLiked: false,
+                    isLiked: commentData?.commentLiked ?? false,
                     userId: commentData?.user?.id,
                     totalLiked: commentData?.likeCount ?? '0',
                     postId: val.postDetail?.id,
@@ -127,9 +130,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     replies: List.generate(
                         commentData?.replies?.length ?? 0,
                         (index) => CommentModel(
-                              isLiked: false,
-                              totalLiked:
-                                  commentData?.replies?[index].likeCount ?? '0',
+                              isLiked:
+                                  commentData?.replies?[index].replyLiked ??
+                                      false,
+                              totalLiked: commentData
+                                      ?.replies?[index].commentReplyCount ??
+                                  '0',
+
                               userId: commentData?.replies?[index].user?.id,
                               // isSharedPost:
                               //     widget.postShareId != 'null' ? true : false,

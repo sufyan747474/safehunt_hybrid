@@ -5,7 +5,7 @@ import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/screens/post/model/post_model.dart';
 
 class PostProvider extends ChangeNotifier {
-  // <---------------------------- Get All Tag People  -------------------------->
+  //! <---------------------------- Get All Tag People  -------------------------->
 
   List<UserData> _getTagPeople = [];
   List<UserData> get getTagPeople => _getTagPeople;
@@ -31,7 +31,7 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <----------------------------  Tag people (only show in ui)  -------------------------->
+  //! <----------------------------  Tag people (only show in ui)  -------------------------->
 
   List<UserData> _tagPeopleList = [];
   List<UserData> get tagPeopleList => _tagPeopleList;
@@ -40,7 +40,7 @@ class PostProvider extends ChangeNotifier {
     if (tagPeopleList.isNotEmpty) {
       _tagPeopleList = tagPeopleList;
     }
-    // notifyListeners();
+    //! notifyListeners();
   }
 
   addTagPeopleList(UserData tagPeople) {
@@ -61,7 +61,7 @@ class PostProvider extends ChangeNotifier {
     _tagPeopleList = [];
   }
 
-  // <---------------------------- Get Selected Tag People Id  -------------------------->
+  //! <---------------------------- Get Selected Tag People Id  -------------------------->
 
   List<String> _selectedTagpeople = [];
   List<String> get selectedTagPeople => _selectedTagpeople;
@@ -92,7 +92,7 @@ class PostProvider extends ChangeNotifier {
     isNotifyListner ? notifyListeners() : null;
   }
 
-  // <--------------------- get all post --------------->
+  //! <--------------------- get all post --------------->
 
   List<PostData> _post = [];
   List<PostData> get post => _post;
@@ -116,10 +116,10 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <--------------------- delete post--------------->
+  //! <--------------------- delete post--------------->
 
   deletePost(String postId) {
-    // delete  post
+    //! delete  post
 
     _post.removeWhere((element) => element.id == postId);
 
@@ -136,7 +136,7 @@ class PostProvider extends ChangeNotifier {
           ? (currentLikes + 1).toString()
           : (currentLikes > 0 ? (currentLikes - 1).toString() : '0');
 
-      // update post detail like
+      //! update post detail like
 
       if (_postDetail != null) {
         _postDetail?.postLiked = isLike;
@@ -145,11 +145,11 @@ class PostProvider extends ChangeNotifier {
             : (currentLikes > 0 ? (currentLikes - 1).toString() : '0');
       }
 
-      notifyListeners(); // Ensure UI updates if using Provider
+      notifyListeners(); //! Ensure UI updates if using Provider
     }
   }
 
-  // <--------------------- get post details --------------->
+  //! <--------------------- get post details --------------->
 
   PostData? _postDetail;
   PostData? get postDetail => _postDetail;
@@ -159,27 +159,27 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <--------------------- add comment in post (post and post details)--------------->
+  //! <--------------------- add comment in post (post and post details)--------------->
 
   addCommentInPost(PostComment comment, String postId) {
-    // add comment in post
+    //! add comment in post
 
     final postIndex = _post.indexWhere((element) => element.id == postId);
     if (postIndex != -1) {
       _post[postIndex].comments?.insert(0, comment);
     }
 
-    // add comment in post details
+    //! add comment in post details
 
     _postDetail?.comments?.insert(0, comment);
 
     notifyListeners();
   }
 
-  // <--------------------- update comment in post ( post details)--------------->
+  //! <--------------------- update comment in post ( post details)--------------->
 
   updateCommentInPostDetails(String comment, String commentId) {
-    // update comment in post details
+    //! update comment in post details
 
     final commentIndex =
         _postDetail?.comments?.indexWhere((element) => element.id == commentId);
@@ -190,10 +190,10 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <--------------------- delete comment in post (post and post details)--------------->
+  //! <--------------------- delete comment in post (post and post details)--------------->
 
   deleteCommentFromPost(String commentId, String postId) {
-    // delete comment in post
+    //! delete comment in post
 
     final postIndex = _post.indexWhere((element) => element.id == postId);
     if (postIndex != -1) {
@@ -202,34 +202,34 @@ class PostProvider extends ChangeNotifier {
           ?.removeWhere((element) => element.id == commentId);
     }
 
-    // delete comment in post details
+    //! delete comment in post details
 
     _postDetail?.comments?.removeWhere((element) => element.id == commentId);
 
     notifyListeners();
   }
 
-// <--------------------- add child comment in post (post and post details)--------------->
+//! <--------------------- add child comment in post (post and post details)--------------->
 
   addChildCommentInPost(PostComment comment, String postId, String parrentId) {
-    // add child comment in post
+    //! add child comment in post
 
-    // final postIndex = _post.indexWhere((element) => element.id == postId);
-    // if (postIndex != -1) {
-    //   // find parrent comment index
-    //   final parrentCommentIndex = _post[postIndex]
-    //       .comments
-    //       ?.indexWhere((element) => element.id == parrentId);
+    //! final postIndex = _post.indexWhere((element) => element.id == postId);
+    //! if (postIndex != -1) {
+    //!   //! find parrent comment index
+    //!   final parrentCommentIndex = _post[postIndex]
+    //!       .comments
+    //!       ?.indexWhere((element) => element.id == parrentId);
 
-    //   if (parrentCommentIndex != -1) {
-    //     _post[postIndex]
-    //         .comments?[parrentCommentIndex!]
-    //         .replies
-    //         ?.insert(0, comment);
-    //   }
-    // }
+    //!   if (parrentCommentIndex != -1) {
+    //!     _post[postIndex]
+    //!         .comments?[parrentCommentIndex!]
+    //!         .replies
+    //!         ?.insert(0, comment);
+    //!   }
+    //! }
 
-    // add child comment in post details
+    //! add child comment in post details
 
     final parrentCommentIndex =
         _postDetail?.comments?.indexWhere((element) => element.id == parrentId);
@@ -241,10 +241,10 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <--------------------- delete child comment in post (post details)--------------->
+  //! <--------------------- delete child comment in post (post details)--------------->
 
   deleteChildCommentFromPost(String commentId, String parrentId) {
-    // delete child comment in post details
+    //! delete child comment in post details
 
     final parrentIndex =
         _postDetail?.comments?.indexWhere((element) => element.id == parrentId);
@@ -256,11 +256,11 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <--------------------- update child comment in post ( post details)--------------->
+  //! <--------------------- update child comment in post ( post details)--------------->
 
   updateChildCommentInPostDetails(
       String comment, String commentId, String parrentId) {
-    // update comment in post details
+    //! update comment in post details
 
     final parrentIndex =
         _postDetail?.comments?.indexWhere((element) => element.id == parrentId);
@@ -276,7 +276,92 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // <--------------------- clear post provider --------------->
+  //! <--------------------- update comment like in post ( post details)--------------->
+
+  updateCommentLikeInPostDetail({
+    required String commentId,
+    parrentId,
+    required bool isLiked,
+    isChild,
+  }) {
+    //! update  comment, child comment like in post details
+
+    if (!isChild) {
+      log('comment my');
+      //! update child replies like
+      final commentIndex = _postDetail?.comments
+          ?.indexWhere((element) => element.id == commentId);
+
+      if (commentIndex != -1) {
+        _postDetail?.comments?[commentIndex!].commentLiked = isLiked;
+        _postDetail?.comments?[commentIndex!].likeCount = (int.tryParse(
+                    _postDetail?.comments?[commentIndex].likeCount ?? '0') ??
+                0 + (isLiked ? 1 : -1))
+            .toString();
+      }
+    } else if (isChild) {
+      log('comment reply my');
+
+      //! update child replies like
+      final parrentIndex = _postDetail?.comments
+          ?.indexWhere((element) => element.id == parrentId);
+
+      if (parrentIndex != -1) {
+        log('parrent index mil gya');
+
+        final childCommentIndex = _postDetail?.comments?[parrentIndex!].replies
+            ?.indexWhere((element) => element.id == commentId);
+
+        if (parrentIndex != -1 && childCommentIndex != -1) {
+          log('reply index mil gya');
+
+          var reply = _postDetail
+              ?.comments?[parrentIndex!].replies?[childCommentIndex!];
+
+          if (reply != null) {
+            reply.replyLiked = isLiked;
+
+            // Ensure safe parsing
+            int currentCount =
+                int.tryParse(reply.commentReplyCount ?? '0') ?? 0;
+
+            // Update count
+            currentCount += isLiked ? 1 : -1;
+            reply.commentReplyCount = currentCount.toString();
+
+            log('Updated commentReplyCount: ${reply.commentReplyCount}');
+
+            notifyListeners(); // Ensure UI updates
+          } else {
+            log('Reply not found!');
+          }
+        }
+
+        // if (childCommentIndex != -1) {
+        //   log('reply index mil gya');
+
+        //   _postDetail?.comments?[parrentIndex!].replies?[childCommentIndex!]
+        //       .replyLiked = isLiked;
+        //   log('before count: ${_postDetail?.comments?[parrentIndex!].replies?[childCommentIndex!].commentReplyCount}');
+
+        //   _postDetail?.comments?[parrentIndex!].replies?[childCommentIndex!]
+        //       .commentReplyCount = (int.tryParse(_postDetail
+        //                   ?.comments?[parrentIndex]
+        //                   .replies?[childCommentIndex]
+        //                   .commentReplyCount
+        //                   .toString() ??
+        //               '0') ??
+        //           0 + (isLiked ? 1 : -1))
+        //       .toString();
+
+        //   log('after count: ${_postDetail?.comments?[parrentIndex!].replies?[childCommentIndex!].commentReplyCount}');
+        // }
+      }
+    }
+    notifyListeners();
+  }
+
+  //! <--------------------- clear post provider --------------->
 
   clearPostProvider() {
     _post = [];
