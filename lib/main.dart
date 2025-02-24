@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
                 textTheme: GoogleFonts.montserratTextTheme(
               Theme.of(context).textTheme,
             )),
-            title: 'Flutter Demo',
+            title: 'Safe Hunt',
             debugShowCheckedModeBanner: false,
             // home: SplashScreen(),
           );

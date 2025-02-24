@@ -70,7 +70,7 @@ class _AppMainScreenState extends State<AppMainScreen> {
               ),
               InkWell(
                 onTap: () {
-                  FirebaseAuthBloc().signInWithGoogle(mainContext: context);
+                  // FirebaseAuthBloc().signInWithGoogle(mainContext: context);
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

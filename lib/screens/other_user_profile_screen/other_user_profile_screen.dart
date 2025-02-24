@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
+import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
 import 'package:safe_hunt/screens/edit_profile_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
@@ -16,16 +18,18 @@ import 'package:safe_hunt/widgets/custom_button.dart';
 import '../../utils/colors.dart';
 import '../../widgets/news_feed_card.dart';
 import '../../widgets/user_friends_list_card.dart';
-import 'add_post_screen.dart';
 
-class ProfileTab extends StatefulWidget {
-  const ProfileTab({super.key});
+class OtherUserProfileScreen extends StatefulWidget {
+  final UserData? user;
+  const OtherUserProfileScreen({super.key, this.user});
 
   @override
-  State<ProfileTab> createState() => _ProfileTabState();
+  State<OtherUserProfileScreen> createState() => _ProfileTabState();
 }
 
-class _ProfileTabState extends State<ProfileTab> {
+class _ProfileTabState extends State<OtherUserProfileScreen> {
+  List<UserData> friend = [];
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +39,11 @@ class _ProfileTabState extends State<ProfileTab> {
         setProgressBar: () {
           AppDialogs.progressAlertDialog(context: context);
         },
-        onSuccess: (p0) {},
+        isLoader: false,
+        onSuccess: (res) {
+          friend = res;
+          setState(() {});
+        },
       );
     });
   }
@@ -51,7 +59,7 @@ class _ProfileTabState extends State<ProfileTab> {
   ];
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(builder: (context, val, _) {
+    return Consumer<UserProvider>(builder: (context, val1, _) {
       return Scaffold(
           backgroundColor: appButtonColor,
           appBar: AppBar(
@@ -75,22 +83,10 @@ class _ProfileTabState extends State<ProfileTab> {
             ),
             titleSpacing: -10,
             title: BigText(
-              text: val.user?.displayname ?? "",
+              text: widget.user?.displayname ?? "",
               size: 16.sp,
               fontWeight: FontWeight.w700,
             ),
-            actions: [
-              Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: IconButton(
-                      onPressed: () {
-                        AppNavigation.push(const EditProfileScreen());
-                      },
-                      icon: const Icon(
-                        Icons.edit,
-                        color: appBrownColor,
-                      ))),
-            ],
           ),
           body: SingleChildScrollView(
               child: Column(
@@ -103,7 +99,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     CustomImageWidget(
                       imageWidth: 1.sw,
                       imageHeight: 215.h,
-                      imageUrl: val.user?.coverPhoto,
+                      imageUrl: widget.user?.coverPhoto,
                       imageAssets: AppAssets.postImagePlaceHolder,
                       shape: BoxShape.rectangle,
                       isBorder: false,
@@ -117,14 +113,14 @@ class _ProfileTabState extends State<ProfileTab> {
                           CustomImageWidget(
                             imageWidth: 80.w,
                             imageHeight: 80.w,
-                            imageUrl: val.user?.profilePhoto,
+                            imageUrl: widget.user?.profilePhoto,
                             isBorder: true,
                             borderWidth: 3.r,
                             borderColor: AppColors.greenColor,
                           ),
                           BigText(
                             textAlign: TextAlign.start,
-                            text: val.user?.displayname ?? '',
+                            text: widget.user?.displayname ?? '',
                             size: 22.sp,
                             fontWeight: FontWeight.w700,
                             color: appBlackColor,
@@ -132,7 +128,8 @@ class _ProfileTabState extends State<ProfileTab> {
                           Row(
                             children: [
                               BigText(
-                                text: val.friend.length.toString(),
+                                text: '0',
+                                // val.friend.length.toString(),
                                 size: 14.sp,
                                 fontWeight: FontWeight.w600,
                                 color: appBlackColor,
@@ -151,7 +148,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           SizedBox(
                             width: MediaQuery.of(context).size.width * 0.9,
                             child: BigText(
-                              text: '“${val.user?.bio ?? ''}”',
+                              text: '“${widget.user?.bio ?? ''}”',
                               size: 14.sp,
                               fontWeight: FontWeight.w400,
                               color: appBlackColor,
@@ -160,87 +157,78 @@ class _ProfileTabState extends State<ProfileTab> {
                           SizedBox(
                             height: 10.h,
                           ),
-                          // SizedBox(
-                          //   width: MediaQuery.of(context).size.width * 0.9,
-                          //   child: Row(
-                          //     crossAxisAlignment: CrossAxisAlignment.center,
-                          //     // mainAxisAlignment:
-                          //     //     MainAxisAlignment.spaceBetween,
-                          //     children: [
-                          //       GestureDetector(
-                          //         onTap: () {
-                          //           // setState(() {
-                          //           //   likePost = !likePost;
-                          //           // });
-                          //         },
-                          //         child: Container(
-                          //           width: 125.w,
-                          //           height: 36.h,
-                          //           decoration: BoxDecoration(
-                          //               color: appButtonColor,
-                          //               borderRadius:
-                          //                   BorderRadius.circular(30.r)),
-                          //           padding: EdgeInsets.all(5.w),
-                          //           child: Row(
-                          //             mainAxisAlignment:
-                          //                 MainAxisAlignment.spaceEvenly,
-                          //             children: [
-                          //               SvgPicture.asset(
-                          //                 'assets/friends_icon.svg',
-                          //                 width: 14.w,
-                          //                 height: 13.81.h,
-                          //               ),
-                          //               BigText(
-                          //                 text: "Friends",
-                          //                 size: 12.sp,
-                          //                 color: appBrownColor,
-                          //                 fontWeight: FontWeight.w700,
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //       ),
-                          //       20.horizontalSpace,
-                          //       Container(
-                          //         width: 125.w,
-                          //         height: 36.h,
-                          //         decoration: BoxDecoration(
-                          //             color: appBrownColor,
-                          //             borderRadius:
-                          //                 BorderRadius.circular(30.r)),
-                          //         padding: EdgeInsets.all(5.w),
-                          //         child: Row(
-                          //           mainAxisAlignment:
-                          //               MainAxisAlignment.spaceEvenly,
-                          //           children: [
-                          //             SvgPicture.asset(
-                          //               'assets/message_white.svg',
-                          //               color: Colors.white,
-                          //               width: 14.w,
-                          //               height: 14.81.h,
-                          //             ),
-                          //             BigText(
-                          //               text: "Message",
-                          //               size: 12.sp,
-                          //               color: appWhiteColor,
-                          //               fontWeight: FontWeight.w700,
-                          //             ),
-                          //           ],
-                          //         ),
-                          //       ),
-                          //       15.horizontalSpace,
-                          //       IconButton(
-                          //           onPressed: () {
-                          //             AppNavigation.push(
-                          //                 const EditProfileScreen());
-                          //           },
-                          //           icon: const Icon(
-                          //             Icons.edit,
-                          //             color: appBrownColor,
-                          //           ))
-                          //     ],
-                          //   ),
-                          // ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              // mainAxisAlignment:
+                              //     MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    // setState(() {
+                                    //   likePost = !likePost;
+                                    // });
+                                  },
+                                  child: Container(
+                                    width: 125.w,
+                                    height: 36.h,
+                                    decoration: BoxDecoration(
+                                        color: appButtonColor,
+                                        borderRadius:
+                                            BorderRadius.circular(30.r)),
+                                    padding: EdgeInsets.all(5.w),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        SvgPicture.asset(
+                                          'assets/friends_icon.svg',
+                                          width: 14.w,
+                                          height: 13.81.h,
+                                        ),
+                                        BigText(
+                                          text: "Friends",
+                                          size: 12.sp,
+                                          color: appBrownColor,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                20.horizontalSpace,
+                                Container(
+                                  width: 125.w,
+                                  height: 36.h,
+                                  decoration: BoxDecoration(
+                                      color: appBrownColor,
+                                      borderRadius:
+                                          BorderRadius.circular(30.r)),
+                                  padding: EdgeInsets.all(5.w),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      SvgPicture.asset(
+                                        'assets/message_white.svg',
+                                        color: Colors.white,
+                                        width: 14.w,
+                                        height: 14.81.h,
+                                      ),
+                                      BigText(
+                                        text: "Message",
+                                        size: 12.sp,
+                                        color: appWhiteColor,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                15.horizontalSpace,
+                              ],
+                            ),
+                          ),
                           SizedBox(
                             height: 10.h,
                           )
@@ -337,7 +325,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                           BigText(
                             text:
-                                '${val.user?.huntingExperience ?? '0'} Years Hunting Experience',
+                                '${widget.user?.huntingExperience ?? '0'} Years Hunting Experience',
                             size: 12.sp,
                             color: appBlackColor,
                             fontWeight: FontWeight.w400,
@@ -353,9 +341,9 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                           Wrap(spacing: 8.w, children: [
                             ...List.generate(
-                                val.user?.skills?.length ?? 0,
+                                widget.user?.skills?.length ?? 0,
                                 (index) => BigText(
-                                      text: '#${val.user?.skills?[index]}',
+                                      text: '#${widget.user?.skills?[index]}',
                                       size: 12.sp,
                                       color: appBlackColor,
                                       fontWeight: FontWeight.w400,
@@ -411,7 +399,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       height: 5.h,
                     ),
                     BigText(
-                      text: '${val.friend.length.toString()} friends',
+                      text: '${friend.length.toString()} friends',
                       size: 10.sp,
                       fontWeight: FontWeight.w400,
                       color: appBlackColor,
@@ -420,17 +408,17 @@ class _ProfileTabState extends State<ProfileTab> {
                       height: 10.h,
                     ),
                     SizedBox(
-                      height: val.friend.length > 6
+                      height: friend.length > 6
                           ? .55.sh
-                          : val.friend.length > 3
+                          : friend.length > 3
                               ? .28.sh
                               : 0,
                       child: GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           padding: const EdgeInsets.all(0.0),
-                          itemCount: val.friend.length > 6
+                          itemCount: friend.length > 6
                               ? 6
-                              : val.friend.length, // Limit to 6 items
+                              : friend.length, // Limit to 6 items
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3,
@@ -440,11 +428,11 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                           itemBuilder: (BuildContext ctx, index) {
                             return UserFriendsList(
-                                title: val.friend[index].displayname ?? '',
-                                image: val.friend[index].profilePhoto);
+                                title: friend[index].displayname ?? '',
+                                image: friend[index].profilePhoto);
                           }),
                     ),
-                    if (val.friend.isNotEmpty)
+                    if (friend.isNotEmpty)
                       CustomButton(
                         text: 'See All Friends',
                         color: appButtonColor,
@@ -462,7 +450,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     BigText(
-                      text: '${val.user?.displayname ?? ""} posts',
+                      text: '${widget.user?.displayname ?? ""} posts',
                       size: 14.sp,
                       fontWeight: FontWeight.w600,
                     ),
@@ -488,8 +476,9 @@ class _ProfileTabState extends State<ProfileTab> {
                               decoration: const BoxDecoration(
                                   color: appBrownColor, shape: BoxShape.circle),
                               child: BigText(
-                                text: val.user?.displayname?.isNotEmpty ?? false
-                                    ? val.user!.displayname![0].toUpperCase()
+                                text: widget.user?.displayname?.isNotEmpty ??
+                                        false
+                                    ? widget.user!.displayname![0].toUpperCase()
                                     : '',
                                 size: 22.sp,
                                 fontWeight: FontWeight.w900,

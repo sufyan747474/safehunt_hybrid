@@ -9,6 +9,7 @@ import 'package:safe_hunt/screens/app_main_screen.dart';
 import 'package:safe_hunt/screens/drawer/map_screen.dart';
 import 'package:safe_hunt/screens/drawer/profile_tab.dart';
 import 'package:safe_hunt/screens/drawer/setting.dart';
+import 'package:safe_hunt/screens/friend_module/friend_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
@@ -140,6 +141,18 @@ class _DrawerScreenState extends State<DrawerScreen> {
                           child: DrawerCard(
                             svgPicture: 'assets/push_notification_white.svg',
                             label: "Notification",
+                          ),
+                        ),
+                        const Divider(color: Colors.grey),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                            AppNavigation.push(const FriendScreen());
+                          },
+                          child: DrawerCard(
+                            svgPicture: 'assets/message_white.svg',
+                            label: "Friend",
                           ),
                         ),
                         const Divider(color: Colors.grey),

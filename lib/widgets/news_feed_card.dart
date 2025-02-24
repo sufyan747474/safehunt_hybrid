@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/auth/get_user_profile_bloc.dart';
 import 'package:safe_hunt/bloc/post/delete_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/like_unlike_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/post_share_bloc.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
+import 'package:safe_hunt/screens/other_user_profile_screen/other_user_profile_screen.dart';
 import 'package:safe_hunt/screens/post/model/post_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
@@ -16,7 +18,6 @@ import 'package:safe_hunt/utils/custom_bottom_sheet.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 
-import '../screens/drawer/profile_tab.dart';
 import '../utils/colors.dart';
 import 'big_text.dart';
 
@@ -59,8 +60,20 @@ class NewsFeedCard extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () {
-                          profileOntap
-                              ? AppNavigation.push(const ProfileTab())
+                          context.read<UserProvider>().user?.id != post?.userId
+                              ? GetUserProfileBloc().userProfileBlocMethod(
+                                  context: context,
+                                  setProgressBar: () {
+                                    AppDialogs.progressAlertDialog(
+                                        context: context);
+                                  },
+                                  userId: post?.userId,
+                                  onSuccess: (res) {
+                                    AppNavigation.push(OtherUserProfileScreen(
+                                      user: res,
+                                    ));
+                                  },
+                                )
                               : null;
                         },
                         child: Padding(

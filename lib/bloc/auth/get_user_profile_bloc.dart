@@ -1,39 +1,34 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:safe_hunt/model/user_model.dart';
-import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class GetAllFriendsBloc {
+class GetUserProfileBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> getAllFriendsBlocMethod({
+  void userProfileBlocMethod({
     required BuildContext context,
     required VoidCallback setProgressBar,
-    required Function(List<UserData>) onSuccess,
-    bool isLoader = true,
+    required Function(UserData) onSuccess,
+    String? userId,
   }) async {
-    isLoader ? setProgressBar() : null;
+    setProgressBar();
 
-    if (isLoader) {
-      _onFailure = () {
-        Navigator.pop(context);
-      };
-    }
+    _onFailure = () {
+      Navigator.pop(context);
+    };
 
     await _getRequest(
-        endPoint: NetworkStrings.FRIENDS_ENDPOINT, context: context);
+        endPoint: '${NetworkStrings.USER_PROFILE_ENDPOINT}?ids=$userId',
+        context: context);
 
-    if (isLoader) {
-      _onSuccess = () {
-        Navigator.pop(context);
-        _getAllPostResponseMethod(context: context, onSuccess: onSuccess);
-      };
-    }
+    _onSuccess = () {
+      Navigator.pop(context);
+      _getAllPostResponseMethod(context: context, onSuccess: onSuccess);
+    };
     _validateResponse();
   }
 
@@ -41,13 +36,12 @@ class GetAllFriendsBloc {
   Future<void> _getRequest(
       {required String endPoint, required BuildContext context}) async {
     _response = await Network().getRequest(
-        baseUrl: NetworkStrings.API_BASE_URL,
-        endPoint: endPoint,
-        context: context,
-        onFailure: _onFailure,
-        isHeaderRequire: true,
-        isErrorToast: false,
-        isToast: false);
+      baseUrl: NetworkStrings.API_BASE_URL,
+      endPoint: endPoint,
+      context: context,
+      onFailure: _onFailure,
+      isHeaderRequire: true,
+    );
   }
 
   ///----------------------------------- Validate Response -----------------------------------
@@ -63,14 +57,12 @@ class GetAllFriendsBloc {
 
   void _getAllPostResponseMethod({
     required BuildContext context,
-    required Function(List<UserData>) onSuccess,
+    required Function(UserData) onSuccess,
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final friends = List<UserData>.from(
-            _response?.data['data']!.map((x) => UserData.fromJson(x))).toList();
-        context.read<UserProvider>().setFriend(friends);
-        onSuccess.call(friends);
+        final user = UserData.fromJson(_response?.data['data']['data'][0]);
+        onSuccess.call(user);
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

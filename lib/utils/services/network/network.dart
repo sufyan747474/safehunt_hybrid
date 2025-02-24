@@ -37,7 +37,7 @@ class Network {
 
   static Dio _getDio() {
     // BaseOptions options = new BaseOptions(
-    //   connectTimeout: 300,
+    //   connectTimeout: 60,
     // );
     return _dio ??= Dio();
   }
@@ -76,7 +76,7 @@ class Network {
       bool isToast = true,
       bool isErrorToast = true,
       String? baseUrl,
-      Duration connectTimeOut = const Duration(seconds: 300),
+      Duration connectTimeOut = const Duration(seconds: 60),
       required bool isHeaderRequire}) async {
     Response? response;
 
@@ -120,7 +120,7 @@ class Network {
     Map<String, dynamic>? data,
     bool isToast = true,
     String? baseUrl,
-    Duration connectTimeOut = const Duration(seconds: 300),
+    Duration connectTimeOut = const Duration(seconds: 60),
     bool isErrorToast = true,
     required bool isHeaderRequire,
   }) async {
@@ -163,7 +163,7 @@ class Network {
       dynamic formData,
       VoidCallback? onFailure,
       bool isToast = true,
-      connectTimeOut = const Duration(seconds: 300),
+      connectTimeOut = const Duration(seconds: 60),
       bool isErrorToast = true,
       required bool isHeaderRequire}) async {
     Response? response;
@@ -207,7 +207,7 @@ class Network {
       Map<String, dynamic>? queryParameters,
       VoidCallback? onFailure,
       bool isToast = true,
-      connectTimeOut = const Duration(seconds: 300),
+      connectTimeOut = const Duration(seconds: 60),
       bool isErrorToast = true,
       required bool isHeaderRequire}) async {
     Response? response;
