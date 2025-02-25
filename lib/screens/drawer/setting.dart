@@ -4,10 +4,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/auth/app_notification_on_off_bloc.dart';
+import 'package:safe_hunt/bloc/auth/get_content_bloc.dart';
 import 'package:safe_hunt/bloc/auth/notification_on_off_bloc.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/app_main_screen.dart';
+import 'package:safe_hunt/screens/content/content_screen.dart';
 import 'package:safe_hunt/screens/edit_profile_screen.dart';
 import 'package:safe_hunt/screens/new_password_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
@@ -270,17 +272,41 @@ class _SettingScreenState extends State<SettingScreen> {
                 color: appBrownColor,
                 thickness: 0.3,
               ),
-              const SettingCard(
+              SettingCard(
                 label: 'Terms & Conditions',
                 svgPicture: 'assets/Arrow_right.svg',
+                onTap: () {
+                  GetContentBloc().getContentBlocMethod(
+                    context: context,
+                    setProgressBar: () {
+                      AppDialogs.progressAlertDialog(context: context);
+                    },
+                    page: 'terms',
+                    onSuccess: (res) {
+                      AppNavigation.push(ContentScreen(termsData: res));
+                    },
+                  );
+                },
               ),
               const Divider(
                 color: appBrownColor,
                 thickness: 0.3,
               ),
-              const SettingCard(
+              SettingCard(
                 label: 'Privacy Policy',
                 svgPicture: 'assets/Arrow_right.svg',
+                onTap: () {
+                  GetContentBloc().getContentBlocMethod(
+                    context: context,
+                    setProgressBar: () {
+                      AppDialogs.progressAlertDialog(context: context);
+                    },
+                    page: 'privacy-policy',
+                    onSuccess: (res) {
+                      AppNavigation.push(ContentScreen(termsData: res));
+                    },
+                  );
+                },
               ),
               const Divider(
                 color: appBrownColor,

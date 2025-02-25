@@ -72,6 +72,7 @@ dependencies:
   provider: ^6.1.2
   map_location_picker: ^1.2.9+2
   http_parser: ^4.0.2
+  html: ^0.15.5
 
   
 

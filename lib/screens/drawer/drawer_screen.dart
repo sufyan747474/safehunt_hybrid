@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/auth/get_content_bloc.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/app_main_screen.dart';
+import 'package:safe_hunt/screens/content/content_screen.dart';
 import 'package:safe_hunt/screens/drawer/map_screen.dart';
 import 'package:safe_hunt/screens/drawer/profile_tab.dart';
 import 'package:safe_hunt/screens/drawer/setting.dart';
@@ -205,7 +207,19 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            // Get.to(() => const ReferAFriend());
+                            GetContentBloc().getContentBlocMethod(
+                              context: context,
+                              setProgressBar: () {
+                                AppDialogs.progressAlertDialog(
+                                    context: context);
+                              },
+                              page: 'terms',
+                              onSuccess: (res) {
+                                Navigator.pop(context);
+                                AppNavigation.push(
+                                    ContentScreen(termsData: res));
+                              },
+                            );
                           },
                           child: DrawerCard(
                             svgPicture: 'assets/terms_and_condition_white.svg',
@@ -216,7 +230,19 @@ class _DrawerScreenState extends State<DrawerScreen> {
                         const Spacer(),
                         GestureDetector(
                           onTap: () {
-                            // Get.to(() => const ReferAFriend());
+                            GetContentBloc().getContentBlocMethod(
+                              context: context,
+                              setProgressBar: () {
+                                AppDialogs.progressAlertDialog(
+                                    context: context);
+                              },
+                              page: 'privacy-policy',
+                              onSuccess: (res) {
+                                Navigator.pop(context);
+                                AppNavigation.push(
+                                    ContentScreen(termsData: res));
+                              },
+                            );
                           },
                           child: DrawerCard(
                             svgPicture: 'assets/privacy_policy_white.svg',
