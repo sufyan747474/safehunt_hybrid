@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
 import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
@@ -37,6 +38,7 @@ class _AddPostState extends State<SelectTagPeople> {
             setProgressBar: () {
               AppDialogs.progressAlertDialog(context: context);
             },
+            userId: context.read<UserProvider>().user?.id ?? '0',
             onSuccess: (friends) {
               tagPeople?.setTagPeople(friends);
               selectedItems =

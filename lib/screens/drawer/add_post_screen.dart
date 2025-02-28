@@ -49,6 +49,7 @@ class _AddPostState extends State<AddPost> {
 
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         GetAllFriendsBloc().getAllFriendsBlocMethod(
+          userId: context.read<UserProvider>().user?.id ?? '0',
           context: context,
           setProgressBar: () {
             AppDialogs.progressAlertDialog(context: context);

@@ -16,24 +16,22 @@ class GetAllFriendsBloc {
     required VoidCallback setProgressBar,
     required Function(List<UserData>) onSuccess,
     bool isLoader = true,
+    required String userId,
   }) async {
     isLoader ? setProgressBar() : null;
 
-    if (isLoader) {
-      _onFailure = () {
-        Navigator.pop(context);
-      };
-    }
+    _onFailure = () {
+      isLoader ? Navigator.pop(context) : null;
+    };
 
     await _getRequest(
-        endPoint: NetworkStrings.FRIENDS_ENDPOINT, context: context);
+        endPoint: '${NetworkStrings.FRIENDS_ENDPOINT}/$userId',
+        context: context);
 
-    if (isLoader) {
-      _onSuccess = () {
-        Navigator.pop(context);
-        _getAllPostResponseMethod(context: context, onSuccess: onSuccess);
-      };
-    }
+    _onSuccess = () {
+      isLoader ? Navigator.pop(context) : null;
+      _getAllPostResponseMethod(context: context, onSuccess: onSuccess);
+    };
     _validateResponse();
   }
 

@@ -3,8 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
+import 'package:safe_hunt/bloc/post/get_all_post_bloc.dart';
+import 'package:safe_hunt/bloc/post/get_post_details_bloc.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/edit_profile_screen.dart';
+import 'package:safe_hunt/screens/post/post_detail_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
@@ -32,10 +36,20 @@ class _ProfileTabState extends State<ProfileTab> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       GetAllFriendsBloc().getAllFriendsBlocMethod(
         context: context,
+        isLoader: false,
         setProgressBar: () {
           AppDialogs.progressAlertDialog(context: context);
         },
+        userId: context.read<UserProvider>().user?.id ?? '0',
         onSuccess: (p0) {},
+      );
+      GetAllPostBloc().getAllPostBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        userId: context.read<UserProvider>().user?.id,
+        onSuccess: () {},
       );
     });
   }
@@ -51,7 +65,8 @@ class _ProfileTabState extends State<ProfileTab> {
   ];
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(builder: (context, val, _) {
+    return Consumer2<UserProvider, PostProvider>(
+        builder: (context, val, post, _) {
       return Scaffold(
           backgroundColor: appButtonColor,
           appBar: AppBar(
@@ -525,10 +540,23 @@ class _ProfileTabState extends State<ProfileTab> {
                   physics: const ScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
-                  itemCount: 0,
+                  itemCount: post.userpost.length,
                   itemBuilder: (BuildContext context, index) {
-                    return const NewsFeedCard(
+                    return NewsFeedCard(
                       profileOntap: false,
+                      post: post.userpost[index],
+                      functionOnTap: () {
+                        PostDetailBloc().postDetailBlocMethod(
+                          context: context,
+                          setProgressBar: () {
+                            AppDialogs.progressAlertDialog(context: context);
+                          },
+                          postId: post.userpost[index].id ?? '0',
+                          onSuccess: () {
+                            AppNavigation.push(const PostDetailScreen());
+                          },
+                        );
+                      },
                     );
                   }),
 

@@ -15,6 +15,7 @@ class GetAllPostBloc {
     required BuildContext context,
     required VoidCallback setProgressBar,
     required Function() onSuccess,
+    String? userId,
   }) async {
     setProgressBar();
 
@@ -23,11 +24,15 @@ class GetAllPostBloc {
     };
 
     await _getRequest(
-        endPoint: NetworkStrings.ADD_POST_ENDPOINT, context: context);
+        endPoint: userId != null
+            ? '${NetworkStrings.ADD_POST_ENDPOINT}/user/$userId'
+            : NetworkStrings.ADD_POST_ENDPOINT,
+        context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _getAllPostResponseMethod(context: context, onSuccess: onSuccess);
+      _getAllPostResponseMethod(
+          context: context, onSuccess: onSuccess, userId: userId);
     };
     _validateResponse();
   }
@@ -59,13 +64,16 @@ class GetAllPostBloc {
   void _getAllPostResponseMethod({
     required BuildContext context,
     required Function() onSuccess,
+    String? userId,
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
         final post = List<PostData>.from(
             _response?.data['data']!.map((x) => PostData.fromJson(x))).toList();
 
-        context.read<PostProvider>().setPosts(post);
+        userId != null
+            ? context.read<PostProvider>().setUserPosts(post)
+            : context.read<PostProvider>().setPosts(post);
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

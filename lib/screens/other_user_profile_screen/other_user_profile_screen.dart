@@ -3,10 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
+import 'package:safe_hunt/bloc/friends/send_friend_request_bloc.dart';
+import 'package:safe_hunt/bloc/post/get_all_post_bloc.dart';
+import 'package:safe_hunt/bloc/post/get_post_details_bloc.dart';
 import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
-import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
-import 'package:safe_hunt/screens/edit_profile_screen.dart';
+import 'package:safe_hunt/screens/post/post_detail_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
@@ -40,10 +43,19 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
           AppDialogs.progressAlertDialog(context: context);
         },
         isLoader: false,
+        userId: widget.user?.id ?? '0',
         onSuccess: (res) {
           friend = res;
           setState(() {});
         },
+      );
+      GetAllPostBloc().getAllPostBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        userId: widget.user?.id,
+        onSuccess: () {},
       );
     });
   }
@@ -59,7 +71,8 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
   ];
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(builder: (context, val1, _) {
+    return Consumer2<UserProvider, PostProvider>(
+        builder: (context, val1, post, _) {
       return Scaffold(
           backgroundColor: appButtonColor,
           appBar: AppBar(
@@ -161,17 +174,23 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                             width: MediaQuery.of(context).size.width * 0.9,
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
-                              // mainAxisAlignment:
-                              //     MainAxisAlignment.spaceBetween,
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    // setState(() {
-                                    //   likePost = !likePost;
-                                    // });
+                                    SendFriendRequestBloc()
+                                        .sendFriendRequestBlocMethod(
+                                      context: context,
+                                      setProgressBar: () {
+                                        AppDialogs.progressAlertDialog(
+                                            context: context);
+                                      },
+                                      userId: widget.user?.id,
+                                    );
                                   },
                                   child: Container(
-                                    width: 125.w,
+                                    width: widget.user?.isRequested == 1
+                                        ? 140.w
+                                        : 125.w,
                                     height: 36.h,
                                     decoration: BoxDecoration(
                                         color: appButtonColor,
@@ -188,7 +207,13 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                                           height: 13.81.h,
                                         ),
                                         BigText(
-                                          text: "Friends",
+                                          text: widget.user?.isRequested == 1
+                                              ? 'Cancel Request'
+                                              : widget.user?.isFriend == 0
+                                                  ? "Add Friend"
+                                                  : widget.user?.isFriend == 1
+                                                      ? 'Unfriend'
+                                                      : "Friend",
                                           size: 12.sp,
                                           color: appBrownColor,
                                           fontWeight: FontWeight.w700,
@@ -262,23 +287,6 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                     SizedBox(
                       width: 15.w,
                     ),
-                    // Container(
-                    //   alignment: Alignment.center,
-                    //   width: 83.w,
-                    //   height: 30.h,
-                    //   decoration: BoxDecoration(
-                    //       color: Colors.transparent,
-                    //       borderRadius: BorderRadius.circular(57.r)),
-                    //   child: BigText(
-                    //     text: 'Photos',
-                    //     color: appBrownColor,
-                    //     size: 12.sp,
-                    //     fontWeight: FontWeight.w600,
-                    //   ),
-                    // ),
-                    // SizedBox(
-                    //   width: 15.w,
-                    // ),
                     GestureDetector(
                       onTap: () {
                         setState(() {
@@ -457,52 +465,6 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                     SizedBox(
                       height: 20.h,
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        AppNavigation.push(const AddPost());
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: subscriptionCardColor,
-                          borderRadius: BorderRadius.all(Radius.circular(30.r)),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              alignment: Alignment.center,
-                              height: 50.w,
-                              width: 50.w,
-                              padding: EdgeInsets.all(10.r),
-                              decoration: const BoxDecoration(
-                                  color: appBrownColor, shape: BoxShape.circle),
-                              child: BigText(
-                                text: widget.user?.displayname?.isNotEmpty ??
-                                        false
-                                    ? widget.user!.displayname![0].toUpperCase()
-                                    : '',
-                                size: 22.sp,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            BigText(
-                              text: 'What are you thinking about?',
-                              size: 12.sp,
-                              fontWeight: FontWeight.w400,
-                              color: appBrownColor,
-                            ),
-                            const Spacer(),
-                            SvgPicture.asset('assets/gallery.svg'),
-                            SizedBox(
-                              width: 15.w,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -514,10 +476,23 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                   physics: const ScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
-                  itemCount: 0,
+                  itemCount: post.userpost.length,
                   itemBuilder: (BuildContext context, index) {
-                    return const NewsFeedCard(
+                    return NewsFeedCard(
                       profileOntap: false,
+                      post: post.userpost[index],
+                      functionOnTap: () {
+                        PostDetailBloc().postDetailBlocMethod(
+                          context: context,
+                          setProgressBar: () {
+                            AppDialogs.progressAlertDialog(context: context);
+                          },
+                          postId: post.userpost[index].id ?? '0',
+                          onSuccess: () {
+                            AppNavigation.push(const PostDetailScreen());
+                          },
+                        );
+                      },
                     );
                   }),
 

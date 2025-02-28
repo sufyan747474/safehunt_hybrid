@@ -31,7 +31,8 @@ class DrawerScreen extends StatefulWidget {
 class _DrawerScreenState extends State<DrawerScreen> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(builder: (context, val, _) {
+    return Consumer2<UserProvider, PostProvider>(
+        builder: (context, val, post, _) {
       return BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
         child: Container(
@@ -118,171 +119,164 @@ class _DrawerScreenState extends State<DrawerScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   // physics: NeverScrollableScrollPhysics(),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 1.03,
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                              AppNavigation.push(const ProfileTab());
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                          onTap: () {
+                            post.emptyUserPost();
+                            Navigator.pop(context);
+                            AppNavigation.push(const ProfileTab());
+                          },
+                          child: DrawerCard(
+                            label: "My profile",
+                            svgPicture: 'assets/profile_white.svg',
+                          )),
+                      const Divider(
+                        color: Colors.grey,
+                      ),
+                      // const Spacer(),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Navigator.pop(context);
+                      //     AppNavigation.push(const NotificationScreen());
+                      //   },
+                      //   child: DrawerCard(
+                      //     svgPicture: 'assets/push_notification_white.svg',
+                      //     label: "Notification",
+                      //   ),
+                      // ),
+                      // const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                          AppNavigation.push(const FriendScreen());
+                        },
+                        child: DrawerCard(
+                          svgPicture: 'assets/message_white.svg',
+                          label: "Friends",
+                        ),
+                      ),
+                      const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     AppNavigation.pop();
+                      //   },
+                      //   child: DrawerCard(
+                      //     svgPicture: 'assets/feed_white.svg',
+                      //     label: "Feed",
+                      //   ),
+                      // ),
+                      // const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Navigator.pop(context);
+                      //     AppNavigation.push(const ChatsScreen());
+                      //   },
+                      //   child: DrawerCard(
+                      //     svgPicture: 'assets/message_white.svg',
+                      //     label: "Messages",
+                      //   ),
+                      // ),
+                      // const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Get.to(() => const MapScreen());
+                      //   },
+                      //   child: DrawerCard(
+                      //     svgPicture: 'assets/Mask group (4).svg',
+                      //     label: "Map",
+                      //   ),
+                      // ),
+                      // const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      // GestureDetector(
+                      //   onTap: () {
+                      //     Navigator.pop(context);
+                      //     AppNavigation.push(const SettingScreen());
+                      //   },
+                      //   child: DrawerCard(
+                      //     svgPicture: 'assets/setting_white.svg',
+                      //     label: "Setting",
+                      //   ),
+                      // ),
+                      // const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          GetContentBloc().getContentBlocMethod(
+                            context: context,
+                            setProgressBar: () {
+                              AppDialogs.progressAlertDialog(context: context);
                             },
-                            child: DrawerCard(
-                              label: "My profile",
-                              svgPicture: 'assets/profile_white.svg',
-                            )),
-                        const Divider(
-                          color: Colors.grey,
+                            page: 'terms',
+                            onSuccess: (res) {
+                              Navigator.pop(context);
+                              AppNavigation.push(ContentScreen(termsData: res));
+                            },
+                          );
+                        },
+                        child: DrawerCard(
+                          svgPicture: 'assets/terms_and_condition_white.svg',
+                          label: "Terms & conditions",
                         ),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            AppNavigation.push(const NotificationScreen());
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/push_notification_white.svg',
-                            label: "Notification",
-                          ),
+                      ),
+                      const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          GetContentBloc().getContentBlocMethod(
+                            context: context,
+                            setProgressBar: () {
+                              AppDialogs.progressAlertDialog(context: context);
+                            },
+                            page: 'privacy-policy',
+                            onSuccess: (res) {
+                              Navigator.pop(context);
+                              AppNavigation.push(ContentScreen(termsData: res));
+                            },
+                          );
+                        },
+                        child: DrawerCard(
+                          svgPicture: 'assets/privacy_policy_white.svg',
+                          label: "Privacy policy",
                         ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            AppNavigation.push(const FriendScreen());
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/message_white.svg',
-                            label: "Friend",
-                          ),
+                      ),
+                      const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          // Get.to(() => const ReferAFriend());
+                        },
+                        child: DrawerCard(
+                          svgPicture: 'assets/rate_our_app_white.svg',
+                          label: "Rate our App",
                         ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            AppNavigation.pop();
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/feed_white.svg',
-                            label: "Feed",
-                          ),
+                      ),
+                      const Divider(color: Colors.grey),
+                      // const Spacer(),
+                      GestureDetector(
+                        onTap: () {
+                          SharedPreference().clear();
+                          val.clearUserProvider();
+                          context.read<PostProvider>().clearPostProvider();
+                          AppNavigation.pushAndRemoveUntil(
+                              const AppMainScreen());
+                          AppDialogs.showToast(message: "Logout successfully");
+                        },
+                        child: DrawerCard(
+                          svgPicture: 'assets/logout_white.svg',
+                          label: "Logout",
                         ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            AppNavigation.push(const ChatsScreen());
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/message_white.svg',
-                            label: "Messages",
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(() => const MapScreen());
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/Mask group (4).svg',
-                            label: "Map",
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            AppNavigation.push(const SettingScreen());
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/setting_white.svg',
-                            label: "Setting",
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            GetContentBloc().getContentBlocMethod(
-                              context: context,
-                              setProgressBar: () {
-                                AppDialogs.progressAlertDialog(
-                                    context: context);
-                              },
-                              page: 'terms',
-                              onSuccess: (res) {
-                                Navigator.pop(context);
-                                AppNavigation.push(
-                                    ContentScreen(termsData: res));
-                              },
-                            );
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/terms_and_condition_white.svg',
-                            label: "Terms & conditions",
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            GetContentBloc().getContentBlocMethod(
-                              context: context,
-                              setProgressBar: () {
-                                AppDialogs.progressAlertDialog(
-                                    context: context);
-                              },
-                              page: 'privacy-policy',
-                              onSuccess: (res) {
-                                Navigator.pop(context);
-                                AppNavigation.push(
-                                    ContentScreen(termsData: res));
-                              },
-                            );
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/privacy_policy_white.svg',
-                            label: "Privacy policy",
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            // Get.to(() => const ReferAFriend());
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/rate_our_app_white.svg',
-                            label: "Rate our App",
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            SharedPreference().clear();
-                            val.clearUserProvider();
-                            context.read<PostProvider>().clearPostProvider();
-                            AppNavigation.pushAndRemoveUntil(
-                                const AppMainScreen());
-                            AppDialogs.showToast(
-                                message: "Logout successfully");
-                          },
-                          child: DrawerCard(
-                            svgPicture: 'assets/logout_white.svg',
-                            label: "Logout",
-                          ),
-                        ),
-                        const Divider(color: Colors.grey),
-                        SizedBox(
-                          height: 40.h,
-                        )
-                      ],
-                    ),
+                      ),
+                      const Divider(color: Colors.grey),
+                      SizedBox(
+                        height: 40.h,
+                      )
+                    ],
                   ),
                 ),
               )

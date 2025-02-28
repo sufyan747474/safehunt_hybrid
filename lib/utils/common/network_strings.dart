@@ -115,6 +115,7 @@ class NetworkStrings {
 
   //! / POST
   static const String ADD_POST_ENDPOINT = "post";
+  static const String USER_POST_ENDPOINT = "post/user";
 
   //! POST LIKE
   static const String POST_LIKE_ENDPOINT = "likes";
@@ -130,6 +131,7 @@ class NetworkStrings {
 
   //! / FRIENDS
   static const String FRIENDS_ENDPOINT = "friends";
+  static const String FRIENDS_REQUEST_ENDPOINT = "friends/request";
 
   //! <============ dynamin linking ----------?
   static const String DYNAMIC_URL = "https://sixsigmaSafeHunt.page.link";

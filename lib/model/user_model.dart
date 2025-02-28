@@ -22,6 +22,8 @@ class UserData {
   String? otp;
   String? otpexpiry;
   String? token;
+  int? isFriend;
+  int? isRequested;
 
   UserData({
     this.firstname,
@@ -43,6 +45,8 @@ class UserData {
     this.otp,
     this.otpexpiry,
     this.token,
+    this.isFriend,
+    this.isRequested,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
@@ -67,6 +71,8 @@ class UserData {
         skills: json["skills"] == null
             ? []
             : List<String>.from(json["skills"]!.map((x) => x)),
+        isFriend: json["isFriend"],
+        isRequested: json["isRequested"],
       );
 
   Map<String, dynamic> toJson() => {

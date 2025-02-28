@@ -92,6 +92,28 @@ class PostProvider extends ChangeNotifier {
     isNotifyListner ? notifyListeners() : null;
   }
 
+  //! <--------------------- get user post with Id --------------->
+
+  List<PostData> _userPost = [];
+  List<PostData> get userpost => _userPost;
+  bool? isUserPost;
+
+  setUserPosts(List<PostData> post) {
+    if (post.isNotEmpty) {
+      _userPost = post;
+      isUserPost = true;
+    } else if (post.isEmpty) {
+      isUserPost = false;
+    }
+    notifyListeners();
+  }
+
+  emptyUserPost() {
+    _userPost = [];
+    isUserPost = null;
+    notifyListeners();
+  }
+
   //! <--------------------- get all post --------------->
 
   List<PostData> _post = [];
@@ -111,7 +133,10 @@ class PostProvider extends ChangeNotifier {
   addPostInList(PostData post) {
     post.likesCount = '0';
     _post.insert(0, post);
+    _userPost.insert(0, post);
+
     isPost = true;
+    isUserPost = true;
 
     notifyListeners();
   }
@@ -123,8 +148,13 @@ class PostProvider extends ChangeNotifier {
 
     _post.removeWhere((element) => element.id == postId);
 
+    //! delete post from user posts
+    _userPost.removeWhere((element) => element.id == postId);
+
     notifyListeners();
   }
+
+  //! <--------------------- post like update--------------->
 
   void postLikeUpdate({required bool isLike, required String postId}) {
     final postIndex = _post.indexWhere((element) => element.id == postId);
@@ -145,6 +175,20 @@ class PostProvider extends ChangeNotifier {
             : (currentLikes > 0 ? (currentLikes - 1).toString() : '0');
       }
 
+      //! update post like in user posts
+      final userPostIndex =
+          _userPost.indexWhere((element) => element.id == postId);
+      if (userPostIndex != -1) {
+        _userPost[userPostIndex].postLiked = isLike;
+
+        int currentUserPostLikes =
+            int.tryParse(_userPost[userPostIndex].likesCount ?? '0') ?? 0;
+        _userPost[userPostIndex].likesCount = isLike
+            ? (currentUserPostLikes + 1).toString()
+            : (currentUserPostLikes > 0
+                ? (currentUserPostLikes - 1).toString()
+                : '0');
+      }
       notifyListeners(); //! Ensure UI updates if using Provider
     }
   }
@@ -172,6 +216,14 @@ class PostProvider extends ChangeNotifier {
     //! add comment in post details
 
     _postDetail?.comments?.insert(0, comment);
+
+    //! add comment in user post
+
+    final userPostIndex =
+        _userPost.indexWhere((element) => element.id == postId);
+    if (userPostIndex != -1) {
+      _userPost[userPostIndex].comments?.insert(0, comment);
+    }
 
     notifyListeners();
   }
@@ -205,6 +257,16 @@ class PostProvider extends ChangeNotifier {
     //! delete comment in post details
 
     _postDetail?.comments?.removeWhere((element) => element.id == commentId);
+
+    //! delete comment in user post
+
+    final userPostIndex =
+        _userPost.indexWhere((element) => element.id == postId);
+    if (userPostIndex != -1) {
+      _userPost[userPostIndex]
+          .comments
+          ?.removeWhere((element) => element.id == commentId);
+    }
 
     notifyListeners();
   }
@@ -366,6 +428,8 @@ class PostProvider extends ChangeNotifier {
   clearPostProvider() {
     _post = [];
     isPost = null;
+    _userPost = [];
+    isUserPost = null;
     _postDetail = null;
     notifyListeners();
   }

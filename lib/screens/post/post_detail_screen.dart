@@ -86,7 +86,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           child: Column(
             children: [
               NewsFeedCard(
-                profileOntap: widget.profileOntap,
+                profileOntap: false,
+                //  widget.profileOntap,
                 isPostDetails: true,
                 post: val.postDetail,
                 functionOnTap: () {
