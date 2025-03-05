@@ -436,9 +436,9 @@ class _ProfileTabState extends State<ProfileTab> {
                     ),
                     SizedBox(
                       height: val.friend.length > 6
-                          ? .55.sh
-                          : val.friend.length > 3
-                              ? .28.sh
+                          ? .53.sh
+                          : val.friend.length <= 3
+                              ? .26.sh
                               : 0,
                       child: GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
@@ -459,12 +459,12 @@ class _ProfileTabState extends State<ProfileTab> {
                                 image: val.friend[index].profilePhoto);
                           }),
                     ),
-                    if (val.friend.isNotEmpty)
-                      CustomButton(
-                        text: 'See All Friends',
-                        color: appButtonColor,
-                        textColor: appBrownColor,
-                      ),
+                    // if (val.friend.isNotEmpty)
+                    //   CustomButton(
+                    //     text: 'See All Friends',
+                    //     color: appButtonColor,
+                    //     textColor: appBrownColor,
+                    //   ),
                   ],
                 ),
               ),

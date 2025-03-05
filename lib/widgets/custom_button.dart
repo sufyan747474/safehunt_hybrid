@@ -12,12 +12,19 @@ class CustomButton extends StatefulWidget {
   Border? border;
   Color? textColor;
   FontWeight fontWeight;
+  EdgeInsetsGeometry? padding;
+  double? height;
+  void Function()? onTap;
+
   CustomButton(
       {super.key,
       required this.text,
       this.color = appButtonWhiteColor,
       this.isLoading = false,
       this.textColor,
+      this.padding,
+      this.height,
+      this.onTap,
       this.fontWeight = FontWeight.normal,
       this.border});
 
@@ -28,20 +35,24 @@ class CustomButton extends StatefulWidget {
 class _CustomButtonState extends State<CustomButton> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 45.h,
-      decoration: BoxDecoration(
-        color: widget.color,
-        borderRadius: BorderRadius.circular(30.r),
-        border: widget.border,
+    return InkWell(
+      onTap: widget.onTap,
+      child: Container(
+        padding: widget.padding,
+        height: widget.height ?? 45.h,
+        decoration: BoxDecoration(
+          color: widget.color,
+          borderRadius: BorderRadius.circular(30.r),
+          border: widget.border,
+        ),
+        child: Center(
+            child: BigText(
+          text: widget.text,
+          size: 14.72.sp,
+          fontWeight: FontWeight.w500,
+          color: widget.textColor,
+        )),
       ),
-      child: Center(
-          child: BigText(
-        text: widget.text,
-        size: 14.72.sp,
-        fontWeight: FontWeight.w500,
-        color: widget.textColor,
-      )),
     );
   }
 }

@@ -1,35 +1,32 @@
 import 'package:safe_hunt/model/user_model.dart';
 
-class FriendList {
+class FriendModel {
   String? id;
-  String? userId;
-  String? friendId;
   String? status;
-  String? createdAt;
-  String? updatedAt;
-  UserData? user;
-  UserData? friend;
+  String? requesterId;
+  String? recipientId;
+  UserData? requester;
+  UserData? recipient;
 
-  FriendList({
+  FriendModel({
     this.id,
-    this.userId,
-    this.friendId,
     this.status,
-    this.createdAt,
-    this.updatedAt,
-    this.user,
-    this.friend,
+    this.requesterId,
+    this.recipientId,
+    this.requester,
+    this.recipient,
   });
 
-  factory FriendList.fromJson(Map<String, dynamic> json) => FriendList(
+  factory FriendModel.fromJson(Map<String, dynamic> json) => FriendModel(
         id: json["id"].toString(),
-        userId: json["user_id"].toString(),
-        friendId: json["friend_id"].toString(),
         status: json["status"],
-        createdAt: json["created_at"],
-        updatedAt: json["updated_at"],
-        user: json["user"] == null ? null : UserData.fromJson(json["user"]),
-        friend:
-            json["friend"] == null ? null : UserData.fromJson(json["friend"]),
+        requesterId: json["requesterId"],
+        recipientId: json["recipientId"],
+        requester: json["requester"] == null
+            ? null
+            : UserData.fromJson(json["requester"]),
+        recipient: json["recipient"] == null
+            ? null
+            : UserData.fromJson(json["recipient"]),
       );
 }

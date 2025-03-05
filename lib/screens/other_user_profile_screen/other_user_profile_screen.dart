@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/friends/accept_reject_friend_request_bloc.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
 import 'package:safe_hunt/bloc/friends/send_friend_request_bloc.dart';
 import 'package:safe_hunt/bloc/post/get_all_post_bloc.dart';
@@ -141,7 +144,7 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                           Row(
                             children: [
                               BigText(
-                                text: '0',
+                                text: friend.length.toString(),
                                 // val.friend.length.toString(),
                                 size: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -170,64 +173,69 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                           SizedBox(
                             height: 10.h,
                           ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.9,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    SendFriendRequestBloc()
-                                        .sendFriendRequestBlocMethod(
-                                      context: context,
-                                      setProgressBar: () {
-                                        AppDialogs.progressAlertDialog(
-                                            context: context);
-                                      },
-                                      userId: widget.user?.id,
-                                    );
-                                  },
-                                  child: Container(
-                                    width: widget.user?.isRequested == 1
-                                        ? 140.w
-                                        : 125.w,
-                                    height: 36.h,
-                                    decoration: BoxDecoration(
-                                        color: appButtonColor,
-                                        borderRadius:
-                                            BorderRadius.circular(30.r)),
-                                    padding: EdgeInsets.all(5.w),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/friends_icon.svg',
-                                          width: 14.w,
-                                          height: 13.81.h,
-                                        ),
-                                        BigText(
-                                          text: widget.user?.isRequested == 1
-                                              ? 'Cancel Request'
-                                              : widget.user?.isFriend == 0
-                                                  ? "Add Friend"
-                                                  : widget.user?.isFriend == 1
-                                                      ? 'Unfriend'
-                                                      : "Friend",
-                                          size: 12.sp,
-                                          color: appBrownColor,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                20.horizontalSpace,
-                                Container(
-                                  width: 125.w,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  (widget.user?.isRequestSent == true ||
+                                          widget.user?.isRequestReceived ==
+                                              true)
+                                      ? FriendRequestUpdateBloc()
+                                          .friendRequestUpdateBlocMethod(
+                                              context: context,
+                                              setProgressBar: () {
+                                                AppDialogs.progressAlertDialog(
+                                                    context: context);
+                                              },
+                                              requesterId: widget.user
+                                                          ?.isRequestReceived ==
+                                                      true
+                                                  ? widget.user?.requestedBy
+                                                          ?.id ??
+                                                      ''
+                                                  : val1.user?.id,
+                                              status: widget.user
+                                                          ?.isRequestReceived ==
+                                                      true
+                                                  ? 'accepted'
+                                                  : 'declined',
+                                              onSuccess: (res) {
+                                                if (res == 'accepted') {
+                                                  widget.user?.isFriend = 1;
+                                                  widget.user?.requestedBy =
+                                                      null;
+                                                  widget.user?.isRequestSent =
+                                                      false;
+                                                  widget.user
+                                                          ?.isRequestReceived =
+                                                      false;
+                                                  setState(() {});
+                                                }
+                                              })
+                                      : SendFriendRequestBloc()
+                                          .sendFriendRequestBlocMethod(
+                                              context: context,
+                                              setProgressBar: () {
+                                                AppDialogs.progressAlertDialog(
+                                                    context: context);
+                                              },
+                                              userId: widget.user?.id,
+                                              onSuccess: () {
+                                                widget.user?.isRequestSent =
+                                                    true;
+                                                widget.user?.requestedBy =
+                                                    val1.user;
+                                                setState(() {});
+                                              });
+                                },
+                                child: Container(
+                                  width: widget.user?.isRequestReceived == true
+                                      ? 80.w
+                                      : 125.w,
                                   height: 36.h,
                                   decoration: BoxDecoration(
-                                      color: appBrownColor,
+                                      color: appButtonColor,
                                       borderRadius:
                                           BorderRadius.circular(30.r)),
                                   padding: EdgeInsets.all(5.w),
@@ -235,24 +243,109 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      SvgPicture.asset(
-                                        'assets/message_white.svg',
-                                        color: Colors.white,
-                                        width: 14.w,
-                                        height: 14.81.h,
-                                      ),
+                                      (widget.user?.isRequestSent == true ||
+                                              widget.user?.isRequestReceived ==
+                                                  true)
+                                          ? const SizedBox.shrink()
+                                          : SvgPicture.asset(
+                                              'assets/friends_icon.svg',
+                                              width: 14.w,
+                                              height: 13.81.h,
+                                            ),
                                       BigText(
-                                        text: "Message",
+                                        text: widget.user?.isRequestSent == true
+                                            ? 'Cancel Request'
+                                            : widget.user?.isRequestReceived ==
+                                                    true
+                                                ? 'Accept'
+                                                : widget.user?.isFriend == 0
+                                                    ? "Add Friend"
+                                                    : widget.user?.isFriend == 1
+                                                        ? 'Unfriend'
+                                                        : "Friend",
                                         size: 12.sp,
-                                        color: appWhiteColor,
+                                        color: appBrownColor,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ],
                                   ),
                                 ),
-                                15.horizontalSpace,
+                              ),
+                              if (widget.user?.isRequestSent == true ||
+                                  widget.user?.isRequestReceived == true) ...[
+                                12.horizontalSpace,
+                                InkWell(
+                                  onTap: () {
+                                    widget.user?.isRequestReceived == true
+                                        ? FriendRequestUpdateBloc()
+                                            .friendRequestUpdateBlocMethod(
+                                                context: context,
+                                                setProgressBar: () {
+                                                  AppDialogs
+                                                      .progressAlertDialog(
+                                                          context: context);
+                                                },
+                                                requesterId: widget.user
+                                                        ?.requestedBy?.id ??
+                                                    '',
+                                                status: 'declined',
+                                                onSuccess: () {
+                                                  widget.user
+                                                          ?.isRequestReceived =
+                                                      false;
+                                                  setState(() {});
+                                                })
+                                        : null;
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    width: 80.w,
+                                    height: 36.h,
+                                    decoration: BoxDecoration(
+                                        color: appButtonColor,
+                                        borderRadius:
+                                            BorderRadius.circular(30.r)),
+                                    padding: EdgeInsets.all(5.w),
+                                    child: BigText(
+                                      text: widget.user?.isRequestSent == true
+                                          ? "Pending"
+                                          : "Reject",
+                                      size: 12.sp,
+                                      color: appBrownColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
                               ],
-                            ),
+                              12.horizontalSpace,
+                              Container(
+                                width: 125.w,
+                                height: 36.h,
+                                decoration: BoxDecoration(
+                                    color: appBrownColor,
+                                    borderRadius: BorderRadius.circular(30.r)),
+                                padding: EdgeInsets.all(5.w),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/message_white.svg',
+                                      color: Colors.white,
+                                      width: 14.w,
+                                      height: 14.81.h,
+                                    ),
+                                    BigText(
+                                      text: "Message",
+                                      size: 12.sp,
+                                      color: appWhiteColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              15.horizontalSpace,
+                            ],
                           ),
                           SizedBox(
                             height: 10.h,
@@ -417,9 +510,9 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                     ),
                     SizedBox(
                       height: friend.length > 6
-                          ? .55.sh
-                          : friend.length > 3
-                              ? .28.sh
+                          ? .53.sh
+                          : friend.length <= 3
+                              ? .26.sh
                               : 0,
                       child: GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
@@ -440,12 +533,12 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                                 image: friend[index].profilePhoto);
                           }),
                     ),
-                    if (friend.isNotEmpty)
-                      CustomButton(
-                        text: 'See All Friends',
-                        color: appButtonColor,
-                        textColor: appBrownColor,
-                      ),
+                    // if (friend.isNotEmpty)
+                    //   CustomButton(
+                    //     text: 'See All Friends',
+                    //     color: appButtonColor,
+                    //     textColor: appBrownColor,
+                    //   ),
                   ],
                 ),
               ),

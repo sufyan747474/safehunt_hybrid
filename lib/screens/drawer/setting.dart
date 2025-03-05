@@ -11,6 +11,7 @@ import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/app_main_screen.dart';
 import 'package:safe_hunt/screens/content/content_screen.dart';
 import 'package:safe_hunt/screens/edit_profile_screen.dart';
+import 'package:safe_hunt/screens/friend_module/block_users/block_user_screen.dart';
 import 'package:safe_hunt/screens/new_password_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
@@ -123,7 +124,10 @@ class _SettingScreenState extends State<SettingScreen> {
                 color: appBrownColor,
                 thickness: 0.3,
               ),
-              const SettingCard(
+              SettingCard(
+                onTap: () {
+                  AppNavigation.push(const BlockUserScreen());
+                },
                 label: 'Block',
                 svgPicture: 'assets/Arrow_right.svg',
               ),

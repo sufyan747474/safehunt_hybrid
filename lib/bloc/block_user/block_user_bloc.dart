@@ -5,12 +5,12 @@ import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class SendFriendRequestBloc {
+class BlockUserBloc {
   dynamic _formData;
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  void sendFriendRequestBlocMethod({
+  void blockUserBlocMethod({
     required BuildContext context,
     String? userId,
     required VoidCallback setProgressBar,
@@ -19,7 +19,7 @@ class SendFriendRequestBloc {
     setProgressBar();
 
     _formData = {
-      "recipientId": userId,
+      "blockedUserId": userId,
     };
 
     log("body : $_formData");
@@ -30,11 +30,11 @@ class SendFriendRequestBloc {
 
     // ignore: use_build_context_synchronously
     await _postRequest(
-        endPoint: NetworkStrings.FRIENDS_REQUEST_ENDPOINT, context: context);
+        endPoint: '${NetworkStrings.BLOCK_ENDPOINT}/$userId', context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _sendFriendRequestResponseMethod(context: context, onSuccess: onSuccess);
+      _blockUserResponseMethod(context: context, onSuccess: onSuccess);
     };
     _validateResponse();
   }
@@ -65,12 +65,13 @@ class SendFriendRequestBloc {
     }
   }
 
-  void _sendFriendRequestResponseMethod({
+  void _blockUserResponseMethod({
     required BuildContext context,
     Function? onSuccess,
   }) {
     try {
       if (_response?.data != null) {
+        AppDialogs.showToast(message: _response?.data['data']);
         onSuccess?.call();
       }
     } catch (error) {

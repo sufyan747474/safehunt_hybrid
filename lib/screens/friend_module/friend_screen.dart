@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/bloc/block_user/block_user_bloc.dart';
+import 'package:safe_hunt/bloc/friends/accept_reject_friend_request_bloc.dart';
+import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
+import 'package:safe_hunt/bloc/friends/get_friend_request_bloc.dart';
+import 'package:safe_hunt/model/friend_list_model.dart';
+import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/friend_module/widget/custom_tab_item_widget.dart';
 import 'package:safe_hunt/screens/friend_module/widget/custom_tab_widget.dart';
 import 'package:safe_hunt/screens/friend_module/widget/friend_widget.dart';
 import 'package:safe_hunt/screens/friend_module/widget/request_widget.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
@@ -23,58 +31,93 @@ class _FriendScreenState extends State<FriendScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      // _friendMethod(friendList: 1);
+      _fetchFriends();
     });
   }
 
   // void _friendMethod({int friendList = 0, int friendRequest = 0}) {
   //   frientList = [];
   //   isFriend = null;
-  // GetAllFriendBloc().getAllFriendBlocMethod(
-  //   context: context,
-  //   setProgressBar: () {
-  //     AppDialogs.progressAlertDialog(context: context);
-  //   },
-  //   friendList: friendList,
-  //   friendRequest: friendRequest,
-  //   onSuccess: (res) {
-  //     if (res.isEmpty) {
-  //       isFriend = false;
-  //     } else if (res.isNotEmpty) {
-  //       isFriend = true;
-  //       frientList = res;
-  //     }
-  //     setState(() {});
-  //   },
-  // );
-  // }
-
-  // void _updateRequest(
-  //     {required String friendId,
-  //     required String status,
-  //     bool isUnFriendBlock = false}) {
-  //   frientList = [];
-  //   isFriend = null;
-  //   UpdateFriendRequestBloc().updateFriendRequestBlocMethod(
+  //   GetAllFriendBloc().getAllFriendBlocMethod(
   //     context: context,
   //     setProgressBar: () {
   //       AppDialogs.progressAlertDialog(context: context);
   //     },
-  //     friendId: friendId,
-  //     status: status,
+  //     friendList: friendList,
+  //     friendRequest: friendRequest,
   //     onSuccess: (res) {
-  //       if (isUnFriendBlock) {
-  //         AppNavigation.navigatorPop();
+  //       if (res.isEmpty) {
+  //         isFriend = false;
+  //       } else if (res.isNotEmpty) {
+  //         isFriend = true;
+  //         frientList = res;
   //       }
-  //       _friendMethod(friendList: 0, friendRequest: 1);
+  //       setState(() {});
   //     },
   //   );
   // }
 
-  int selectedTab = 1;
-  // List<FriendList>
+  _fetchFriends() {
+    isFriend = null;
+    frientList = [];
+    GetAllFriendsBloc().getAllFriendsBlocMethod(
+      context: context,
+      setProgressBar: () {
+        AppDialogs.progressAlertDialog(context: context);
+      },
+      userId: context.read<UserProvider>().user?.id ?? '',
+      onSuccess: (res) {
+        if (res.isEmpty) {
+          isFriend = false;
+        } else if (res.isNotEmpty) {
+          isFriend = true;
+          frientList = res;
+        }
+        setState(() {});
+      },
+    );
+  }
 
-  dynamic frientList = [];
+  _fetchFriendRequests() {
+    isFriend = null;
+    requestList = [];
+    GetFriendRequestBloc().getFriendRequestBlocMethod(
+      context: context,
+      setProgressBar: () {
+        AppDialogs.progressAlertDialog(context: context);
+      },
+      onSuccess: (res) {
+        if (res.isEmpty) {
+          isFriend = false;
+        } else if (res.isNotEmpty) {
+          isFriend = true;
+          requestList = res;
+        }
+        setState(() {});
+      },
+    );
+  }
+
+  void _updateRequest({
+    required String requesterId,
+    required String status,
+  }) {
+    FriendRequestUpdateBloc().friendRequestUpdateBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        requesterId: requesterId,
+        status: status,
+        onSuccess: () {
+          selectedTab == 0 ? _fetchFriendRequests() : _fetchFriends();
+        });
+  }
+
+  int selectedTab = 1;
+  List<FriendModel> requestList = [];
+  List<UserData> frientList = [];
+
   bool? isFriend;
 
   @override
@@ -122,9 +165,7 @@ class _FriendScreenState extends State<FriendScreen> {
                 onChange: (val) {
                   if (val != null) {
                     selectedTab = val;
-                    // _friendMethod(
-                    //     friendRequest: val == 0 ? 1 : 0,
-                    //     friendList: val == 1 ? 1 : 0);
+                    val == 1 ? _fetchFriends() : _fetchFriendRequests();
                     setState(() {});
                   }
                 }),
@@ -168,11 +209,16 @@ class _FriendScreenState extends State<FriendScreen> {
           FriendWidget(
             friendData: frientList[i],
             blockFriend: () {
-              // _updateRequest(
-              //   friendId: frientList[i].id ?? "",
-              //   status: 'block',
-              //   isUnFriendBlock: true,
-              // );
+              BlockUserBloc().blockUserBlocMethod(
+                  context: context,
+                  setProgressBar: () {
+                    AppDialogs.progressAlertDialog(context: context);
+                  },
+                  userId: frientList[i].id,
+                  onSuccess: () {
+                    AppNavigation.pop();
+                    _fetchFriends();
+                  });
             },
             unFriend: () {
               // _updateRequest(
@@ -189,16 +235,18 @@ class _FriendScreenState extends State<FriendScreen> {
   Widget requestsList() {
     return Column(
       children: [
-        for (int i = 0; i < frientList.length; i++)
+        for (int i = 0; i < requestList.length; i++)
           RequestWidget(
-            friendData: frientList[i],
+            friendData: requestList[i].requester,
             confirm: () {
-              // _updateRequest(
-              //     friendId: frientList[i].id ?? "", status: 'accepted');
+              _updateRequest(
+                  requesterId: requestList[i].requesterId ?? "",
+                  status: 'accepted');
             },
             delete: () {
-              // _updateRequest(
-              //     friendId: frientList[i].id ?? "", status: 'decline');
+              _updateRequest(
+                  requesterId: requestList[i].requesterId ?? "",
+                  status: 'declined');
             },
           )
       ],

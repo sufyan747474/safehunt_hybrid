@@ -24,6 +24,9 @@ class UserData {
   String? token;
   int? isFriend;
   int? isRequested;
+  bool? isRequestSent;
+  bool? isRequestReceived;
+  UserData? requestedBy;
 
   UserData({
     this.firstname,
@@ -47,6 +50,9 @@ class UserData {
     this.token,
     this.isFriend,
     this.isRequested,
+    this.isRequestReceived,
+    this.isRequestSent,
+    this.requestedBy,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) => UserData(
@@ -68,11 +74,20 @@ class UserData {
         otp: json["otp"],
         otpexpiry: json["otpexpiry"],
         token: json["token"],
-        skills: json["skills"] == null
-            ? []
-            : List<String>.from(json["skills"]!.map((x) => x)),
+        skills: json["skills"] is List
+            ? List<String>.from(json["skills"].map((x) => x.toString()))
+            : json["skills"] == null
+                ? []
+                : json["skills"] is String
+                    ? [json["skills"].toString()]
+                    : [],
         isFriend: json["isFriend"],
         isRequested: json["isRequested"],
+        isRequestReceived: json["isRequestReceived"],
+        isRequestSent: json["isRequestSent"],
+        requestedBy: json["requestedBy"] == null
+            ? null
+            : UserData.fromJson(json["requestedBy"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -82,8 +97,11 @@ class UserData {
         "profilePhoto": profilePhoto,
         "bio": bio,
         "huntingExperience": huntingExperience,
-        "skills":
-            skills == null ? [] : List<dynamic>.from(skills!.map((x) => x)),
+        "skills": skills is List
+            ? List<String>.from(skills?.map((x) => x.toString()) ?? [])
+            : skills == null
+                ? []
+                : [skills.toString()],
         "equipmentImages": equipmentImages,
         "displayname": displayname,
         "username": username,

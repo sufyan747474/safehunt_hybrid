@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/journals/model/journal_model.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';

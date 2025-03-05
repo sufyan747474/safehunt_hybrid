@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
-import 'package:safe_hunt/model/friend_list_model.dart';
-import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/screens/friend_module/widget/friend_modal.dart';
+import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 
@@ -13,7 +13,7 @@ class FriendWidget extends StatelessWidget {
     this.unFriend,
     this.blockFriend,
   });
-  final FriendList? friendData;
+  final UserData? friendData;
   final void Function()? unFriend, blockFriend;
 
   // void moreFunction({required String currentUserId}) {
@@ -26,7 +26,7 @@ class FriendWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String currentUserId = context.read<UserProvider>().user?.id ?? '';
+    // String currentUserId = context.read<UserProvider>().user?.id ?? '';
 
     return GestureDetector(
       onTap: () {
@@ -51,27 +51,28 @@ class FriendWidget extends StatelessWidget {
       // },
       child: Container(
         margin: EdgeInsets.only(bottom: 10.r),
-        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 20.h),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.r),
-            color: AppColors.blackColor),
+            color: AppColors.whiteColor.withOpacity(.5)),
         child: Row(
           children: [
             CustomImageWidget(
-                isBorder: false,
-                imageUrl: friendData?.user?.id == currentUserId
-                    ? friendData?.friend?.profilePhoto
-                    : friendData?.user?.profilePhoto,
-                borderRadius: BorderRadius.circular(50.r)),
+              imageWidth: 50.w,
+              imageHeight: 50.w,
+              borderColor: appBrownColor,
+              borderWidth: 1.r,
+              imageUrl: friendData?.profilePhoto,
+            ),
             10.horizontalSpace,
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    child: Text(
-                        '${friendData?.user?.id == currentUserId ? friendData?.friend?.displayname : friendData?.user?.displayname ?? ""} ${friendData?.user?.id == currentUserId ? friendData?.friend?.displayname : friendData?.user?.displayname ?? ""}',
+                    child: Text(friendData?.displayname ?? "",
                         style: TextStyle(
+                            color: appBrownColor,
                             fontFamily: "",
                             overflow: TextOverflow.visible,
                             fontWeight: FontWeight.bold,
@@ -80,18 +81,18 @@ class FriendWidget extends StatelessWidget {
                   // const Spacer(),
                   IconButton(
                       onPressed: () {
-                        // FriendModal.friendModal(
-                        //     currentUserId: currentUserId,
-                        //     friend: friendData,
-                        //     blockFriend: blockFriend,
-                        //     unFriend: unFriend);
+                        FriendModal.friendModal(
+                            currentUserId: '1',
+                            friend: friendData,
+                            blockFriend: blockFriend,
+                            unFriend: unFriend);
                       },
                       // moreFunction,
                       alignment: Alignment.centerRight,
                       icon: const Icon(
                         Icons.more_vert_rounded,
                         color: AppColors.greenColor,
-                        size: 34,
+                        size: 28,
                       )),
                 ],
               ),

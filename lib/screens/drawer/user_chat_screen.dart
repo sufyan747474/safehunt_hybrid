@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/colors.dart';
+import 'package:safe_hunt/utils/common/network_strings.dart';
+import 'package:safe_hunt/utils/services/socket_service/socket_service.dart';
 
 import '../../widgets/big_text.dart';
 import '../../widgets/user_message_card.dart';
@@ -17,6 +22,32 @@ class UserChat extends StatefulWidget {
 class _UserChatState extends State<UserChat> {
   final TextEditingController _messageController = TextEditingController();
   var radius = 20.0;
+  UserData? user;
+
+  @override
+  void initState() {
+    user = context.read<UserProvider>().user;
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      // await SocketService.commonConnectSocket();
+      // SocketService.instance
+      //     ?.emitEvent(eventName: "receiveMessage", eventParamaters: {
+      //   // "sender_id": user?.id,
+      //   // "receiver_id": widget.helpSupport == true
+      //   //     ? '67a23f05fd41e559cc0eb913'
+      //   //     : widget.recieverId // admin id
+      // });
+    });
+
+    // print(widget.appBarName.toString());
+    // print(widget.helpSupport.toString());
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

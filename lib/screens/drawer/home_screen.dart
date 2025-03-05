@@ -8,6 +8,7 @@ import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
 import 'package:safe_hunt/screens/post/post_detail_screen.dart';
+import 'package:safe_hunt/screens/wheather/wheather_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/utils.dart';
@@ -109,15 +110,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.zero,
                       visualDensity: VisualDensity.standard,
                       onPressed: () async {
-                        Utils.getLatLong().then((result) {
-                          if (!mounted)
-                          // ✅ Prevent setState if widget is disposed
-                          {
-                            setState(() {
-                              val.setWeather(result.$2);
-                            });
-                          }
-                        });
+                        // Utils.getLatLong().then((result) {
+                        //   if (!mounted)
+                        //   // ✅ Prevent setState if widget is disposed
+                        //   {
+                        //     setState(() {
+                        //       val.setWeather(result.$2);
+                        //     });
+                        //   }
+                        // });
+                        AppNavigation.push(const WeatherTab());
                       },
                       icon:
                           // CustomImageWidget(

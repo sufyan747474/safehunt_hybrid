@@ -11,6 +11,8 @@ class NetworkStrings {
   static const String MERCHANT_THANK_YOU_URL =
       "https://server1.appsstaging.com/3672/SafeHunt/public/thankyou";
 
+  static const String SOCKET_URL = "http://localhost:4041";
+
   //!/ STRIPE
   static const String PUBLISH_KEY =
       "pk_test_51Q2Xu4CHsLZSnNQo5FV27D4LKbnvWR083g9qnpFD1S8Gsm2rCoykfBTECVSuMaYkiAX8PzXWNLMkEh2U0XuH58bW00asSx3q5R";
@@ -132,6 +134,11 @@ class NetworkStrings {
   //! / FRIENDS
   static const String FRIENDS_ENDPOINT = "friends";
   static const String FRIENDS_REQUEST_ENDPOINT = "friends/request";
+  static const String FRIENDS_STATUS_UPDATE_ENDPOINT = "friends/update-status";
+  static const String GE_FRIENDS_REQUEST_ENDPOINT = "friends/requests";
+
+  //! / block
+  static const String BLOCK_ENDPOINT = "block";
 
   //! <============ dynamin linking ----------?
   static const String DYNAMIC_URL = "https://sixsigmaSafeHunt.page.link";
