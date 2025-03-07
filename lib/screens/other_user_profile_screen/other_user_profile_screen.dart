@@ -1,12 +1,12 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/friends/accept_reject_friend_request_bloc.dart';
+import 'package:safe_hunt/bloc/friends/cancel_request_bloc.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
 import 'package:safe_hunt/bloc/friends/send_friend_request_bloc.dart';
+import 'package:safe_hunt/bloc/friends/unfriend_bloc.dart';
 import 'package:safe_hunt/bloc/post/get_all_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/get_post_details_bloc.dart';
 import 'package:safe_hunt/model/user_model.dart';
@@ -19,7 +19,6 @@ import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
-import 'package:safe_hunt/widgets/custom_button.dart';
 
 import '../../utils/colors.dart';
 import '../../widgets/news_feed_card.dart';
@@ -40,18 +39,7 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      GetAllFriendsBloc().getAllFriendsBlocMethod(
-        context: context,
-        setProgressBar: () {
-          AppDialogs.progressAlertDialog(context: context);
-        },
-        isLoader: false,
-        userId: widget.user?.id ?? '0',
-        onSuccess: (res) {
-          friend = res;
-          setState(() {});
-        },
-      );
+      _fetchFriendMethod();
       GetAllPostBloc().getAllPostBlocMethod(
         context: context,
         setProgressBar: () {
@@ -61,6 +49,21 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
         onSuccess: () {},
       );
     });
+  }
+
+  void _fetchFriendMethod() {
+    GetAllFriendsBloc().getAllFriendsBlocMethod(
+      context: context,
+      setProgressBar: () {
+        AppDialogs.progressAlertDialog(context: context);
+      },
+      isLoader: false,
+      userId: widget.user?.id ?? '0',
+      onSuccess: (res) {
+        friend = res;
+        setState(() {});
+      },
+    );
   }
 
   bool pressAttentionColor = false;
@@ -178,56 +181,94 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  (widget.user?.isRequestSent == true ||
-                                          widget.user?.isRequestReceived ==
-                                              true)
-                                      ? FriendRequestUpdateBloc()
-                                          .friendRequestUpdateBlocMethod(
-                                              context: context,
-                                              setProgressBar: () {
-                                                AppDialogs.progressAlertDialog(
-                                                    context: context);
-                                              },
-                                              requesterId: widget.user
-                                                          ?.isRequestReceived ==
-                                                      true
-                                                  ? widget.user?.requestedBy
-                                                          ?.id ??
-                                                      ''
-                                                  : val1.user?.id,
-                                              status: widget.user
-                                                          ?.isRequestReceived ==
-                                                      true
-                                                  ? 'accepted'
-                                                  : 'declined',
-                                              onSuccess: (res) {
-                                                if (res == 'accepted') {
-                                                  widget.user?.isFriend = 1;
-                                                  widget.user?.requestedBy =
-                                                      null;
-                                                  widget.user?.isRequestSent =
-                                                      false;
-                                                  widget.user
-                                                          ?.isRequestReceived =
-                                                      false;
-                                                  setState(() {});
-                                                }
-                                              })
-                                      : SendFriendRequestBloc()
-                                          .sendFriendRequestBlocMethod(
-                                              context: context,
-                                              setProgressBar: () {
-                                                AppDialogs.progressAlertDialog(
-                                                    context: context);
-                                              },
-                                              userId: widget.user?.id,
-                                              onSuccess: () {
-                                                widget.user?.isRequestSent =
-                                                    true;
-                                                widget.user?.requestedBy =
-                                                    val1.user;
-                                                setState(() {});
-                                              });
+                                  widget.user?.isFriend == 1
+                                      ? UnfriendBloc().unfriendBlocMethod(
+                                          setProgressBar: () {
+                                            AppDialogs.progressAlertDialog(
+                                                context: context);
+                                          },
+                                          context: context,
+                                          userId: widget.user?.id ?? '',
+                                          onSuccess: () {
+                                            widget.user?.isFriend = 0;
+
+                                            setState(() {});
+                                            _fetchFriendMethod();
+                                          },
+                                        )
+                                      : widget.user?.isRequestReceived == true
+                                          ? FriendRequestUpdateBloc()
+                                              .friendRequestUpdateBlocMethod(
+                                                  context: context,
+                                                  setProgressBar: () {
+                                                    AppDialogs
+                                                        .progressAlertDialog(
+                                                            context: context);
+                                                  },
+                                                  requesterId: widget.user
+                                                          ?.requestedBy?.id ??
+                                                      '',
+                                                  status: 'accepted',
+                                                  onSuccess: (res) {
+                                                    if (res == 'accepted') {
+                                                      widget.user?.isFriend = 1;
+                                                      widget.user?.requestedBy =
+                                                          null;
+                                                      widget.user
+                                                              ?.isRequestSent =
+                                                          false;
+                                                      widget.user
+                                                              ?.isRequestReceived =
+                                                          false;
+                                                      setState(() {});
+                                                      _fetchFriendMethod();
+                                                    }
+                                                  })
+                                          : widget.user?.isRequestSent == true
+                                              ? CancelRequestBloc()
+                                                  .cancelRequestBlocMethod(
+                                                  context: context,
+                                                  setProgressBar: () {
+                                                    AppDialogs
+                                                        .progressAlertDialog(
+                                                            context: context);
+                                                  },
+                                                  requesterId: context
+                                                      .read<UserProvider>()
+                                                      .user
+                                                      ?.id,
+                                                  receipitId: widget.user?.id,
+                                                  onSuccess: () {
+                                                    widget.user?.isFriend = 0;
+                                                    widget.user?.requestedBy =
+                                                        null;
+                                                    widget.user?.isRequestSent =
+                                                        false;
+                                                    widget.user
+                                                            ?.isRequestReceived =
+                                                        false;
+                                                    setState(() {});
+                                                  },
+                                                )
+                                              : SendFriendRequestBloc()
+                                                  .sendFriendRequestBlocMethod(
+                                                      context: context,
+                                                      setProgressBar: () {
+                                                        AppDialogs
+                                                            .progressAlertDialog(
+                                                                context:
+                                                                    context);
+                                                      },
+                                                      userId: widget.user?.id,
+                                                      onSuccess: () {
+                                                        widget.user
+                                                                ?.isRequestSent =
+                                                            true;
+                                                        widget.user
+                                                                ?.requestedBy =
+                                                            val1.user;
+                                                        setState(() {});
+                                                      });
                                 },
                                 child: Container(
                                   width: widget.user?.isRequestReceived == true
@@ -511,7 +552,7 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                     SizedBox(
                       height: friend.length > 6
                           ? .53.sh
-                          : friend.length <= 3
+                          : friend.isNotEmpty
                               ? .26.sh
                               : 0,
                       child: GridView.builder(

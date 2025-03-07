@@ -15,7 +15,6 @@ import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
-import 'package:safe_hunt/widgets/custom_button.dart';
 
 import '../../utils/colors.dart';
 import '../../widgets/news_feed_card.dart';
@@ -437,7 +436,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     SizedBox(
                       height: val.friend.length > 6
                           ? .53.sh
-                          : val.friend.length <= 3
+                          : val.friend.isNotEmpty
                               ? .26.sh
                               : 0,
                       child: GridView.builder(

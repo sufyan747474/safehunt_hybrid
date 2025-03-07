@@ -118,6 +118,7 @@ class NetworkStrings {
   //! / POST
   static const String ADD_POST_ENDPOINT = "post";
   static const String USER_POST_ENDPOINT = "post/user";
+  static const String REPORT_POST_ENDPOINT = "reports";
 
   //! POST LIKE
   static const String POST_LIKE_ENDPOINT = "likes";

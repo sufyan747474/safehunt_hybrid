@@ -15,23 +15,28 @@ class PostData {
   List<PostComment>? comments;
   String? likesCount;
   String? sharesCount;
+  String? originalPostId;
+  String? sharedUserId;
+  UserData? sharedUser;
 
-  PostData({
-    this.id,
-    this.description,
-    this.image,
-    this.tags,
-    this.latitude,
-    this.longitude,
-    this.createdAt,
-    this.updatedAt,
-    this.userId,
-    this.postLiked,
-    this.user,
-    this.comments,
-    this.likesCount,
-    this.sharesCount,
-  });
+  PostData(
+      {this.id,
+      this.description,
+      this.image,
+      this.tags,
+      this.latitude,
+      this.longitude,
+      this.createdAt,
+      this.updatedAt,
+      this.userId,
+      this.postLiked,
+      this.user,
+      this.comments,
+      this.likesCount,
+      this.sharesCount,
+      this.originalPostId,
+      this.sharedUser,
+      this.sharedUserId});
 
   factory PostData.fromJson(Map<String, dynamic> json) => PostData(
         id: json["id"].toString(),
@@ -51,6 +56,11 @@ class PostData {
                 json["comments"]!.map((x) => PostComment.fromJson(x))),
         likesCount: json["likesCount"].toString(),
         sharesCount: json["sharesCount"].toString(),
+        originalPostId: json["originalPostId"].toString(),
+        sharedUserId: json["sharedUserId"].toString(),
+        sharedUser: json["sharedUser"] == null
+            ? null
+            : UserData.fromJson(json["sharedUser"]),
       );
 }
 

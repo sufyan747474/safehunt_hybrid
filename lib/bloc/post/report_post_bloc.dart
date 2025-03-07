@@ -5,51 +5,40 @@ import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class FriendRequestUpdateBloc {
-  dynamic _formData;
+class ReportPostBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
+  dynamic _formData;
 
-  void friendRequestUpdateBlocMethod({
+  void reportPostBlocMethod({
     required BuildContext context,
-    String? requesterId,
-    String? receipitId,
-    String? status,
+    String? postId,
     required VoidCallback setProgressBar,
     Function? onSuccess,
   }) async {
     setProgressBar();
-
-    _formData = {
-      "requesterId": requesterId,
-      "recipientId": receipitId,
-      "status": status,
-    };
-
-    log("body : $_formData");
-
+    _formData = {"postId": postId, "reason": 'Inappropriate Content'};
     _onFailure = () {
       Navigator.pop(context); // StopLoader
     };
 
     // ignore: use_build_context_synchronously
-    await _putRequest(
-        endPoint: NetworkStrings.FRIENDS_STATUS_UPDATE_ENDPOINT,
-        context: context);
+    await _postRequest(
+        endPoint: NetworkStrings.REPORT_POST_ENDPOINT, context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _friendRequestUpdateResponseMethod(
-          context: context, onSuccess: onSuccess, status: status);
+      _reportPostResponseMethod(context: context, onSuccess: onSuccess);
     };
     _validateResponse();
   }
 
-  //-------------------------- put Request ----------------------------------
+  //-------------------------- Post Request ----------------------------------
 
-  Future<void> _putRequest(
+  Future<void> _postRequest(
       {required String endPoint, required BuildContext context}) async {
-    _response = await Network().putRequest(
+    _response = await Network().postRequest(
+      baseUrl: NetworkStrings.API_BASE_URL,
       endPoint: endPoint,
       formData: _formData,
       context: context,
@@ -70,14 +59,14 @@ class FriendRequestUpdateBloc {
     }
   }
 
-  void _friendRequestUpdateResponseMethod({
+  void _reportPostResponseMethod({
     required BuildContext context,
     Function? onSuccess,
-    String? status,
   }) {
     try {
       if (_response?.data != null) {
-        onSuccess?.call(status ?? '');
+        AppDialogs.showToast(message: "Post Report Successfully");
+        onSuccess?.call();
       }
     } catch (error) {
       log(error.toString());

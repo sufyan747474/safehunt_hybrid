@@ -3,9 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/auth/get_user_profile_bloc.dart';
+import 'package:safe_hunt/bloc/block_user/block_user_bloc.dart';
 import 'package:safe_hunt/bloc/post/delete_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/like_unlike_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/post_share_bloc.dart';
+import 'package:safe_hunt/bloc/post/report_post_bloc.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
@@ -42,13 +44,169 @@ class NewsFeedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10.w),
+      padding: EdgeInsets.only(top: 10.w),
       width: 1.sw,
       color: subscriptionCardColor,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (post?.sharedUserId != 'null') ...[
+            Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: profileOntap
+                              ? () {
+                                  (post?.sharedUserId !=
+                                          context.read<UserProvider>().user?.id)
+                                      ? GetUserProfileBloc()
+                                          .userProfileBlocMethod(
+                                          context: context,
+                                          setProgressBar: () {
+                                            AppDialogs.progressAlertDialog(
+                                                context: context);
+                                          },
+                                          userId: post?.sharedUserId,
+                                          onSuccess: (res) {
+                                            context
+                                                .read<PostProvider>()
+                                                .emptyUserPost();
+                                            AppNavigation.push(
+                                                OtherUserProfileScreen(
+                                              user: res,
+                                            ));
+                                          },
+                                        )
+                                      : null;
+                                }
+                              : null,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 15.w),
+                            child: CustomImageWidget(
+                              imageUrl: post?.sharedUser?.profilePhoto,
+                              imageHeight: 40.w,
+                              imageWidth: 40.w,
+                              borderColor: AppColors.greenColor,
+                              borderWidth: 2.r,
+                            ),
+                          ),
+                        ),
+                        10.horizontalSpace,
+                        Flexible(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: BigText(
+                                  textAlign: TextAlign.start,
+                                  text: post?.sharedUser?.displayname ?? "",
+                                  size: 17.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              // SizedBox(
+                              //   height: 5.h,
+                              // ),
+                              // Flexible(
+                              //   child: Column(
+                              //     crossAxisAlignment: CrossAxisAlignment.start,
+                              //     mainAxisSize: MainAxisSize.min,
+                              //     children: [
+                              //       Flexible(
+                              //         child: BigText(
+                              //           textAlign: TextAlign.start,
+                              //           text: Utils.getDayFromDateTime(
+                              //               post?.createdAt ??
+                              //                   DateTime.now().toString()),
+                              //           size: 10.sp,
+                              //           fontWeight: FontWeight.bold,
+                              //           color: Colors.black87,
+                              //           overflow: TextOverflow.visible,
+                              //         ),
+                              //       ),
+                              //     ],
+                              //   ),
+                              // )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  10.horizontalSpace,
+                  Visibility(
+                    visible: post?.sharedUserId !=
+                        context.read<UserProvider>().user?.id,
+                    child: IconButton(
+                      onPressed: () {
+                        showOptionsBottomSheet(
+                            context: context,
+                            sheetHeight: 150.h,
+                            option: [
+                              buildOptionTile(
+                                  icon: Icons.report,
+                                  title: 'Report Post',
+                                  subTitle: 'Do you want to report this post',
+                                  iconwidth: 15.w,
+                                  iconHeight: 15.w,
+                                  onTap: () {
+                                    ReportPostBloc().reportPostBlocMethod(
+                                        context: context,
+                                        setProgressBar: () {
+                                          AppDialogs.progressAlertDialog(
+                                              context: context);
+                                        },
+                                        postId: post?.id,
+                                        onSuccess: () {
+                                          AppNavigation.pop();
+                                        });
+                                  },
+                                  context: context),
+                              buildOptionTile(
+                                  icon: Icons.block,
+                                  title: 'Block User',
+                                  subTitle: 'Do you want to block this user',
+                                  iconwidth: 15.w,
+                                  iconHeight: 15.w,
+                                  containsDivider: false,
+                                  onTap: () {
+                                    BlockUserBloc().blockUserBlocMethod(
+                                        context: context,
+                                        setProgressBar: () {
+                                          AppDialogs.progressAlertDialog(
+                                              context: context);
+                                        },
+                                        userId: post?.sharedUserId,
+                                        onSuccess: () {
+                                          AppNavigation.pop();
+                                        });
+                                  },
+                                  context: context)
+                            ]);
+                      },
+                      icon: const Icon(Icons.more_vert),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Divider(
+              color: appBrownColor,
+              height: 15.h,
+            ),
+            5.verticalSpace,
+          ],
           Flexible(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -186,51 +344,95 @@ class NewsFeedCard extends StatelessWidget {
                 ),
                 10.horizontalSpace,
                 Visibility(
-                  visible:
-                      post?.user?.id == context.read<UserProvider>().user?.id,
+                  visible: post?.sharedUserId == 'null',
                   child: IconButton(
                     onPressed: () {
                       showOptionsBottomSheet(
                           context: context,
                           sheetHeight: 150.h,
                           option: [
-                            buildOptionTile(
-                                icon: Icons.edit,
-                                title: 'Edit Post',
-                                subTitle: 'Do you want to edit this post',
-                                iconwidth: 15.w,
-                                iconHeight: 15.w,
-                                onTap: () {
-                                  AppNavigation.pushReplacement(AddPost(
-                                    isEdit: true,
-                                    post: post,
-                                  ));
-                                },
-                                context: context),
-                            buildOptionTile(
-                                icon: Icons.delete,
-                                title: 'Delete Post',
-                                subTitle: 'Do you want to delete this post',
-                                iconwidth: 15.w,
-                                iconHeight: 15.w,
-                                containsDivider: false,
-                                onTap: () {
-                                  DeletePostBloc().deletePostBlocMethod(
-                                    context: context,
-                                    setProgressBar: () {
-                                      AppDialogs.progressAlertDialog(
-                                          context: context);
-                                    },
-                                    postId: post?.id ?? "",
-                                    onSuccess: () {
-                                      isPostDetails
-                                          ? AppNavigation.pop()
-                                          : null;
-                                      AppNavigation.pop();
-                                    },
-                                  );
-                                },
-                                context: context)
+                            if (post?.user?.id ==
+                                context.read<UserProvider>().user?.id) ...[
+                              buildOptionTile(
+                                  icon: Icons.edit,
+                                  title: 'Edit Post',
+                                  subTitle: 'Do you want to edit this post',
+                                  iconwidth: 15.w,
+                                  iconHeight: 15.w,
+                                  onTap: () {
+                                    AppNavigation.pushReplacement(AddPost(
+                                      isEdit: true,
+                                      post: post,
+                                    ));
+                                  },
+                                  context: context),
+                              buildOptionTile(
+                                  icon: Icons.delete,
+                                  title: 'Delete Post',
+                                  subTitle: 'Do you want to delete this post',
+                                  iconwidth: 15.w,
+                                  iconHeight: 15.w,
+                                  containsDivider: false,
+                                  onTap: () {
+                                    DeletePostBloc().deletePostBlocMethod(
+                                      context: context,
+                                      setProgressBar: () {
+                                        AppDialogs.progressAlertDialog(
+                                            context: context);
+                                      },
+                                      postId: post?.id ?? "",
+                                      onSuccess: () {
+                                        isPostDetails
+                                            ? AppNavigation.pop()
+                                            : null;
+                                        AppNavigation.pop();
+                                      },
+                                    );
+                                  },
+                                  context: context)
+                            ],
+                            if (post?.user?.id !=
+                                context.read<UserProvider>().user?.id) ...[
+                              buildOptionTile(
+                                  icon: Icons.report,
+                                  title: 'Report Post',
+                                  subTitle: 'Do you want to report this post',
+                                  iconwidth: 15.w,
+                                  iconHeight: 15.w,
+                                  onTap: () {
+                                    ReportPostBloc().reportPostBlocMethod(
+                                        context: context,
+                                        setProgressBar: () {
+                                          AppDialogs.progressAlertDialog(
+                                              context: context);
+                                        },
+                                        postId: post?.id,
+                                        onSuccess: () {
+                                          AppNavigation.pop();
+                                        });
+                                  },
+                                  context: context),
+                              buildOptionTile(
+                                  icon: Icons.block,
+                                  title: 'Block User',
+                                  subTitle: 'Do you want to block this user',
+                                  iconwidth: 15.w,
+                                  iconHeight: 15.w,
+                                  containsDivider: false,
+                                  onTap: () {
+                                    BlockUserBloc().blockUserBlocMethod(
+                                        context: context,
+                                        setProgressBar: () {
+                                          AppDialogs.progressAlertDialog(
+                                              context: context);
+                                        },
+                                        userId: post?.user?.id,
+                                        onSuccess: () {
+                                          AppNavigation.pop();
+                                        });
+                                  },
+                                  context: context)
+                            ],
                           ]);
                     },
                     icon: const Icon(Icons.more_vert),

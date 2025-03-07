@@ -206,6 +206,7 @@ class Network {
       required String endPoint,
       Map<String, dynamic>? queryParameters,
       VoidCallback? onFailure,
+      dynamic formData,
       bool isToast = true,
       connectTimeOut = const Duration(seconds: 60),
       bool isErrorToast = true,
@@ -216,6 +217,7 @@ class Network {
         _dio?.options.connectTimeout = connectTimeOut;
         response = await _dio!.delete(NetworkStrings.API_BASE_URL + endPoint,
             queryParameters: queryParameters,
+            data: formData,
             cancelToken: _cancelRequestToken,
             options: Options(
                 headers: _setHeader(isHeaderRequire: isHeaderRequire),
