@@ -22,15 +22,30 @@ class BlockUserScreen extends StatefulWidget {
 }
 
 class _BlockUserScreenState extends State<BlockUserScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  bool showComments = false;
+  int _page = 1;
+
+  bool _isLoadingMore = false;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _fetchBlockUser();
+      _fetchBlockUser(true);
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+                _scrollController.position.maxScrollExtent &&
+            _isLoadingMore == false) {
+          _isLoadingMore = true;
+          setState(() {});
+          _fetchBlockUser(false);
+        }
+      });
     });
   }
 
-  _fetchBlockUser() {
+  _fetchBlockUser(bool isLoader) {
     isData = null;
     blockUser = [];
     GetBlockUserBloc().getBlockUserBlocMethod(
@@ -38,13 +53,23 @@ class _BlockUserScreenState extends State<BlockUserScreen> {
       setProgressBar: () {
         AppDialogs.progressAlertDialog(context: context);
       },
+      isLoader: isLoader,
+      page: _page,
       onSuccess: (res) {
-        if (res.isEmpty) {
+        _page++;
+        _isLoadingMore = false;
+
+        setState(() {});
+        blockUser.addAll(res);
+        if (blockUser.isEmpty) {
           isData = false;
-        } else if (res.isNotEmpty) {
+        } else if (blockUser.isNotEmpty) {
           isData = true;
-          blockUser = res;
         }
+        setState(() {});
+      },
+      onFailure: () {
+        _isLoadingMore = false;
         setState(() {});
       },
     );
@@ -103,7 +128,23 @@ class _BlockUserScreenState extends State<BlockUserScreen> {
                             overflow: TextOverflow.visible),
                       ),
                     )
-                  : SingleChildScrollView(child: friendsList()),
+                  : SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          friendsList(),
+                          _isLoadingMore
+                              ? const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: CircularProgressIndicator(
+                                    color: appLightGreenColor,
+                                    backgroundColor: appRedColor,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                        ],
+                      )),
             ),
           ],
         ),

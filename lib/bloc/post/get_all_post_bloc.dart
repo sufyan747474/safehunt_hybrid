@@ -15,22 +15,27 @@ class GetAllPostBloc {
     required BuildContext context,
     required VoidCallback setProgressBar,
     required Function() onSuccess,
+    required Function() onFailure,
+    bool isLoader = true,
     String? userId,
+    int page = 1,
+    int limit = 10,
   }) async {
-    setProgressBar();
+    isLoader ? setProgressBar() : null;
 
     _onFailure = () {
-      Navigator.pop(context);
+      onFailure.call();
+      isLoader ? Navigator.pop(context) : null;
     };
 
     await _getRequest(
         endPoint: userId != null
-            ? '${NetworkStrings.ADD_POST_ENDPOINT}/user/$userId'
-            : NetworkStrings.ADD_POST_ENDPOINT,
+            ? '${NetworkStrings.ADD_POST_ENDPOINT}/user/$userId?page=$page&limit=$limit'
+            : '${NetworkStrings.ADD_POST_ENDPOINT}?page=$page&limit=$limit',
         context: context);
 
     _onSuccess = () {
-      Navigator.pop(context);
+      isLoader ? Navigator.pop(context) : null;
       _getAllPostResponseMethod(
           context: context, onSuccess: onSuccess, userId: userId);
     };
@@ -68,12 +73,13 @@ class GetAllPostBloc {
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final post = List<PostData>.from(
-            _response?.data['data']!.map((x) => PostData.fromJson(x))).toList();
+        final post = List<PostData>.from(_response?.data['data']['posts']!
+            .map((x) => PostData.fromJson(x))).toList();
 
         userId != null
             ? context.read<PostProvider>().setUserPosts(post)
             : context.read<PostProvider>().setPosts(post);
+        onSuccess.call();
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

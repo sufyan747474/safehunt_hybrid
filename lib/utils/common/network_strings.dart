@@ -11,7 +11,7 @@ class NetworkStrings {
   static const String MERCHANT_THANK_YOU_URL =
       "https://server1.appsstaging.com/3672/SafeHunt/public/thankyou";
 
-  static const String SOCKET_URL = "http://localhost:4041";
+  static const String SOCKET_URL = "http://109.176.198.34:4041/";
 
   //!/ STRIPE
   static const String PUBLISH_KEY =
@@ -29,6 +29,7 @@ class NetworkStrings {
   static const String LOGOUT_ENDPOINT = "logout";
   static const String CONTENT_ENDPOINT = "content";
   static const String FOLLOW_UNFOLLOW_ENDPOINT = "follow_user";
+  static const String EQUIPMENT_ENDPOINT = 'equipment/images';
   static const String MERCHANT_ACCOUNT_SETUP_ENDPOINT = "stripe_url";
   static const String USER_PROFILE_ENDPOINT = "auth/fetch";
   static const String NOTIFICATION_ON_OFF_END_POINT = 'notifications';
@@ -39,6 +40,8 @@ class NetworkStrings {
       "auth/request-reset-password";
   static const String CHANGE_PASSWORD_ENDPOINT = "auth/change-password";
   static const String RESET_PASSWORD_ENDPOINT = "auth/reset-password";
+
+  static const String GROUP_ENDPOINT = 'groups';
 
   //!/ ============================ TOAST MESSAGES ==============================
   static const String NETWORK_ERROR = "Network error!";

@@ -21,18 +21,48 @@ class HuntingJournalScreen extends StatefulWidget {
 }
 
 class _HuntingJournalScreenState extends State<HuntingJournalScreen> {
+  final ScrollController _scrollController = ScrollController();
+
+  bool showComments = false;
+  int _page = 1;
+
+  bool _isLoadingMore = false;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      GetAllJournalBloc().getAllJournalBlocMethod(
-        context: context,
-        setProgressBar: () {
-          AppDialogs.progressAlertDialog(context: context);
-        },
-        onSuccess: () {},
-      );
+      _fetchJurnal(true);
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+                _scrollController.position.maxScrollExtent &&
+            _isLoadingMore == false) {
+          _isLoadingMore = true;
+          setState(() {});
+          _fetchJurnal(false);
+        }
+      });
     });
+  }
+
+  void _fetchJurnal(bool isLoader) {
+    GetAllJournalBloc().getAllJournalBlocMethod(
+      context: context,
+      setProgressBar: () {
+        AppDialogs.progressAlertDialog(context: context);
+      },
+      isLoader: isLoader,
+      page: _page,
+      onSuccess: () {
+        _page++;
+
+        _isLoadingMore = false;
+        setState(() {});
+      },
+      onFailure: () {
+        _isLoadingMore = false;
+        setState(() {});
+      },
+    );
   }
 
   @override
@@ -118,6 +148,7 @@ class _HuntingJournalScreenState extends State<HuntingJournalScreen> {
                 children: [
                   Expanded(
                       child: ListView.builder(
+                    controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     scrollDirection: Axis.vertical,
                     padding:
@@ -255,6 +286,18 @@ class _HuntingJournalScreenState extends State<HuntingJournalScreen> {
                       );
                     },
                   )),
+                  _isLoadingMore
+                      ? const Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: CircularProgressIndicator(
+                              color: appLightGreenColor,
+                              backgroundColor: appRedColor,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                   SizedBox(
                     height: 70.h,
                   ),

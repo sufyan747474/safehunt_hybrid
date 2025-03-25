@@ -31,10 +31,11 @@ class UserProvider extends ChangeNotifier {
   bool? isJournal;
 
   setJournal(List<JournalData> journal) {
-    if (journal.isNotEmpty) {
-      _journal = journal;
+    _journal.addAll(journal);
+
+    if (_journal.isNotEmpty) {
       isJournal = true;
-    } else if (journal.isEmpty) {
+    } else if (_journal.isEmpty) {
       isJournal = false;
     }
     notifyListeners();
@@ -106,10 +107,11 @@ class UserProvider extends ChangeNotifier {
   bool? hasFriends;
 
   setFriend(List<UserData> frinds) {
-    if (frinds.isNotEmpty) {
-      _friend = frinds;
+    _friend.addAll(frinds);
+
+    if (_friend.isNotEmpty) {
       hasFriends = true;
-    } else if (frinds.isEmpty) {
+    } else if (_friend.isEmpty) {
       hasFriends = false;
     }
     notifyListeners();

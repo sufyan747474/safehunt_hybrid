@@ -1,37 +1,29 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:safe_hunt/providers/user_provider.dart';
-import 'package:safe_hunt/screens/journals/model/journal_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class GetAllJournalBloc {
+class GetEquipmentImagesBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> getAllJournalBlocMethod({
+  Future<void> getEquipmentImagesBlocMethod({
     required BuildContext context,
     required VoidCallback setProgressBar,
-    required Function() onSuccess,
-    required Function() onFailure,
+    Function? onSuccess,
+    required Function onFailure,
     bool isLoader = true,
-    int page = 1,
-    int limit = 10,
   }) async {
     isLoader ? setProgressBar() : null;
 
     _onFailure = () {
       onFailure.call();
-      context.read<UserProvider>().setJournal([]);
       isLoader ? Navigator.pop(context) : null;
     };
 
     await _getRequest(
-        endPoint:
-            '${NetworkStrings.JOURNALING_LISTING_ENDPOINT}?page=$page&limit=$limit',
-        context: context);
+        endPoint: NetworkStrings.EQUIPMENT_ENDPOINT, context: context);
 
     _onSuccess = () {
       isLoader ? Navigator.pop(context) : null;
@@ -66,16 +58,14 @@ class GetAllJournalBloc {
 
   void _getAllPostResponseMethod({
     required BuildContext context,
-    required Function() onSuccess,
+    Function? onSuccess,
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final journal = List<JournalData>.from(
-                _response?.data['data']!.map((x) => JournalData.fromJson(x)))
-            .toList();
-
-        context.read<UserProvider>().setJournal(journal);
-        onSuccess.call();
+        final List<String> images =
+            List<String>.from(_response?.data['data'].map((x) => x['imageUrl']))
+                .toList();
+        onSuccess?.call(images);
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

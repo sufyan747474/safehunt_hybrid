@@ -13,16 +13,21 @@ class GetBlockUserBloc {
     required BuildContext context,
     required VoidCallback setProgressBar,
     required Function(List<BlockUserModel>) onSuccess,
+    required Function() onFailure,
     bool isLoader = true,
+    int page = 1,
+    int limit = 10,
   }) async {
     isLoader ? setProgressBar() : null;
 
     _onFailure = () {
+      onFailure.call();
       isLoader ? Navigator.pop(context) : null;
     };
 
     await _getRequest(
-        endPoint: NetworkStrings.BLOCK_ENDPOINT, context: context);
+        endPoint: '${NetworkStrings.BLOCK_ENDPOINT}?page=$page&limit=$limit',
+        context: context);
 
     _onSuccess = () {
       isLoader ? Navigator.pop(context) : null;
@@ -61,9 +66,9 @@ class GetBlockUserBloc {
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final blockUser = List<BlockUserModel>.from(
-                _response?.data['data']!.map((x) => BlockUserModel.fromJson(x)))
-            .toList();
+        final blockUser = List<BlockUserModel>.from(_response?.data['data']
+                ['data']!
+            .map((x) => BlockUserModel.fromJson(x))).toList();
 
         onSuccess.call(blockUser);
       }

@@ -8,11 +8,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/auth/edit_profile_bloc.dart';
+import 'package:safe_hunt/bloc/auth/get_equipment_images_bloc.dart';
 import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/colors.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
+import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/custom_scafold.dart';
 import 'package:safe_hunt/utils/utils.dart';
@@ -45,6 +47,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final GlobalKey<FormState> _editProfileFormKey = GlobalKey<FormState>();
 
   List<String> skilList = [];
+  List<String> equipmentImages = [];
+  List<String> selectedEquipmentImages = [];
 
   String? profileImage;
   String? coverImage;
@@ -66,7 +70,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     user = context.read<UserProvider>().user;
 
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      GetEquipmentImagesBloc().getEquipmentImagesBlocMethod(
+          context: context,
+          setProgressBar: () {
+            AppDialogs.progressAlertDialog(context: context);
+          },
+          onSuccess: (res) {
+            equipmentImages.addAll(res);
+            selectedEquipmentImages.addAll(user?.equipmentImages ?? []);
+            setState(() {});
+          },
+          onFailure: () {});
+    });
+
     setValues();
+  }
+
+  void toggleSelection(String imageUrl) {
+    setState(() {
+      if (selectedEquipmentImages.contains(imageUrl)) {
+        selectedEquipmentImages.remove(imageUrl);
+      } else {
+        selectedEquipmentImages.add(imageUrl);
+      }
+    });
   }
 
   @override
@@ -218,7 +246,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           ),
                           // skil
                           AppTextField(
-                            hintText: 'Skils',
+                            hintText: 'Skills',
                             textController: skilController,
                             onFieldSubmitted: (value) {
                               if (value.isNotEmpty) {
@@ -309,6 +337,61 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           SizedBox(
                             height: 20.h,
                           ),
+                          if (equipmentImages.isNotEmpty) ...[
+                            BigText(
+                              text: 'Select Equipment',
+                              color: AppColors.whiteColor,
+                              size: 16.sp,
+                            ),
+                            10.verticalSpace,
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Wrap(
+                                runSpacing: 10.w,
+                                spacing: 10.w,
+                                alignment: WrapAlignment.start,
+                                children: List.generate(equipmentImages.length,
+                                    (index) {
+                                  String imageUrl = equipmentImages[index];
+                                  bool isSelected = selectedEquipmentImages
+                                      .contains(imageUrl);
+
+                                  return GestureDetector(
+                                    onTap: () => toggleSelection(imageUrl),
+                                    child: Stack(
+                                      children: [
+                                        CustomImageWidget(
+                                          isPlaceHolderShow: false,
+                                          isBaseUrl: false,
+                                          shape: BoxShape.rectangle,
+                                          isBorder: false,
+                                          fit: BoxFit.cover,
+                                          borderRadius: BorderRadius.zero,
+                                          imageWidth: .40.sw,
+                                          imageHeight: 100.h,
+                                          imageUrl: imageUrl,
+                                          imageAssets:
+                                              AppAssets.postImagePlaceHolder,
+                                        ),
+                                        if (isSelected)
+                                          const Positioned(
+                                            top: 8,
+                                            right: 8,
+                                            child: Icon(
+                                              Icons.check_circle,
+                                              color: appBrownColor,
+                                              size: 24,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                            20.verticalSpace,
+                            20.verticalSpace,
+                          ],
                           // upload cover photo
                           CustomContainer(
                             decortionImage: coverImage != null
@@ -362,22 +445,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   _editProfileFormKey.currentState?.save();
                                   Utils.unFocusKeyboard(context);
                                   EditProfileBloc().editProfileBlocMethod(
-                                    context: context,
-                                    setProgressBar: () {
-                                      AppDialogs.progressAlertDialog(
-                                          context: context);
-                                    },
-                                    displayName: displayNameController.text,
-                                    userName: userNameController.text,
-                                    bio: bioController.text,
-                                    email: emailController.text,
-                                    phoneNumber: phoneNumberController.text,
-                                    huntingExperience:
-                                        experienceController.text,
-                                    skills: skilList,
-                                    coverPhoto: coverImage,
-                                    imageFilePath: profileImage,
-                                  );
+                                      context: context,
+                                      setProgressBar: () {
+                                        AppDialogs.progressAlertDialog(
+                                            context: context);
+                                      },
+                                      displayName: displayNameController.text,
+                                      userName: userNameController.text,
+                                      bio: bioController.text,
+                                      email: emailController.text,
+                                      phoneNumber: phoneNumberController.text,
+                                      huntingExperience:
+                                          experienceController.text,
+                                      skills: skilList,
+                                      coverPhoto: coverImage,
+                                      imageFilePath: profileImage,
+                                      equipmentImages: selectedEquipmentImages);
                                 }
                               }
                             },

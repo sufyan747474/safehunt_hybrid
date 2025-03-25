@@ -49,36 +49,36 @@ class _AddPostState extends State<AddPost> {
 
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         GetAllFriendsBloc().getAllFriendsBlocMethod(
-          userId: context.read<UserProvider>().user?.id ?? '0',
-          context: context,
-          setProgressBar: () {
-            AppDialogs.progressAlertDialog(context: context);
-          },
-          onSuccess: (friends) {
-            postProvider?.setTagPeople(friends);
-            postProvider?.setTagPeopleList(
-              postProvider!.getTagPeople.where((element) {
-                // Ensure tags is a list, otherwise convert it into a list
+            userId: context.read<UserProvider>().user?.id ?? '0',
+            context: context,
+            setProgressBar: () {
+              AppDialogs.progressAlertDialog(context: context);
+            },
+            onSuccess: (friends) {
+              postProvider?.setTagPeople(friends);
+              postProvider?.setTagPeopleList(
+                postProvider!.getTagPeople.where((element) {
+                  // Ensure tags is a list, otherwise convert it into a list
 
-                if (widget.post?.tags is String) {
-                  tagIds = [
-                    widget.post!.tags.toString()
-                  ]; // Convert single string into a list
-                } else if (widget.post?.tags is List) {
-                  tagIds = (widget.post!.tags as List)
-                      .map((tag) => tag.toString())
-                      .toList(); // Convert list items to strings
-                }
+                  if (widget.post?.tags is String) {
+                    tagIds = [
+                      widget.post!.tags.toString()
+                    ]; // Convert single string into a list
+                  } else if (widget.post?.tags is List) {
+                    tagIds = (widget.post!.tags as List)
+                        .map((tag) => tag.toString())
+                        .toList(); // Convert list items to strings
+                  }
 
-                return tagIds.contains(
-                    element.id.toString()); // Match user ID with tag ID
-              }).toList(),
-            );
-            for (String people in tagIds) {
-              postProvider?.setTagPeopleId(id: people);
-            }
-          },
-        );
+                  return tagIds.contains(
+                      element.id.toString()); // Match user ID with tag ID
+                }).toList(),
+              );
+              for (String people in tagIds) {
+                postProvider?.setTagPeopleId(id: people);
+              }
+            },
+            onFailure: () {});
       });
     } else {
       Utils.getLatLong().then((result) {

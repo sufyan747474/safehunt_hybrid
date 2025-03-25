@@ -10,7 +10,7 @@ class UserData {
   String? bio;
   String? huntingExperience;
   List<String>? skills;
-  dynamic equipmentImages;
+  List<String>? equipmentImages;
   String? displayname;
   String? username;
   String? email;
@@ -62,7 +62,14 @@ class UserData {
         profilePhoto: json["profilePhoto"],
         bio: json["bio"],
         huntingExperience: json["huntingExperience"],
-        equipmentImages: json["equipmentImages"],
+        equipmentImages: json["equipmentImages"] is List
+            ? List<String>.from(
+                json["equipmentImages"].map((x) => x.toString()))
+            : json["equipmentImages"] == null
+                ? []
+                : json["equipmentImages"] is String
+                    ? [json["equipmentImages"].toString()]
+                    : [],
         displayname: json["displayname"],
         username: json["username"],
         email: json["email"],
@@ -102,7 +109,11 @@ class UserData {
             : skills == null
                 ? []
                 : [skills.toString()],
-        "equipmentImages": equipmentImages,
+        "equipmentImages": equipmentImages is List
+            ? List<String>.from(equipmentImages?.map((x) => x.toString()) ?? [])
+            : equipmentImages == null
+                ? []
+                : [equipmentImages.toString()],
         "displayname": displayname,
         "username": username,
         "email": email,

@@ -25,19 +25,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   bool showComments = false;
+  int _page = 1;
+
+  bool _isLoadingMore = false;
+
   // WeatherModel? wheather;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      GetAllPostBloc().getAllPostBlocMethod(
-        context: context,
-        setProgressBar: () {
-          AppDialogs.progressAlertDialog(context: context);
-        },
-        onSuccess: () {},
-      );
+      _fetchPost(true);
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+                _scrollController.position.maxScrollExtent &&
+            _isLoadingMore == false) {
+          _isLoadingMore = true;
+          setState(() {});
+          _fetchPost(false);
+        }
+      });
     });
 // Call getLatLong and update state
     Utils.getLatLong().then((result) {
@@ -49,6 +58,33 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     super.initState();
+  }
+
+  void _fetchPost(isLoader) {
+    GetAllPostBloc().getAllPostBlocMethod(
+      context: context,
+      setProgressBar: () {
+        AppDialogs.progressAlertDialog(context: context);
+      },
+      isLoader: isLoader,
+      page: _page,
+      onSuccess: () {
+        _page++;
+
+        _isLoadingMore = false;
+        setState(() {});
+      },
+      onFailure: () {
+        _isLoadingMore = false;
+        setState(() {});
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -228,36 +264,51 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: 10.h,
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.7,
-                child: Center(
-                  child: post.isPost == false
-                      ? BigText(text: 'Post not found')
-                      : ListView.builder(
-                          itemCount: post.post.length,
-                          itemBuilder: (BuildContext context, index) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10.h),
-                              child: NewsFeedCard(
-                                post: post.post[index],
-                                functionOnTap: () {
-                                  PostDetailBloc().postDetailBlocMethod(
-                                    context: context,
-                                    setProgressBar: () {
-                                      AppDialogs.progressAlertDialog(
-                                          context: context);
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: _isLoadingMore ? .62.sh : .7.sh,
+                    child: Center(
+                      child: post.isPost == false
+                          ? BigText(text: 'Post not found')
+                          : ListView.builder(
+                              controller: _scrollController,
+                              itemCount: post.post.length,
+                              itemBuilder: (BuildContext context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                                  child: NewsFeedCard(
+                                    post: post.post[index],
+                                    functionOnTap: () {
+                                      PostDetailBloc().postDetailBlocMethod(
+                                        context: context,
+                                        setProgressBar: () {
+                                          AppDialogs.progressAlertDialog(
+                                              context: context);
+                                        },
+                                        postId: post.post[index].id ?? '0',
+                                        onSuccess: () {
+                                          AppNavigation.push(
+                                              const PostDetailScreen());
+                                        },
+                                      );
                                     },
-                                    postId: post.post[index].id ?? '0',
-                                    onSuccess: () {
-                                      AppNavigation.push(
-                                          const PostDetailScreen());
-                                    },
-                                  );
-                                },
-                              ),
-                            );
-                          }),
-                ),
+                                  ),
+                                );
+                              }),
+                    ),
+                  ),
+                  _isLoadingMore
+                      ? const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(
+                            color: appLightGreenColor,
+                            backgroundColor: appRedColor,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ],
               ),
               const SizedBox(
                 height: 13,

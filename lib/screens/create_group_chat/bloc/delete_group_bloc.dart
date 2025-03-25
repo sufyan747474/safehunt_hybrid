@@ -1,80 +1,74 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
-import 'package:safe_hunt/screens/post/model/post_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
+import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class PostShareBloc {
+class DeleteGroupBloc {
+  dynamic _formData;
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  void postShareBlocMethod({
+  void deleteGroupBlocMethod({
     required BuildContext context,
-    String? postId,
     required VoidCallback setProgressBar,
+    String? groupId,
   }) async {
     setProgressBar();
 
     _onFailure = () {
-      Navigator.pop(context); // StopLoader
+      Navigator.pop(context);
     };
 
     // ignore: use_build_context_synchronously
-    await _postRequest(
-        endPoint: "${NetworkStrings.POST_SHARE_ENDPOINT}/$postId",
+    await _deleteRequest(
+        endPoint: '${NetworkStrings.GROUP_ENDPOINT}/$groupId',
         context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _postShareResponseMethod(
-        context: context,
-      );
+      _deleteGroupResponseMethod(context: context, groupId: groupId ?? '');
     };
     _validateResponse();
   }
 
-  //-------------------------- Post Request ----------------------------------
-
-  Future<void> _postRequest(
+  ///----------------------------------- delete Request -----------------------------------
+  Future<void> _deleteRequest(
       {required String endPoint, required BuildContext context}) async {
-    _response = await Network().postRequest(
-      baseUrl: NetworkStrings.API_BASE_URL,
+    _response = await Network().deleteRequest(
       endPoint: endPoint,
+      formData: _formData,
       context: context,
       onFailure: _onFailure,
       isHeaderRequire: true,
     );
   }
 
-  //-------------------------- Validate Response --------------------------
+  ///----------------------------------- Validate Response -----------------------------------
   void _validateResponse() {
     if (_response != null) {
       Network().validateResponse(
-        isToast: false,
-        response: _response,
-        onSuccess: _onSuccess,
-        onFailure: _onFailure,
-      );
+          response: _response,
+          onSuccess: _onSuccess,
+          onFailure: _onFailure,
+          isToast: false);
     }
   }
 
-  void _postShareResponseMethod({
-    required BuildContext context,
-  }) {
+  void _deleteGroupResponseMethod(
+      {required BuildContext context, required String groupId}) async {
     try {
       if (_response?.data != null) {
-        final post = PostData.fromJson(_response?.data['data']);
+        context.read<PostProvider>().deleteGroupFromList(groupId);
+        AppDialogs.showToast(message: 'Group Deleted Successfully');
 
-        context.read<PostProvider>().addPostInList(post);
-
-        AppDialogs.showToast(message: "Post Shared Successfully");
+        AppNavigation.pop();
+        AppNavigation.pop();
       }
     } catch (error) {
-      log(error.toString());
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);
     }
   }

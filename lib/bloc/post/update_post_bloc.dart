@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/screens/journals/model/location_model.dart';
+import 'package:safe_hunt/screens/post/model/post_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
@@ -89,7 +90,9 @@ class UpdatePostBloc {
   }) {
     try {
       if (_response?.data != null) {
+        final post = PostData.fromJson(_response?.data['data']);
         AppNavigation.pop();
+        context.read<PostProvider>().updatePost(post);
         AppDialogs.showToast(message: "Post Updated Successfully");
       }
     } catch (error) {

@@ -39,6 +39,7 @@ class _AddPostState extends State<SelectTagPeople> {
               AppDialogs.progressAlertDialog(context: context);
             },
             userId: context.read<UserProvider>().user?.id ?? '0',
+            onFailure: () {},
             onSuccess: (friends) {
               tagPeople?.setTagPeople(friends);
               selectedItems =

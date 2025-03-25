@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/screens/create_group_chat/model/group_model.dart';
 import 'package:safe_hunt/screens/post/model/post_model.dart';
 
 class PostProvider extends ChangeNotifier {
@@ -99,10 +100,11 @@ class PostProvider extends ChangeNotifier {
   bool? isUserPost;
 
   setUserPosts(List<PostData> post) {
-    if (post.isNotEmpty) {
-      _userPost = post;
+    _userPost.addAll(post);
+
+    if (_userPost.isNotEmpty) {
       isUserPost = true;
-    } else if (post.isEmpty) {
+    } else if (_userPost.isEmpty) {
       isUserPost = false;
     }
     notifyListeners();
@@ -121,12 +123,19 @@ class PostProvider extends ChangeNotifier {
   bool? isPost;
 
   setPosts(List<PostData> post) {
-    if (post.isNotEmpty) {
-      _post = post;
+    _post.addAll(post);
+
+    if (_post.isNotEmpty) {
       isPost = true;
-    } else if (post.isEmpty) {
+    } else if (_post.isEmpty) {
       isPost = false;
     }
+    notifyListeners();
+  }
+
+  clearPost() {
+    _post = [];
+    isPost = null;
     notifyListeners();
   }
 
@@ -137,6 +146,21 @@ class PostProvider extends ChangeNotifier {
 
     isPost = true;
     isUserPost = true;
+
+    notifyListeners();
+  }
+
+  updatePost(PostData post) {
+    _postDetail = post;
+    final postIndex = _post.indexWhere((element) => element.id == post.id);
+    if (postIndex != -1) {
+      _post[postIndex] = post;
+    }
+    final userPostIndex =
+        _userPost.indexWhere((element) => element.id == post.id);
+    if (userPostIndex != -1) {
+      _userPost[postIndex] = post;
+    }
 
     notifyListeners();
   }
@@ -423,6 +447,62 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //! <--------------------- get all group --------------->
+
+  List<GroupModel> _group = [];
+  List<GroupModel> get group => _group;
+  bool? isGroup;
+
+  setGroup(List<GroupModel> group) {
+    _group = group;
+    if (_group.isEmpty) {
+      isGroup = false;
+    } else if (_group.isNotEmpty) {
+      isGroup = true;
+    }
+    notifyListeners();
+  }
+
+  emptyGroup() {
+    _group = [];
+    isGroup = null;
+    notifyListeners();
+  }
+
+  addGroupInList(GroupModel group) {
+    _group.add(group);
+    isGroup = true;
+    notifyListeners();
+  }
+
+  deleteGroupFromList(String groupId) {
+    _group.removeWhere((element) => element.id == groupId);
+    if (_group.isEmpty) {
+      isGroup = false;
+    } else if (_group.isNotEmpty) {
+      isGroup = true;
+    }
+    notifyListeners();
+  }
+
+  updateGroupInList(GroupModel group) {
+    final groupIndex = _group.indexWhere((element) => element.id == group.id);
+
+    if (groupIndex != -1) {
+      _group[groupIndex] = group;
+      notifyListeners();
+    }
+  }
+
+  //! <--------------------- get group details --------------->
+
+  GroupModel? _groupDetail;
+  GroupModel? get groupDetail => _groupDetail;
+  setGroupDetail(GroupModel group) {
+    _groupDetail = group;
+    notifyListeners();
+  }
+
   //! <--------------------- clear post provider --------------->
 
   clearPostProvider() {
@@ -431,6 +511,8 @@ class PostProvider extends ChangeNotifier {
     _userPost = [];
     isUserPost = null;
     _postDetail = null;
+    _group = [];
+    isGroup = null;
     notifyListeners();
   }
 }

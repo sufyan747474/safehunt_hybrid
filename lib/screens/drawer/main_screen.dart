@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/screens/chats/chat_screen.dart';
 import 'package:safe_hunt/screens/drawer/notification_screen.dart';
 import 'package:safe_hunt/screens/drawer/map_screen.dart';
@@ -68,6 +70,9 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void onPageChanged(int page) {
+    if (page != 0) {
+      context.read<PostProvider>().clearPost();
+    }
     setState(() {
       _page = page;
     });

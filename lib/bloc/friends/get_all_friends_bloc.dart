@@ -15,17 +15,22 @@ class GetAllFriendsBloc {
     required BuildContext context,
     required VoidCallback setProgressBar,
     required Function(List<UserData>) onSuccess,
+    required Function onFailure,
     bool isLoader = true,
     required String userId,
+    int page = 1,
+    int limit = 10,
   }) async {
     isLoader ? setProgressBar() : null;
 
     _onFailure = () {
+      onFailure.call();
       isLoader ? Navigator.pop(context) : null;
     };
 
     await _getRequest(
-        endPoint: '${NetworkStrings.FRIENDS_ENDPOINT}/$userId',
+        endPoint:
+            '${NetworkStrings.FRIENDS_ENDPOINT}/$userId?page=$page&limit=$limit',
         context: context);
 
     _onSuccess = () {
@@ -65,8 +70,8 @@ class GetAllFriendsBloc {
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final friends = List<UserData>.from(
-            _response?.data['data']!.map((x) => UserData.fromJson(x))).toList();
+        final friends = List<UserData>.from(_response?.data['data']['friends']!
+            .map((x) => UserData.fromJson(x))).toList();
         context.read<UserProvider>().setFriend(friends);
         onSuccess.call(friends);
       }

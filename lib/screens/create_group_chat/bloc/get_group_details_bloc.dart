@@ -1,47 +1,44 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
-import 'package:safe_hunt/screens/post/model/post_model.dart';
+import 'package:safe_hunt/screens/create_group_chat/model/group_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class PostShareBloc {
-  Response? _response;
+class GetGroupDetailsBloc {
   VoidCallback? _onSuccess, _onFailure;
+  Response? _response;
 
-  void postShareBlocMethod({
+  void getGroupDetailsBlocMethod({
     required BuildContext context,
-    String? postId,
     required VoidCallback setProgressBar,
+    Function? onSuccess,
+    String? groupId,
   }) async {
     setProgressBar();
 
     _onFailure = () {
-      Navigator.pop(context); // StopLoader
+      Navigator.pop(context);
     };
 
     // ignore: use_build_context_synchronously
-    await _postRequest(
-        endPoint: "${NetworkStrings.POST_SHARE_ENDPOINT}/$postId",
+    await _getRequest(
+        endPoint: '${NetworkStrings.GROUP_ENDPOINT}/$groupId',
         context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _postShareResponseMethod(
-        context: context,
-      );
+      _getGroupDetailsResponseMethod(context: context, onSuccess: onSuccess);
     };
     _validateResponse();
   }
 
-  //-------------------------- Post Request ----------------------------------
-
-  Future<void> _postRequest(
+  ///----------------------------------- get Request -----------------------------------
+  Future<void> _getRequest(
       {required String endPoint, required BuildContext context}) async {
-    _response = await Network().postRequest(
+    _response = await Network().getRequest(
       baseUrl: NetworkStrings.API_BASE_URL,
       endPoint: endPoint,
       context: context,
@@ -50,31 +47,30 @@ class PostShareBloc {
     );
   }
 
-  //-------------------------- Validate Response --------------------------
+  ///----------------------------------- Validate Response -----------------------------------
   void _validateResponse() {
     if (_response != null) {
       Network().validateResponse(
-        isToast: false,
-        response: _response,
-        onSuccess: _onSuccess,
-        onFailure: _onFailure,
-      );
+          response: _response,
+          onSuccess: _onSuccess,
+          onFailure: _onFailure,
+          isToast: false);
     }
   }
 
-  void _postShareResponseMethod({
+  void _getGroupDetailsResponseMethod({
     required BuildContext context,
-  }) {
+    Function? onSuccess,
+  }) async {
     try {
       if (_response?.data != null) {
-        final post = PostData.fromJson(_response?.data['data']);
+        final group = GroupModel.fromJson(_response?.data['data']);
 
-        context.read<PostProvider>().addPostInList(post);
+        context.read<PostProvider>().setGroupDetail(group);
 
-        AppDialogs.showToast(message: "Post Shared Successfully");
+        onSuccess?.call(group);
       }
     } catch (error) {
-      log(error.toString());
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);
     }
   }

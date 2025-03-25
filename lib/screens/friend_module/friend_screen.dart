@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +7,7 @@ import 'package:safe_hunt/bloc/block_user/block_user_bloc.dart';
 import 'package:safe_hunt/bloc/friends/accept_reject_friend_request_bloc.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
 import 'package:safe_hunt/bloc/friends/get_friend_request_bloc.dart';
+import 'package:safe_hunt/bloc/friends/unfriend_bloc.dart';
 import 'package:safe_hunt/model/friend_list_model.dart';
 import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
@@ -27,72 +30,92 @@ class FriendScreen extends StatefulWidget {
 }
 
 class _FriendScreenState extends State<FriendScreen> {
+  final ScrollController _scrollController = ScrollController();
+  int _page = 1;
+  bool _isLoadingMore = false;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      _fetchFriends();
+      _fetchFriends(true, false);
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels ==
+                _scrollController.position.maxScrollExtent &&
+            _isLoadingMore == false) {
+          _isLoadingMore = true;
+          setState(() {});
+          _fetchFriends(false, false);
+        }
+      });
     });
   }
 
-  // void _friendMethod({int friendList = 0, int friendRequest = 0}) {
-  //   frientList = [];
-  //   isFriend = null;
-  //   GetAllFriendBloc().getAllFriendBlocMethod(
-  //     context: context,
-  //     setProgressBar: () {
-  //       AppDialogs.progressAlertDialog(context: context);
-  //     },
-  //     friendList: friendList,
-  //     friendRequest: friendRequest,
-  //     onSuccess: (res) {
-  //       if (res.isEmpty) {
-  //         isFriend = false;
-  //       } else if (res.isNotEmpty) {
-  //         isFriend = true;
-  //         frientList = res;
-  //       }
-  //       setState(() {});
-  //     },
-  //   );
-  // }
-
-  _fetchFriends() {
-    isFriend = null;
-    frientList = [];
+  _fetchFriends(bool isLoader, bool isChangeTab) {
+    if (isChangeTab) {
+      _page = 1;
+      isFriend = null;
+      frientList = [];
+    }
     GetAllFriendsBloc().getAllFriendsBlocMethod(
       context: context,
       setProgressBar: () {
         AppDialogs.progressAlertDialog(context: context);
       },
+      isLoader: isLoader,
+      page: _page,
       userId: context.read<UserProvider>().user?.id ?? '',
       onSuccess: (res) {
-        if (res.isEmpty) {
-          isFriend = false;
-        } else if (res.isNotEmpty) {
-          isFriend = true;
-          frientList = res;
-        }
+        _page++;
+        addOrReplaceFriendList(res);
+
+        // frientList.addAll(res);
+
+        // if (frientList.isEmpty) {
+        //   isFriend = false;
+        // } else if (frientList.isNotEmpty) {
+        //   isFriend = true;
+        // }
+
+        _isLoadingMore = false;
+
+        setState(() {});
+      },
+      onFailure: () {
+        _isLoadingMore = false;
         setState(() {});
       },
     );
   }
 
-  _fetchFriendRequests() {
-    isFriend = null;
-    requestList = [];
+  _fetchFriendRequests(bool isLoader, isChangeTab) {
+    if (isChangeTab) {
+      _page = 1;
+
+      isFriend = null;
+      requestList = [];
+    }
     GetFriendRequestBloc().getFriendRequestBlocMethod(
       context: context,
       setProgressBar: () {
         AppDialogs.progressAlertDialog(context: context);
       },
+      page: _page,
+      isLoader: isLoader,
       onSuccess: (res) {
-        if (res.isEmpty) {
-          isFriend = false;
-        } else if (res.isNotEmpty) {
-          isFriend = true;
-          requestList = res;
-        }
+        _page++;
+        addOrReplaceRequestList(res);
+        // requestList.addAll(res);
+
+        _isLoadingMore = false;
+        // if (requestList.isEmpty) {
+        //   isFriend = false;
+        // } else if (requestList.isNotEmpty) {
+        //   isFriend = true;
+        // }
+        // setState(() {});
+      },
+      onFailure: () {
+        _isLoadingMore = false;
         setState(() {});
       },
     );
@@ -102,6 +125,10 @@ class _FriendScreenState extends State<FriendScreen> {
     required String requesterId,
     required String status,
   }) {
+    log("status : $status");
+    log("requesterId : $requesterId");
+
+    _page--;
     FriendRequestUpdateBloc().friendRequestUpdateBlocMethod(
         context: context,
         setProgressBar: () {
@@ -109,8 +136,13 @@ class _FriendScreenState extends State<FriendScreen> {
         },
         requesterId: requesterId,
         status: status,
-        onSuccess: () {
-          selectedTab == 0 ? _fetchFriendRequests() : _fetchFriends();
+        onSuccess: (res) {
+          requestList
+              .removeWhere((element) => element.requester?.id == requesterId);
+          // selectedTab == 0
+          //     ?
+          _fetchFriendRequests(true, false);
+          // : _fetchFriends(true, false);
         });
   }
 
@@ -119,6 +151,51 @@ class _FriendScreenState extends State<FriendScreen> {
   List<UserData> frientList = [];
 
   bool? isFriend;
+
+//! request list
+  void addOrReplaceRequestList(List<FriendModel> newRequests) {
+    // Create a map for quick lookup of existing items by ID
+    Map<String, FriendModel> requestMap = {
+      for (var item in requestList) item.id!: item
+    };
+
+    // Iterate through the new list and update or insert items
+    for (var newRequest in newRequests) {
+      requestMap[newRequest.id!] = newRequest; // Replace if exists, add if new
+    }
+
+    // Update requestList with the updated values
+    requestList = requestMap.values.toList();
+    if (requestList.isEmpty) {
+      isFriend = false;
+    } else if (requestList.isNotEmpty) {
+      isFriend = true;
+    }
+    setState(() {});
+  }
+
+//! friend list
+
+  void addOrReplaceFriendList(List<UserData> newFriends) {
+    // Create a map for quick lookup of existing items by ID
+    Map<String, UserData> requestMap = {
+      for (var item in frientList) item.id!: item
+    };
+
+    // Iterate through the new list and update or insert items
+    for (var newRequest in newFriends) {
+      requestMap[newRequest.id!] = newRequest; // Replace if exists, add if new
+    }
+
+    // Update friendList with the updated values
+    frientList = requestMap.values.toList();
+    if (frientList.isEmpty) {
+      isFriend = false;
+    } else if (frientList.isNotEmpty) {
+      isFriend = true;
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +242,9 @@ class _FriendScreenState extends State<FriendScreen> {
                 onChange: (val) {
                   if (val != null) {
                     selectedTab = val;
-                    val == 1 ? _fetchFriends() : _fetchFriendRequests();
+                    val == 1
+                        ? _fetchFriends(true, true)
+                        : _fetchFriendRequests(true, true);
                     setState(() {});
                   }
                 }),
@@ -183,8 +262,22 @@ class _FriendScreenState extends State<FriendScreen> {
                             overflow: TextOverflow.visible),
                       ),
                     )
-                  : SingleChildScrollView(child: getBody(selectedTab)),
+                  : SingleChildScrollView(
+                      controller: _scrollController,
+                      child: getBody(selectedTab)),
             ),
+            _isLoadingMore
+                ? const Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(
+                        color: appLightGreenColor,
+                        backgroundColor: appRedColor,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink(),
           ],
         ),
       ),
@@ -216,16 +309,26 @@ class _FriendScreenState extends State<FriendScreen> {
                   },
                   userId: frientList[i].id,
                   onSuccess: () {
+                    _page--;
                     AppNavigation.pop();
-                    _fetchFriends();
+                    _fetchFriends(true, false);
                   });
             },
             unFriend: () {
-              // _updateRequest(
-              //   isUnFriendBlock: true,
-              //   friendId: frientList[i].id ?? "",
-              //   status: 'decline',
-              // );
+              UnfriendBloc().unfriendBlocMethod(
+                setProgressBar: () {
+                  AppDialogs.progressAlertDialog(context: context);
+                },
+                context: context,
+                userId: frientList[i].id ?? '',
+                onSuccess: () {
+                  _page--;
+                  AppNavigation.pop();
+                  frientList
+                      .removeWhere((element) => element.id == frientList[i].id);
+                  _fetchFriends(true, false);
+                },
+              );
             },
           )
       ],
@@ -240,12 +343,12 @@ class _FriendScreenState extends State<FriendScreen> {
             friendData: requestList[i].requester,
             confirm: () {
               _updateRequest(
-                  requesterId: requestList[i].requesterId ?? "",
+                  requesterId: requestList[i].requester?.id ?? "",
                   status: 'accepted');
             },
             delete: () {
               _updateRequest(
-                  requesterId: requestList[i].requesterId ?? "",
+                  requesterId: requestList[i].requester?.id ?? "",
                   status: 'declined');
             },
           )

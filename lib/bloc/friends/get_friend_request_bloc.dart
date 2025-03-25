@@ -13,17 +13,23 @@ class GetFriendRequestBloc {
     required BuildContext context,
     required VoidCallback setProgressBar,
     required Function(List<FriendModel>) onSuccess,
+    required Function() onFailure,
     bool isLoader = true,
+    int page = 1,
+    int limit = 10,
   }) async {
     isLoader ? setProgressBar() : null;
 
     _onFailure = () {
+      onFailure.call();
       isLoader ? Navigator.pop(context) : null;
       onSuccess.call([]);
     };
 
     await _getRequest(
-        endPoint: NetworkStrings.GE_FRIENDS_REQUEST_ENDPOINT, context: context);
+        endPoint:
+            '${NetworkStrings.GE_FRIENDS_REQUEST_ENDPOINT}?page=$page&limit=$limit',
+        context: context);
 
     _onSuccess = () {
       isLoader ? Navigator.pop(context) : null;
@@ -62,9 +68,9 @@ class GetFriendRequestBloc {
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final friends = List<FriendModel>.from(
-                _response?.data['data']!.map((x) => FriendModel.fromJson(x)))
-            .toList();
+        final friends = List<FriendModel>.from(_response?.data['data']
+                ['requests']!
+            .map((x) => FriendModel.fromJson(x))).toList();
 
         onSuccess.call(friends);
       }

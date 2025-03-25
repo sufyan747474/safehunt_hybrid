@@ -15,6 +15,7 @@ import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
+import 'package:safe_hunt/widgets/view_image_screen.dart';
 
 import '../../utils/colors.dart';
 import '../../widgets/news_feed_card.dart';
@@ -34,14 +35,14 @@ class _ProfileTabState extends State<ProfileTab> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       GetAllFriendsBloc().getAllFriendsBlocMethod(
-        context: context,
-        isLoader: false,
-        setProgressBar: () {
-          AppDialogs.progressAlertDialog(context: context);
-        },
-        userId: context.read<UserProvider>().user?.id ?? '0',
-        onSuccess: (p0) {},
-      );
+          context: context,
+          isLoader: false,
+          setProgressBar: () {
+            AppDialogs.progressAlertDialog(context: context);
+          },
+          userId: context.read<UserProvider>().user?.id ?? '0',
+          onSuccess: (p0) {},
+          onFailure: () {});
       GetAllPostBloc().getAllPostBlocMethod(
         context: context,
         setProgressBar: () {
@@ -49,6 +50,7 @@ class _ProfileTabState extends State<ProfileTab> {
         },
         userId: context.read<UserProvider>().user?.id,
         onSuccess: () {},
+        onFailure: () {},
       );
     });
   }
@@ -384,20 +386,41 @@ class _ProfileTabState extends State<ProfileTab> {
                             color: appBlackColor,
                             fontWeight: FontWeight.w600,
                           ),
+                          10.verticalSpace,
                           SizedBox(
-                            height: 40.h,
+                            height: 100.h,
                             child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: equipmentImages.length,
+                                itemCount: val.user?.equipmentImages?.length,
                                 itemBuilder: (BuildContext context, index) {
                                   return Padding(
                                     padding:
                                         EdgeInsets.symmetric(horizontal: 6.w),
                                     child: Row(
                                       children: [
-                                        Image.asset(
-                                          equipmentImages[index],
-                                          fit: BoxFit.cover,
+                                        InkWell(
+                                          onTap: () {
+                                            AppNavigation.push(
+                                                ViewFullImageScreen(
+                                              imageUrl: val.user
+                                                  ?.equipmentImages?[index],
+                                              isBaseUrl: false,
+                                            ));
+                                          },
+                                          child: CustomImageWidget(
+                                            isPlaceHolderShow: false,
+                                            isBaseUrl: false,
+                                            shape: BoxShape.rectangle,
+                                            isBorder: false,
+                                            fit: BoxFit.cover,
+                                            borderRadius: BorderRadius.zero,
+                                            imageWidth: .5.sw,
+                                            imageHeight: 100.h,
+                                            imageUrl: val
+                                                .user?.equipmentImages?[index],
+                                            imageAssets:
+                                                AppAssets.postImagePlaceHolder,
+                                          ),
                                         ),
                                       ],
                                     ),
