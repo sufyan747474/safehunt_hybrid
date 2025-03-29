@@ -24,14 +24,17 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow >Safe Hunt App to Access Camera</string>
+	<string>Allow Safe Hunt App to Access Camera</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow >Safe Hunt App to Access Photos</string>
+	<string>Allow Safe Hunt App to Access Photos</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

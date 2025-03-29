@@ -463,6 +463,14 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  updateGroupStatus(String status, groupId) {
+    final groupIndex = _group.indexWhere((element) => element.id == groupId);
+    if (groupIndex != -1) {
+      _group[groupIndex].status = status;
+    }
+    notifyListeners();
+  }
+
   emptyGroup() {
     _group = [];
     isGroup = null;

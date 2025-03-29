@@ -10,7 +10,7 @@ import 'package:safe_hunt/screens/create_group_chat/bloc/get_all_group_bloc.dart
 import 'package:safe_hunt/screens/create_group_chat/bloc/get_group_details_bloc.dart';
 import 'package:safe_hunt/screens/create_group_chat/view/add_group_info_screen.dart';
 import 'package:safe_hunt/screens/create_group_chat/view/view_group_chat_screen.dart';
-import 'package:safe_hunt/screens/drawer/user_chat_screen.dart';
+import 'package:safe_hunt/screens/chats/user_chat_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import '../../../utils/colors.dart';
@@ -99,7 +99,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PostProvider>(builder: (context, val, _) {
+    return Consumer2<PostProvider, UserProvider>(
+        builder: (context, val, user, _) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -175,7 +176,12 @@ class _ChatsScreenState extends State<ChatsScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          ListView.builder(
+                          ListView.separated(
+                            separatorBuilder: (context, index) {
+                              return const Divider(
+                                color: appButtonColor,
+                              );
+                            },
                             padding: _isLoadingMore ? EdgeInsets.zero : null,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -194,7 +200,9 @@ class _ChatsScreenState extends State<ChatsScreen> {
                                   '20.00',
                                   onTap: () {
                                     Get.to(() => const UserChat(
-                                        id: 'User Chat ID')); // Replace with actual ID
+                                        receiverName: '',
+                                        receiverId:
+                                            'User Chat ID')); // Replace with actual ID
                                   },
                                 );
                               } else if (selectedTab == 1) {
@@ -203,11 +211,16 @@ class _ChatsScreenState extends State<ChatsScreen> {
                                     people.displayname ?? '', "", "");
                               } else {
                                 return _buildChatItem(
+                                  groupId: data?.id,
+                                  status: data?.adminInfo?.member?.id !=
+                                          user.user?.id
+                                      ? data?.status
+                                      : null,
                                   isGroup: true,
                                   data?.name ?? "",
                                   data?.description ?? '',
                                   '',
-                                  image: data?.cover,
+                                  image: data?.logo,
                                   onTap: () {
                                     GetGroupDetailsBloc()
                                         .getGroupDetailsBlocMethod(
@@ -281,15 +294,21 @@ class _ChatsScreenState extends State<ChatsScreen> {
   }
 
   Widget _buildChatItem(String name, String message, String time,
-      {String? image, void Function()? onTap, bool isGroup = false}) {
+      {String? image,
+      String? groupId,
+      void Function()? onTap,
+      bool isGroup = false,
+      String? status}) {
     return InkWell(
       onTap: onTap,
       child: ChatsCard(
+        groupId: groupId,
         name: name,
         message: message,
         time: time,
         image: image,
         isGroup: isGroup,
+        status: status,
       ),
     );
   }

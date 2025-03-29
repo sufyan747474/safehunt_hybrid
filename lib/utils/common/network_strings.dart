@@ -11,7 +11,7 @@ class NetworkStrings {
   static const String MERCHANT_THANK_YOU_URL =
       "https://server1.appsstaging.com/3672/SafeHunt/public/thankyou";
 
-  static const String SOCKET_URL = "http://109.176.198.34:4041/";
+  static const String SOCKET_URL = "http://109.176.198.34:4041";
 
   //!/ STRIPE
   static const String PUBLISH_KEY =

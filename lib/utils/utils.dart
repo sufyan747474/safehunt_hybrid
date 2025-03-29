@@ -84,13 +84,13 @@ class Utils {
     // Check if the date is within the last 3 days
     if (now.difference(dateTime).inDays <= 3) {
       // Return the date only
-      return DateFormat('MMMM dd').format(dateTime); // Example: "April 19"
+      return DateFormat('MMMM dd yyy hh:mm a')
+          .format(dateTime); // Example: "April 19"
     }
 
     // Return the full date and time
-    return DateFormat('MMMM dd yyy').format(dateTime);
-    // return DateFormat('MMMM dd, yyyy hh:mm a')
-    // .format(dateTime);
+    // return DateFormat('MMMM dd yyy').format(dateTime);
+    return DateFormat('MMMM dd, yyyy hh:mm a').format(dateTime);
     // Example: "April 19, 2024 12:57 PM"
   }
 

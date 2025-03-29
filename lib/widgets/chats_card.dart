@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:safe_hunt/screens/create_group_chat/bloc/join_group_bloc.dart';
+import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
@@ -13,12 +15,16 @@ class ChatsCard extends StatefulWidget {
   final String message;
   final String time;
   final bool isGroup;
+  final String? status;
+  final String? groupId;
   const ChatsCard(
       {super.key,
+      this.groupId,
       required this.name,
       required this.message,
       required this.time,
       this.isGroup = false,
+      this.status,
       this.image});
 
   @override
@@ -40,6 +46,7 @@ class _ChatsCardState extends State<ChatsCard> {
       child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomImageWidget(
                 imageUrl: widget.image,
@@ -52,7 +59,7 @@ class _ChatsCardState extends State<ChatsCard> {
               ),
               Flexible(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -77,6 +84,55 @@ class _ChatsCardState extends State<ChatsCard> {
                         size: 10.sp,
                         maxLine: 2,
                       ),
+                      10.verticalSpace,
+                      if (widget.isGroup && widget.status != null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            widget.status == "Not a Member"
+                                ? InkWell(
+                                    onTap: () {
+                                      JoinGroupBloc().joinGroupBlocMethod(
+                                          context: context,
+                                          setProgressBar: () {
+                                            AppDialogs.progressAlertDialog(
+                                                context: context);
+                                          },
+                                          groupId: widget.groupId);
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 14, vertical: 8),
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      decoration: BoxDecoration(
+                                        color: appBrownColor,
+                                        borderRadius:
+                                            BorderRadius.circular(57.r),
+                                      ),
+                                      child: BigText(
+                                        text: 'Join Group',
+                                        color: appWhiteColor,
+                                        size: 10.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  )
+                                : Row(
+                                    children: [
+                                      const Icon(Icons.loyalty_outlined),
+                                      BigText(
+                                        text: 'Pending Request',
+                                        color: appBrownColor,
+                                        size: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),

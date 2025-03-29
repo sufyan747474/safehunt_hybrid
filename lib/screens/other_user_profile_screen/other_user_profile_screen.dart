@@ -12,6 +12,7 @@ import 'package:safe_hunt/bloc/post/get_post_details_bloc.dart';
 import 'package:safe_hunt/model/user_model.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/chats/user_chat_screen.dart';
 import 'package:safe_hunt/screens/post/post_detail_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
@@ -19,6 +20,7 @@ import 'package:safe_hunt/utils/common/app_colors.dart';
 import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
 import 'package:safe_hunt/widgets/big_text.dart';
+import 'package:safe_hunt/widgets/view_image_screen.dart';
 
 import '../../utils/colors.dart';
 import '../../widgets/news_feed_card.dart';
@@ -417,31 +419,42 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                                     ),
                                   ],
                                   12.horizontalSpace,
-                                  Container(
-                                    width: 125.w,
-                                    height: 36.h,
-                                    decoration: BoxDecoration(
-                                        color: appBrownColor,
-                                        borderRadius:
-                                            BorderRadius.circular(30.r)),
-                                    padding: EdgeInsets.all(5.w),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        SvgPicture.asset(
-                                          'assets/message_white.svg',
-                                          color: Colors.white,
-                                          width: 14.w,
-                                          height: 14.81.h,
-                                        ),
-                                        BigText(
-                                          text: "Message",
-                                          size: 12.sp,
-                                          color: appWhiteColor,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ],
+                                  InkWell(
+                                    onTap: () {
+                                      AppNavigation.push(UserChat(
+                                        receiverImage:
+                                            widget.user?.profilePhoto,
+                                        receiverId: widget.user?.id ?? "",
+                                        receiverName:
+                                            widget.user?.displayname ?? "",
+                                      ));
+                                    },
+                                    child: Container(
+                                      width: 125.w,
+                                      height: 36.h,
+                                      decoration: BoxDecoration(
+                                          color: appBrownColor,
+                                          borderRadius:
+                                              BorderRadius.circular(30.r)),
+                                      padding: EdgeInsets.all(5.w),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          SvgPicture.asset(
+                                            'assets/message_white.svg',
+                                            color: Colors.white,
+                                            width: 14.w,
+                                            height: 14.81.h,
+                                          ),
+                                          BigText(
+                                            text: "Message",
+                                            size: 12.sp,
+                                            color: appWhiteColor,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   15.horizontalSpace,
@@ -551,35 +564,63 @@ class _ProfileTabState extends State<OtherUserProfileScreen> {
                                           fontWeight: FontWeight.w400,
                                         )),
                               ]),
-                              SizedBox(
-                                height: 10.h,
-                              ),
-                              BigText(
-                                text: 'Equipment',
-                                size: 12.sp,
-                                color: appBlackColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              SizedBox(
-                                height: 40.h,
-                                child: ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: equipmentImages.length,
-                                    itemBuilder: (BuildContext context, index) {
-                                      return Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 6.w),
-                                        child: Row(
-                                          children: [
-                                            Image.asset(
-                                              equipmentImages[index],
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    }),
-                              )
+                              if (widget.user?.equipmentImages != null &&
+                                  widget.user!.equipmentImages!.isNotEmpty) ...[
+                                SizedBox(
+                                  height: 10.h,
+                                ),
+                                BigText(
+                                  text: 'Equipment',
+                                  size: 12.sp,
+                                  color: appBlackColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                10.verticalSpace,
+                                SizedBox(
+                                  height: 100.h,
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount:
+                                          widget.user?.equipmentImages?.length,
+                                      itemBuilder:
+                                          (BuildContext context, index) {
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 6.w),
+                                          child: Row(
+                                            children: [
+                                              InkWell(
+                                                onTap: () {
+                                                  AppNavigation.push(
+                                                      ViewFullImageScreen(
+                                                    imageUrl: widget.user
+                                                            ?.equipmentImages?[
+                                                        index],
+                                                    isBaseUrl: false,
+                                                  ));
+                                                },
+                                                child: CustomImageWidget(
+                                                  isPlaceHolderShow: false,
+                                                  isBaseUrl: false,
+                                                  shape: BoxShape.rectangle,
+                                                  isBorder: false,
+                                                  fit: BoxFit.cover,
+                                                  borderRadius:
+                                                      BorderRadius.zero,
+                                                  imageWidth: .5.sw,
+                                                  imageHeight: 100.h,
+                                                  imageUrl: widget.user
+                                                      ?.equipmentImages?[index],
+                                                  imageAssets: AppAssets
+                                                      .postImagePlaceHolder,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                )
+                              ],
                             ],
                           ),
                         )
