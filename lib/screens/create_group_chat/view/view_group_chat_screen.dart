@@ -8,6 +8,7 @@ import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/create_group_chat/bloc/delete_group_bloc.dart';
 import 'package:safe_hunt/screens/create_group_chat/view/add_group_info_screen.dart';
+import 'package:safe_hunt/screens/create_group_chat/view/group_member_screen.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
 import 'package:safe_hunt/screens/post/post_detail_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
@@ -91,9 +92,10 @@ class ViewGroupChatScreen extends StatelessWidget {
           ),
 
           actions: [
-            IconButton(
-              onPressed: () {
-                showOptionsBottomSheet(
+            if (post.groupDetail?.adminInfo?.member?.id == val.user?.id)
+              IconButton(
+                onPressed: () {
+                  showOptionsBottomSheet(
                     context: context,
                     sheetHeight: 150.h,
                     option: [
@@ -117,7 +119,7 @@ class ViewGroupChatScreen extends StatelessWidget {
                           subTitle: 'Do you want to delete this group',
                           iconwidth: 15.w,
                           iconHeight: 15.w,
-                          containsDivider: false,
+                          containsDivider: true,
                           onTap: () {
                             DeleteGroupBloc().deleteGroupBlocMethod(
                               context: context,
@@ -128,11 +130,38 @@ class ViewGroupChatScreen extends StatelessWidget {
                               groupId: post.groupDetail?.id,
                             );
                           },
+                          context: context),
+                      buildOptionTile(
+                          icon: Icons.person,
+                          title: 'Group Members',
+                          subTitle: 'View all group members',
+                          iconwidth: 15.w,
+                          iconHeight: 15.w,
+                          containsDivider: true,
+                          onTap: () {
+                            post.emptyGroupMember();
+
+                            AppNavigation.pop();
+
+                            AppNavigation.push(GroupMemberScreen(
+                              groupId: post.groupDetail?.id ?? '',
+                            ));
+                          },
+                          context: context),
+                      buildOptionTile(
+                          icon: Icons.edit_document,
+                          title: 'Approve Post',
+                          subTitle: 'Pending post for approval',
+                          iconwidth: 15.w,
+                          iconHeight: 15.w,
+                          containsDivider: false,
+                          onTap: () {},
                           context: context)
-                    ]);
-              },
-              icon: const Icon(Icons.more_vert),
-            ),
+                    ],
+                  );
+                },
+                icon: const Icon(Icons.more_vert),
+              ),
           ],
         ),
         body: SafeArea(

@@ -21,7 +21,7 @@ showOptionsBottomSheet({
     builder: (context) {
       return SizedBox(
         width: 1.sw,
-        height: sheetHeight ?? 75.h,
+        // height: sheetHeight ?? 75.h,
         child: BackdropFilter(
           filter:
               ImageFilter.blur(sigmaX: 20, sigmaY: 20), // Adjust blur intensity
@@ -48,6 +48,7 @@ showOptionsBottomSheet({
                       color: appBrownColor),
                 ),
                 Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: option ?? [],
                 ),
                 const SizedBox(

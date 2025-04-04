@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/screens/create_group_chat/model/group_member_model.dart';
 import 'package:safe_hunt/screens/create_group_chat/model/group_model.dart';
 import 'package:safe_hunt/screens/post/model/post_model.dart';
 
@@ -508,6 +509,43 @@ class PostProvider extends ChangeNotifier {
   GroupModel? get groupDetail => _groupDetail;
   setGroupDetail(GroupModel group) {
     _groupDetail = group;
+    notifyListeners();
+  }
+
+  //! <--------------------- get all group member --------------->
+
+  List<GroupMemberModel> _groupMember = [];
+  List<GroupMemberModel> get groupMember => _groupMember;
+  bool? isGroupMember;
+
+  setGroupMember(List<GroupMemberModel> groupMember) {
+    _groupMember = groupMember;
+    if (_groupMember.isEmpty) {
+      isGroupMember = false;
+    } else if (_groupMember.isNotEmpty) {
+      isGroupMember = true;
+    }
+    notifyListeners();
+  }
+
+  updateGroupMember({required String type, memberId}) {
+    if (type == 'add_member') {
+      final memberIndex =
+          _groupMember.indexWhere((element) => element.member?.id == memberId);
+
+      if (memberIndex != -1) {
+        _groupMember[memberIndex].status = 'approved';
+      }
+    } else if (type == 'delete_member') {
+      _groupMember.removeWhere((element) => element.member?.id == memberId);
+    }
+    notifyListeners();
+  }
+
+  emptyGroupMember() {
+    _groupMember = [];
+    isGroupMember = null;
+
     notifyListeners();
   }
 

@@ -104,6 +104,12 @@ class CreateGroupBloc {
           context.read<PostProvider>().updateGroupInList(group);
           AppDialogs.showToast(message: 'Group Updated Successfully');
         } else {
+          group.name = _response?.data['data']['group']['name'];
+          group.cover = _response?.data['data']['group']['cover'];
+          group.logo = _response?.data['data']['group']['logo'];
+          group.description = _response?.data['data']['group']['description'];
+          group.id = _response?.data['data']['group']['id'].toString();
+
           context.read<PostProvider>().addGroupInList(group);
           AppDialogs.showToast(message: 'Group Created Successfully');
         }
