@@ -1,4 +1,5 @@
 import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/screens/create_group_chat/model/group_model.dart';
 
 class PostData {
   String? id;
@@ -18,25 +19,32 @@ class PostData {
   String? originalPostId;
   String? sharedUserId;
   UserData? sharedUser;
+  String? groupId;
+  String? status;
+  GroupModel? group;
 
-  PostData(
-      {this.id,
-      this.description,
-      this.image,
-      this.tags,
-      this.latitude,
-      this.longitude,
-      this.createdAt,
-      this.updatedAt,
-      this.userId,
-      this.postLiked,
-      this.user,
-      this.comments,
-      this.likesCount,
-      this.sharesCount,
-      this.originalPostId,
-      this.sharedUser,
-      this.sharedUserId});
+  PostData({
+    this.id,
+    this.description,
+    this.image,
+    this.tags,
+    this.latitude,
+    this.longitude,
+    this.createdAt,
+    this.updatedAt,
+    this.userId,
+    this.postLiked,
+    this.user,
+    this.comments,
+    this.likesCount,
+    this.sharesCount,
+    this.originalPostId,
+    this.sharedUser,
+    this.sharedUserId,
+    this.groupId,
+    this.status,
+    this.group,
+  });
 
   factory PostData.fromJson(Map<String, dynamic> json) => PostData(
         id: json["id"].toString(),
@@ -61,6 +69,10 @@ class PostData {
         sharedUser: json["sharedUser"] == null
             ? null
             : UserData.fromJson(json["sharedUser"]),
+        groupId: json["groupId"].toString(),
+        status: json["status"],
+        group:
+            json["group"] == null ? null : GroupModel.fromJson(json["group"]),
       );
 }
 

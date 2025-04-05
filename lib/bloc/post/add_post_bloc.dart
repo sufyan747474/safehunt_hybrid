@@ -22,6 +22,7 @@ class AddPostBloc {
     LocationModel? location,
     String? media,
     required VoidCallback setProgressBar,
+    String? groupId,
   }) async {
     setProgressBar();
     log("image path : $media");
@@ -33,6 +34,9 @@ class AddPostBloc {
       "longitude": location?.lng,
       "tags": context.read<PostProvider>().selectedTagPeople
     };
+    if (groupId != null) {
+      userObject.addAll({'groupId': groupId});
+    }
 
     log("body : $userObject");
 
@@ -90,7 +94,9 @@ class AddPostBloc {
     try {
       if (_response?.data != null) {
         final postData = PostData.fromJson(_response?.data['data']);
-        context.read<PostProvider>().addPostInList(postData);
+        if (postData.groupId == null || postData.groupId == 'null') {
+          context.read<PostProvider>().addPostInList(postData);
+        }
         AppNavigation.pop();
         AppDialogs.showToast(message: "Post Created Successfully");
       }

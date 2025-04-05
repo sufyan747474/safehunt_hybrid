@@ -174,7 +174,9 @@ class ViewGroupChatScreen extends StatelessWidget {
                 onTap: () {
                   context.read<PostProvider>().emptySelectedTagPeople();
                   context.read<PostProvider>().emptyTagPeopleList();
-                  AppNavigation.push(const AddPost());
+                  AppNavigation.push(AddPost(
+                    groupId: post.groupDetail?.id,
+                  ));
                 },
                 child: Container(
                   decoration: BoxDecoration(

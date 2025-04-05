@@ -1,6 +1,13 @@
 class AppAssets {
   static const String IMAGES = "assets/images";
   static const String ICONS = "assets/icons";
+  static const String GIF = "assets/wheather_gif";
+
+  //<-----------------GIF ---------------------------->
+  static const String cloudyDay = "$GIF/cloudy-day.gif";
+  static const String rainyyDay = "$GIF/rain-1080x1920.gif";
+  static const String snowDay = "$GIF/snowflakes-2.gif";
+  static const String sunnyDay = "$GIF/sunrays.gif";
 
   //<-----------------IMAGES ---------------------------->
   static const String appBackgroundImage = "$IMAGES/background_image.png";

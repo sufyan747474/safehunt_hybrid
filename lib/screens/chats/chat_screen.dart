@@ -199,10 +199,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
                                   'Please take a look at the images.',
                                   '20.00',
                                   onTap: () {
-                                    Get.to(() => const UserChat(
-                                        receiverName: '',
-                                        receiverId:
-                                            'User Chat ID')); // Replace with actual ID
+                                    // Get.to(() => const UserChat(
+                                    //     receiverName: '',
+                                    //     receiverId:
+                                    //         'User Chat ID')); // Replace with actual ID
                                   },
                                 );
                               } else if (selectedTab == 1) {
@@ -222,18 +222,20 @@ class _ChatsScreenState extends State<ChatsScreen> {
                                   '',
                                   image: data?.logo,
                                   onTap: () {
-                                    GetGroupDetailsBloc()
-                                        .getGroupDetailsBlocMethod(
-                                            context: context,
-                                            setProgressBar: () {
-                                              AppDialogs.progressAlertDialog(
-                                                  context: context);
-                                            },
-                                            groupId: data?.id,
-                                            onSuccess: (res) {
-                                              AppNavigation.push(
-                                                  const ViewGroupChatScreen());
-                                            });
+                                    if (data?.status == 'Joined') {
+                                      GetGroupDetailsBloc()
+                                          .getGroupDetailsBlocMethod(
+                                              context: context,
+                                              setProgressBar: () {
+                                                AppDialogs.progressAlertDialog(
+                                                    context: context);
+                                              },
+                                              groupId: data?.id,
+                                              onSuccess: (res) {
+                                                AppNavigation.push(
+                                                    const ViewGroupChatScreen());
+                                              });
+                                    }
                                   },
                                 );
                               }

@@ -24,9 +24,10 @@ import 'package:safe_hunt/widgets/big_text.dart';
 import 'package:safe_hunt/widgets/custom_container.dart';
 
 class AddPost extends StatefulWidget {
-  const AddPost({super.key, this.isEdit = false, this.post});
+  const AddPost({super.key, this.isEdit = false, this.post, this.groupId});
   final bool isEdit;
   final PostData? post;
+  final String? groupId;
 
   @override
   State<AddPost> createState() => _AddPostState();
@@ -137,14 +138,14 @@ class _AddPostState extends State<AddPost> {
                         postId: widget.post?.id ?? "");
                   } else {
                     AddPostBloc().addPostBlocMethod(
-                      context: context,
-                      setProgressBar: () {
-                        AppDialogs.progressAlertDialog(context: context);
-                      },
-                      description: _messageTextController.text,
-                      location: location,
-                      media: postImage,
-                    );
+                        context: context,
+                        setProgressBar: () {
+                          AppDialogs.progressAlertDialog(context: context);
+                        },
+                        description: _messageTextController.text,
+                        location: location,
+                        media: postImage,
+                        groupId: widget.groupId);
                   }
                 }
               },

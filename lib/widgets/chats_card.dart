@@ -85,7 +85,9 @@ class _ChatsCardState extends State<ChatsCard> {
                         maxLine: 2,
                       ),
                       10.verticalSpace,
-                      if (widget.isGroup && widget.status != null) ...[
+                      if (widget.isGroup &&
+                          widget.status != null &&
+                          widget.status != 'Joined') ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
