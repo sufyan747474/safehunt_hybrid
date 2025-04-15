@@ -112,6 +112,10 @@ class _CustomImageWidgetState extends State<CustomImageWidget> {
                             ? widget.shape
                             : BoxShape.rectangle,
                         fit: widget.fit ?? BoxFit.cover,
+                        // headers: {
+                        //   'Authorization':
+                        //       "Bearer ${SharedPreference().getBearerToken() ?? ""}",
+                        // },
                         loadStateChanged: (ExtendedImageState state) {
                           switch (state.extendedImageLoadState) {
                             case LoadState.completed:

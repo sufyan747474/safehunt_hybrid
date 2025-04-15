@@ -3,48 +3,28 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
-import 'package:safe_hunt/screens/journals/model/location_model.dart';
-import 'package:safe_hunt/screens/post/model/post_model.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class UpdatePostBloc {
-  dynamic _formData;
+class UpdatePostStatusBloc {
   Response? _response;
   Map<String, dynamic> userObject = {};
   VoidCallback? _onSuccess, _onFailure;
 
-  void updatePostBlocMethod({
+  void updatePostStatusBlocMethod({
     required BuildContext context,
-    String? description,
-    LocationModel? location,
-    String? media,
+    String? status,
     String? postId,
     String? groupId,
     required VoidCallback setProgressBar,
   }) async {
     setProgressBar();
-    log("image path : $media");
 
     userObject = {
-      "description": description,
-      // "location": location?.toJson(),
-      "latitude": location?.lat,
-      "longitude": location?.lng,
-      "tags": context.read<PostProvider>().selectedTagPeople
+      "status": status,
     };
-    if (groupId != null && groupId.isNotEmpty) {
-      userObject.addAll({'groupId': groupId});
-    }
-
-    log("body : $userObject");
-
-    if (media != null && media.isNotEmpty) {
-      userObject["image"] = await MultipartFile.fromFile(media);
-    }
-    _formData = FormData.fromMap(userObject);
 
     _onFailure = () {
       Navigator.pop(context); // StopLoader
@@ -52,15 +32,11 @@ class UpdatePostBloc {
 
     // ignore: use_build_context_synchronously
     await _putRequest(
-        endPoint:
-            '${NetworkStrings.ADD_POST_ENDPOINT}/$postId?groupId=$groupId',
-        context: context);
+        endPoint: 'groups/$groupId/posts/$postId', context: context);
 
     _onSuccess = () {
       Navigator.pop(context);
-      _updatePostResponseMethod(
-        context: context,
-      );
+      _updatePostStatusResponseMethod(context: context, postId: postId);
     };
     _validateResponse();
   }
@@ -71,7 +47,7 @@ class UpdatePostBloc {
       {required String endPoint, required BuildContext context}) async {
     _response = await Network().putRequest(
       endPoint: endPoint,
-      formData: _formData,
+      formData: userObject,
       context: context,
       onFailure: _onFailure,
       isHeaderRequire: true,
@@ -90,15 +66,15 @@ class UpdatePostBloc {
     }
   }
 
-  void _updatePostResponseMethod({
+  void _updatePostStatusResponseMethod({
     required BuildContext context,
+    String? postId,
   }) {
     try {
       if (_response?.data != null) {
-        final post = PostData.fromJson(_response?.data['data']);
         AppNavigation.pop();
-        context.read<PostProvider>().updatePost(post);
-        AppDialogs.showToast(message: "Post Updated Successfully");
+        context.read<PostProvider>().deletePost(postId ?? '');
+        AppDialogs.showToast(message: "Post Approved Successfully");
       }
     } catch (error) {
       log(error.toString());

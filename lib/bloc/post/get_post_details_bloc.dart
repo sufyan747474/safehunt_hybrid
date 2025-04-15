@@ -16,6 +16,7 @@ class PostDetailBloc {
     required VoidCallback setProgressBar,
     required Function() onSuccess,
     required String postId,
+    String groupId = '',
   }) async {
     setProgressBar();
 
@@ -24,7 +25,8 @@ class PostDetailBloc {
     };
 
     await _getRequest(
-        endPoint: "${NetworkStrings.ADD_POST_ENDPOINT}/$postId",
+        endPoint:
+            "${NetworkStrings.ADD_POST_ENDPOINT}/$postId?groupId=$groupId",
         context: context);
 
     _onSuccess = () {

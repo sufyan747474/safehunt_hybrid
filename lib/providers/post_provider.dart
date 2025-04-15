@@ -94,6 +94,29 @@ class PostProvider extends ChangeNotifier {
     isNotifyListner ? notifyListeners() : null;
   }
 
+  //! <--------------------- get pending post (approval) --------------->
+
+  List<PostData> _pendingPost = [];
+  List<PostData> get pendingPost => _pendingPost;
+  bool? isPendingPost;
+
+  setPendingPosts(List<PostData> post) {
+    _pendingPost.addAll(post);
+
+    if (_pendingPost.isNotEmpty) {
+      isPendingPost = true;
+    } else if (_pendingPost.isEmpty) {
+      isPendingPost = false;
+    }
+    notifyListeners();
+  }
+
+  emptyPendingPost() {
+    _pendingPost = [];
+    isPendingPost = null;
+    notifyListeners();
+  }
+
   //! <--------------------- get user post with Id --------------->
 
   List<PostData> _userPost = [];
@@ -175,6 +198,9 @@ class PostProvider extends ChangeNotifier {
 
     //! delete post from user posts
     _userPost.removeWhere((element) => element.id == postId);
+
+    //! delete post from pendig posts
+    _pendingPost.removeWhere((element) => element.id == postId);
 
     notifyListeners();
   }

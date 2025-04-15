@@ -27,7 +27,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
 
-  bool showComments = false;
   int _page = 1;
 
   bool _isLoadingMore = false;

@@ -173,7 +173,7 @@ class ChatImage extends StatelessWidget {
           child: CustomImageWidget(
             isBaseUrl: false,
             imageUrl:
-                "https://safehunt.app/safehunt-backend/public/$base64String",
+                "https://safehunt.app/safehunt-backend/public$base64String",
             isBorder: false,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.zero,

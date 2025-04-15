@@ -15,6 +15,7 @@ class DeletePostBloc {
     required VoidCallback setProgressBar,
     Function()? onSuccess,
     required String postId,
+    String groupId = '',
   }) async {
     setProgressBar();
 
@@ -23,7 +24,8 @@ class DeletePostBloc {
     };
 
     await _deleteRequest(
-        endPoint: '${NetworkStrings.ADD_POST_ENDPOINT}/$postId',
+        endPoint:
+            '${NetworkStrings.ADD_POST_ENDPOINT}/$postId?groupId=$groupId',
         context: context);
 
     _onSuccess = () {

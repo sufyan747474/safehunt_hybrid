@@ -211,7 +211,8 @@ class _UserChatState extends State<UserChat> {
                                       eventParamaters: {
                                         "receiverUserId": widget.receiverId,
                                         "attachment": base64Image,
-                                        "message": 'null',
+                                        "messageType": "image",
+                                        "message": '',
                                       },
                                     );
 
@@ -238,6 +239,7 @@ class _UserChatState extends State<UserChat> {
                                     eventParamaters: {
                                       "receiverUserId": widget.receiverId,
                                       "message": _messageController.text,
+                                      "messageType": "text",
                                     },
                                   );
 

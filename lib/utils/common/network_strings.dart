@@ -2,7 +2,9 @@ class NetworkStrings {
   NetworkStrings._();
 
   //!/================================= BASE URLS ================================
-  static const String API_BASE_URL = "http://109.176.198.34:5050/";
+  // static const String API_BASE_URL = "http://109.176.198.34:5050/";
+  static const String API_BASE_URL = "https://safehunt.app/";
+
   // static const String API_BASE_URL = "http://safehunt.app:4040/";
 
   static const String IMAGE_BASE_URL = "https://safehunt.app/safehunt-backend/";
@@ -35,6 +37,7 @@ class NetworkStrings {
   static const String NOTIFICATION_ON_OFF_END_POINT = 'notifications';
   static const String APP_NOTIFICATION_ON_OFF_END_POINT =
       'application-notifications';
+  static const String INBOX_ENDPOINT = "inbox";
 
   static const String REQUEST_RESET_PASSWORD_ENDPOINT =
       "auth/request-reset-password";

@@ -66,6 +66,7 @@ class _MyAppState extends State<MyApp> {
             )),
             title: 'Safe Hunt',
             debugShowCheckedModeBanner: false,
+
             // home: SplashScreen(),
           );
         });

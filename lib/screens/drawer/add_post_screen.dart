@@ -124,18 +124,19 @@ class _AddPostState extends State<AddPost> {
                 } else {
                   if (widget.isEdit) {
                     UpdatePostBloc().updatePostBlocMethod(
-                        context: context,
-                        setProgressBar: () {
-                          AppDialogs.progressAlertDialog(context: context);
-                        },
-                        description: _messageTextController.text,
-                        location: LocationModel(
-                            lat:
-                                double.tryParse(widget.post?.latitude ?? '0.0'),
-                            lng: double.tryParse(
-                                widget.post?.longitude ?? '0.0')),
-                        media: postImage,
-                        postId: widget.post?.id ?? "");
+                      context: context,
+                      setProgressBar: () {
+                        AppDialogs.progressAlertDialog(context: context);
+                      },
+                      description: _messageTextController.text,
+                      location: LocationModel(
+                          lat: double.tryParse(widget.post?.latitude ?? '0.0'),
+                          lng:
+                              double.tryParse(widget.post?.longitude ?? '0.0')),
+                      media: postImage,
+                      postId: widget.post?.id ?? "",
+                      groupId: widget.groupId ?? "",
+                    );
                   } else {
                     AddPostBloc().addPostBlocMethod(
                         context: context,

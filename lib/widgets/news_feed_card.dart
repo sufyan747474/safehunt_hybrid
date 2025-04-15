@@ -8,6 +8,7 @@ import 'package:safe_hunt/bloc/post/delete_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/like_unlike_post_bloc.dart';
 import 'package:safe_hunt/bloc/post/post_share_bloc.dart';
 import 'package:safe_hunt/bloc/post/report_post_bloc.dart';
+import 'package:safe_hunt/bloc/post/update_post_status_bloc.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
 import 'package:safe_hunt/screens/drawer/add_post_screen.dart';
@@ -20,6 +21,7 @@ import 'package:safe_hunt/utils/common/asset_path.dart';
 import 'package:safe_hunt/utils/custom_bottom_sheet.dart';
 import 'package:safe_hunt/utils/utils.dart';
 import 'package:safe_hunt/widgets/Custom_image_widget.dart';
+import 'package:safe_hunt/widgets/custom_button.dart';
 
 import '../utils/colors.dart';
 import 'big_text.dart';
@@ -29,9 +31,11 @@ class NewsFeedCard extends StatelessWidget {
   final bool isPostDetails;
   final PostData? post;
   final bool profileOntap;
+  final String? groupId;
 
   const NewsFeedCard(
       {super.key,
+      this.groupId,
       this.functionOnTap,
       this.isPostDetails = false,
       this.post,
@@ -344,7 +348,8 @@ class NewsFeedCard extends StatelessWidget {
                 ),
                 10.horizontalSpace,
                 Visibility(
-                  visible: post?.sharedUserId == 'null',
+                  visible:
+                      post?.sharedUserId == 'null' && post?.status != 'pending',
                   child: IconButton(
                     onPressed: () {
                       showOptionsBottomSheet(
@@ -363,6 +368,7 @@ class NewsFeedCard extends StatelessWidget {
                                     AppNavigation.pushReplacement(AddPost(
                                       isEdit: true,
                                       post: post,
+                                      groupId: groupId,
                                     ));
                                   },
                                   context: context),
@@ -380,6 +386,7 @@ class NewsFeedCard extends StatelessWidget {
                                         AppDialogs.progressAlertDialog(
                                             context: context);
                                       },
+                                      groupId: groupId ?? "",
                                       postId: post?.id ?? "",
                                       onSuccess: () {
                                         isPostDetails
@@ -479,164 +486,210 @@ class NewsFeedCard extends StatelessWidget {
           SizedBox(
             height: 5.h,
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w),
-            child: GestureDetector(
-              onTap: () {
-                // setState(() {
-                //   showPostComments = !showPostComments;
-                // });
-              },
+          if (post?.status == 'pending')
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.w),
               child: Row(
                 children: [
-                  SvgPicture.asset(
-                    'assets/like_color_icon.svg',
-                    width: 16,
+                  Expanded(
+                    child: CustomButton(
+                      onTap: () {
+                        _updatePostStatus(context, 'approved');
+                      },
+                      text: 'Approve',
+                      color: AppColors.greenColor,
+                      textColor: AppColors.whiteColor,
+                    ),
                   ),
-                  5.horizontalSpace,
-                  BigText(
-                    text: post?.likesCount ?? '0',
-                    size: 12.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                  15.horizontalSpace,
+                  Expanded(
+                    child: CustomButton(
+                      onTap: () {
+                        _updatePostStatus(context, 'declssined');
+                      },
+                      text: 'Decline',
+                      color: appBrownColor,
+                      textColor: AppColors.whiteColor,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          if (post?.status != 'pending')
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: GestureDetector(
+                onTap: () {
+                  // setState(() {
+                  //   showPostComments = !showPostComments;
+                  // });
+                },
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/like_color_icon.svg',
+                      width: 16,
+                    ),
+                    5.horizontalSpace,
+                    BigText(
+                      text: post?.likesCount ?? '0',
+                      size: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                    const Spacer(),
+                    BigText(
+                      text: post?.comments?.length.toString() ?? '0',
+                      size: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    BigText(
+                      text: "Comments",
+                      size: 12.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (post?.status != 'pending')
+            SizedBox(
+              height: 10.h,
+            ),
+          if (post?.status != 'pending')
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.w),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: post?.status != 'pending'
+                        ? () {
+                            LikeUnlikePostBloc().likeUnlikePostBlocMethod(
+                              context: context,
+                              setProgressBar: () {
+                                AppDialogs.progressAlertDialog(
+                                    context: context);
+                              },
+                              postId: post?.id,
+                            );
+                            // setState(() {
+                            //   likePost = !likePost;
+                            // });
+                          }
+                        : null,
+                    child: Container(
+                      width: 117.w,
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                          color: appButtonColor,
+                          borderRadius: BorderRadius.circular(30.r)),
+                      padding: EdgeInsets.all(5.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // likePost
+                          //     ?
+                          // SvgPicture.asset('assets/like_color_icon.svg')
+                          // :
+
+                          SvgPicture.asset(
+                            'assets/icons_like.svg',
+                            color: post?.postLiked == true
+                                ? AppColors.redColor
+                                : null,
+                          ),
+                          BigText(
+                            text: post?.postLiked == true ? "Liked" : "Like",
+                            size: 10.sp,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const Spacer(),
-                  BigText(
-                    text: post?.comments?.length.toString() ?? '0',
-                    size: 12.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                  InkWell(
+                    onTap: post?.status != 'pending' ? functionOnTap : null,
+                    child: Container(
+                      width: 117.w,
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                          color: appButtonColor,
+                          borderRadius: BorderRadius.circular(30.r)),
+                      padding: EdgeInsets.all(5.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SvgPicture.asset('assets/icon_comment.svg'),
+                          BigText(
+                            text: "Comment",
+                            size: 10.sp,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  SizedBox(
-                    width: 5.w,
-                  ),
-                  BigText(
-                    text: "Comments",
-                    size: 12.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
+                  const Spacer(),
+                  InkWell(
+                    onTap: () {
+                      PostShareBloc().postShareBlocMethod(
+                        context: context,
+                        setProgressBar: () {
+                          AppDialogs.progressAlertDialog(context: context);
+                        },
+                        postId: post?.id,
+                      );
+                    },
+                    child: Container(
+                      width: 117.w,
+                      height: 40.h,
+                      decoration: BoxDecoration(
+                          color: appButtonColor,
+                          borderRadius: BorderRadius.circular(30.r)),
+                      padding: EdgeInsets.all(5.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          SvgPicture.asset('assets/icons_share.svg'),
+                          BigText(
+                            text: "Share",
+                            size: 10.sp,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-          SizedBox(
-            height: 10.h,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10.w),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    LikeUnlikePostBloc().likeUnlikePostBlocMethod(
-                      context: context,
-                      setProgressBar: () {
-                        AppDialogs.progressAlertDialog(context: context);
-                      },
-                      postId: post?.id,
-                    );
-                    // setState(() {
-                    //   likePost = !likePost;
-                    // });
-                  },
-                  child: Container(
-                    width: 117.w,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                        color: appButtonColor,
-                        borderRadius: BorderRadius.circular(30.r)),
-                    padding: EdgeInsets.all(5.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        // likePost
-                        //     ?
-                        // SvgPicture.asset('assets/like_color_icon.svg')
-                        // :
-
-                        SvgPicture.asset(
-                          'assets/icons_like.svg',
-                          color: post?.postLiked == true
-                              ? AppColors.redColor
-                              : null,
-                        ),
-                        BigText(
-                          text: post?.postLiked == true ? "Liked" : "Like",
-                          size: 10.sp,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                InkWell(
-                  onTap: functionOnTap,
-                  child: Container(
-                    width: 117.w,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                        color: appButtonColor,
-                        borderRadius: BorderRadius.circular(30.r)),
-                    padding: EdgeInsets.all(5.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SvgPicture.asset('assets/icon_comment.svg'),
-                        BigText(
-                          text: "Comment",
-                          size: 10.sp,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                InkWell(
-                  onTap: () {
-                    PostShareBloc().postShareBlocMethod(
-                      context: context,
-                      setProgressBar: () {
-                        AppDialogs.progressAlertDialog(context: context);
-                      },
-                      postId: post?.id,
-                    );
-                  },
-                  child: Container(
-                    width: 117.w,
-                    height: 40.h,
-                    decoration: BoxDecoration(
-                        color: appButtonColor,
-                        borderRadius: BorderRadius.circular(30.r)),
-                    padding: EdgeInsets.all(5.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SvgPicture.asset('assets/icons_share.svg'),
-                        BigText(
-                          text: "Share",
-                          size: 10.sp,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           SizedBox(
             height: 10.h,
           )
         ],
       ),
     );
+  }
+
+  void _updatePostStatus(BuildContext context, String status) {
+    UpdatePostStatusBloc().updatePostStatusBlocMethod(
+        context: context,
+        setProgressBar: () {
+          AppDialogs.progressAlertDialog(context: context);
+        },
+        groupId: groupId,
+        postId: post?.id,
+        status: status);
   }
 }

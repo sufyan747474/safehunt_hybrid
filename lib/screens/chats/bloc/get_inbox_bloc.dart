@@ -1,23 +1,22 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:safe_hunt/providers/post_provider.dart';
-import 'package:safe_hunt/screens/post/model/post_model.dart';
+import 'package:safe_hunt/model/inbox_model.dart';
+import 'package:safe_hunt/providers/chat_provider.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/common/network_strings.dart';
 import 'package:safe_hunt/utils/services/network/network.dart';
 
-class GetAllPostBloc {
+class GetInboxBloc {
   Response? _response;
   VoidCallback? _onSuccess, _onFailure;
 
-  Future<void> getAllPostBlocMethod({
+  Future<void> getInboxBlocMethod({
     required BuildContext context,
     required VoidCallback setProgressBar,
-    required Function() onSuccess,
-    required Function() onFailure,
+    Function()? onSuccess,
+    Function()? onFailure,
     bool isLoader = true,
-    bool isPendingPost = false,
     String? userId,
     int page = 1,
     int limit = 10,
@@ -26,25 +25,16 @@ class GetAllPostBloc {
     isLoader ? setProgressBar() : null;
 
     _onFailure = () {
-      onFailure.call();
+      onFailure?.call();
       isLoader ? Navigator.pop(context) : null;
     };
 
     await _getRequest(
-        endPoint: isPendingPost
-            ? '${NetworkStrings.ADD_POST_ENDPOINT}/pending/$groupId'
-            : userId != null
-                ? '${NetworkStrings.ADD_POST_ENDPOINT}/user/$userId?page=$page&limit=$limit'
-                : '${NetworkStrings.ADD_POST_ENDPOINT}?page=$page&limit=$limit&groupId=$groupId',
-        context: context);
+        endPoint: NetworkStrings.INBOX_ENDPOINT, context: context);
 
     _onSuccess = () {
       isLoader ? Navigator.pop(context) : null;
-      _getAllPostResponseMethod(
-          context: context,
-          onSuccess: onSuccess,
-          userId: userId,
-          isPendingPost: isPendingPost);
+      _getInboxResponseMethod(context: context, onSuccess: onSuccess);
     };
     _validateResponse();
   }
@@ -73,22 +63,17 @@ class GetAllPostBloc {
     }
   }
 
-  void _getAllPostResponseMethod({
+  void _getInboxResponseMethod({
     required BuildContext context,
-    required Function() onSuccess,
-    String? userId,
-    bool isPendingPost = false,
+    Function()? onSuccess,
   }) async {
     try {
       if (_response?.data['statusCode'] == 200) {
-        final post = List<PostData>.from(_response?.data['data']['posts']!
-            .map((x) => PostData.fromJson(x))).toList();
-        isPendingPost
-            ? context.read<PostProvider>().setPendingPosts(post)
-            : userId != null
-                ? context.read<PostProvider>().setUserPosts(post)
-                : context.read<PostProvider>().setPosts(post);
-        onSuccess.call();
+        final inbox = List<InboxModel>.from((_response?.data['data'] as List)
+            .map((x) => InboxModel.fromJson(x)));
+
+        context.read<ChatProvider>().setInboxList(inbox);
+        onSuccess?.call();
       }
     } catch (error) {
       AppDialogs.showToast(message: NetworkStrings.SOMETHING_WENT_WRONG);

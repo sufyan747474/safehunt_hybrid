@@ -30,8 +30,8 @@ class AddPostBloc {
     userObject = {
       "description": description,
       // "location": location?.toJson(),
-      "latitude": location?.lat,
-      "longitude": location?.lng,
+      "latitude": location?.lat ?? 0.0,
+      "longitude": location?.lng ?? 0.0,
       "tags": context.read<PostProvider>().selectedTagPeople
     };
     if (groupId != null) {
@@ -94,7 +94,15 @@ class AddPostBloc {
     try {
       if (_response?.data != null) {
         final postData = PostData.fromJson(_response?.data['data']);
-        if (postData.groupId == null || postData.groupId == 'null') {
+        if (postData.groupId != null || postData.groupId != 'null') {
+          log("in group post");
+
+          if (postData.status == 'approved') {
+            context.read<PostProvider>().addPostInList(postData);
+          }
+        } else {
+          log("in main post");
+
           context.read<PostProvider>().addPostInList(postData);
         }
         AppNavigation.pop();

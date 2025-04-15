@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:safe_hunt/model/inbox_model.dart';
 import 'package:safe_hunt/screens/model/chat_model.dart';
 
 class ChatProvider extends ChangeNotifier {
@@ -92,19 +93,19 @@ class ChatProvider extends ChangeNotifier {
 
   //! <---------- get chat Inbox -------------->
 
-  // List<InboxModel> _inboxList = [];
-  // List<InboxModel> get inboxList => _inboxList;
-  // bool? hasInboxList;
-  // setInboxList(List<InboxModel> inbox) {
-  //   if (inbox.isNotEmpty) {
-  //     _inboxList = inbox;
-  //     hasInboxList = true;
-  //   } else {
-  //     hasInboxList = false;
-  //     _inboxList = [];
-  //   }
-  //   notifyListeners();
-  // }
+  List<InboxModel> _inboxList = [];
+  List<InboxModel> get inboxList => _inboxList;
+  bool? hasInboxList;
+  setInboxList(List<InboxModel> inbox) {
+    if (inbox.isNotEmpty) {
+      _inboxList = inbox;
+      hasInboxList = true;
+    } else {
+      hasInboxList = false;
+      _inboxList = [];
+    }
+    notifyListeners();
+  }
 
   // updateNewMwssageCount(String id) {
   //   final index = _inboxList.indexWhere((element) => element.id == id);
@@ -115,11 +116,11 @@ class ChatProvider extends ChangeNotifier {
   //   }
   // }
 
-  // emptyInboxList() {
-  //   _inboxList = [];
-  //   hasInboxList = null;
-  //   notifyListeners();
-  // }
+  emptyInboxList() {
+    _inboxList = [];
+    hasInboxList = null;
+    notifyListeners();
+  }
 
   //! <---------- filter chat Inbox -------------->
 

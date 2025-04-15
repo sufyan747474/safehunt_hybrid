@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:safe_hunt/bloc/friends/get_all_friends_bloc.dart';
 import 'package:safe_hunt/model/user_model.dart';
+import 'package:safe_hunt/providers/chat_provider.dart';
 import 'package:safe_hunt/providers/post_provider.dart';
 import 'package:safe_hunt/providers/user_provider.dart';
+import 'package:safe_hunt/screens/chats/bloc/get_inbox_bloc.dart';
+import 'package:safe_hunt/screens/chats/user_chat_screen.dart';
 import 'package:safe_hunt/screens/create_group_chat/bloc/get_all_group_bloc.dart';
 import 'package:safe_hunt/screens/create_group_chat/bloc/get_group_details_bloc.dart';
 import 'package:safe_hunt/screens/create_group_chat/view/add_group_info_screen.dart';
 import 'package:safe_hunt/screens/create_group_chat/view/view_group_chat_screen.dart';
-import 'package:safe_hunt/screens/chats/user_chat_screen.dart';
 import 'package:safe_hunt/utils/app_dialogs.dart';
 import 'package:safe_hunt/utils/app_navigation.dart';
+import 'package:safe_hunt/utils/utils.dart';
 import '../../../utils/colors.dart';
 import '../../../widgets/big_text.dart';
 import '../../../widgets/chats_card.dart';
@@ -37,6 +39,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
     if (isChangeTab) {
       isFriend = null;
       frientList = [];
+      _page = 1;
     }
     GetAllFriendsBloc().getAllFriendsBlocMethod(
       context: context,
@@ -77,10 +80,20 @@ class _ChatsScreenState extends State<ChatsScreen> {
     );
   }
 
+  _fetchInbox() {
+    GetInboxBloc().getInboxBlocMethod(
+      context: context,
+      setProgressBar: () {
+        AppDialogs.progressAlertDialog(context: context);
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _fetchInbox();
       _scrollController.addListener(() {
         if (_scrollController.position.pixels ==
                 _scrollController.position.maxScrollExtent &&
@@ -99,8 +112,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<PostProvider, UserProvider>(
-        builder: (context, val, user, _) {
+    return Consumer3<PostProvider, UserProvider, ChatProvider>(
+        builder: (context, val, user, inbox, _) {
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
@@ -169,8 +182,13 @@ class _ChatsScreenState extends State<ChatsScreen> {
               ),
             ),
             Expanded(
-              child: (selectedTab == 2 && val.isGroup == false)
-                  ? Center(child: BigText(text: 'Groups not found'))
+              child: ((selectedTab == 2 && val.isGroup == false) ||
+                      (selectedTab == 1 && isFriend == false) ||
+                      (selectedTab == 0 && inbox.hasInboxList == false))
+                  ? Center(
+                      child: BigText(
+                          text:
+                              '${selectedTab == 0 ? 'Chat' : selectedTab == 1 ? 'People' : 'Groups'} not found'))
                   : SingleChildScrollView(
                       controller: _scrollController,
                       child: Column(
@@ -185,30 +203,56 @@ class _ChatsScreenState extends State<ChatsScreen> {
                             padding: _isLoadingMore ? EdgeInsets.zero : null,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: selectedTab == 1
-                                ? frientList.length
-                                : selectedTab == 2
-                                    ? val.group.length
-                                    : 10,
+                            itemCount: selectedTab == 0
+                                ? inbox.inboxList.length
+                                : selectedTab == 1
+                                    ? frientList.length
+                                    : selectedTab == 2
+                                        ? val.group.length
+                                        : 10,
                             itemBuilder: (context, index) {
                               final data =
                                   selectedTab == 2 ? val.group[index] : null;
                               if (selectedTab == 0) {
                                 return _buildChatItem(
-                                  'Henry',
-                                  'Please take a look at the images.',
-                                  '20.00',
+                                  inbox.inboxList[index].user?.displayname ??
+                                      '',
+                                  inbox.inboxList[index].lastMessage ?? '',
+                                  Utils.getDayFromDateTime(
+                                      inbox.inboxList[index].timestamp ?? ''),
+                                  image:
+                                      inbox.inboxList[index].user?.profilePhoto,
+                                  isChat: true,
+                                  messageType:
+                                      inbox.inboxList[index].messageType,
                                   onTap: () {
-                                    // Get.to(() => const UserChat(
-                                    //     receiverName: '',
-                                    //     receiverId:
-                                    //         'User Chat ID')); // Replace with actual ID
+                                    AppNavigation.push(UserChat(
+                                      receiverImage: inbox
+                                          .inboxList[index].user?.profilePhoto,
+                                      receiverId:
+                                          inbox.inboxList[index].user?.id ?? "",
+                                      receiverName: inbox.inboxList[index].user
+                                              ?.displayname ??
+                                          "",
+                                    ));
                                   },
                                 );
                               } else if (selectedTab == 1) {
                                 final people = frientList[index];
                                 return _buildChatItem(
-                                    people.displayname ?? '', "", "");
+                                  people.displayname ?? '',
+                                  "",
+                                  "",
+                                  onTap: () {
+                                    AppNavigation.push(UserChat(
+                                      receiverImage:
+                                          frientList[index].profilePhoto,
+                                      receiverId: frientList[index].id ?? "",
+                                      receiverName:
+                                          frientList[index].displayname ?? "",
+                                    ));
+                                  },
+                                );
                               } else {
                                 return _buildChatItem(
                                   groupId: data?.id,
@@ -223,6 +267,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
                                   image: data?.logo,
                                   onTap: () {
                                     if (data?.status == 'Joined') {
+                                      val.clearPost();
                                       GetGroupDetailsBloc()
                                           .getGroupDetailsBlocMethod(
                                               context: context,
@@ -267,10 +312,16 @@ class _ChatsScreenState extends State<ChatsScreen> {
       child: GestureDetector(
         onTap: selectedTab != index
             ? () {
-                context.read<PostProvider>().emptyGroup();
                 setState(() {
                   selectedTab = index;
-                  if (selectedTab == 2) {
+                  if (selectedTab == 0) {
+                    context.read<ChatProvider>().emptyInboxList();
+
+                    _fetchInbox();
+                  } else if (selectedTab == 1) {
+                    _fetchFriends(true, true);
+                  } else if (selectedTab == 2) {
+                    context.read<PostProvider>().emptyGroup();
                     _fetchGroup();
                   }
                 });
@@ -298,8 +349,10 @@ class _ChatsScreenState extends State<ChatsScreen> {
   Widget _buildChatItem(String name, String message, String time,
       {String? image,
       String? groupId,
+      String? messageType,
       void Function()? onTap,
       bool isGroup = false,
+      bool isChat = false,
       String? status}) {
     return InkWell(
       onTap: onTap,
@@ -311,6 +364,8 @@ class _ChatsScreenState extends State<ChatsScreen> {
         image: image,
         isGroup: isGroup,
         status: status,
+        isChat: isChat,
+        messageType: messageType,
       ),
     );
   }
